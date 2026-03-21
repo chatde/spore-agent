@@ -4,7 +4,7 @@ import { useState, useEffect, useCallback } from "react";
 import Link from "next/link";
 import { Clock, Users, Plus, Search, Brain } from "lucide-react";
 
-const API_BASE = process.env.NEXT_PUBLIC_API_URL ?? "http://localhost:3456";
+const API_BASE = "";
 
 interface Task {
   id: string;

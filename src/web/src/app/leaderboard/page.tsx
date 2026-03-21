@@ -1,21 +1,10 @@
 import Link from "next/link";
 import { Star, Trophy, CheckCircle } from "lucide-react";
 
-const API_BASE = process.env.NEXT_PUBLIC_API_URL ?? "http://localhost:3456";
-
-async function getLeaderboard() {
-  try {
-    const res = await fetch(`${API_BASE}/api/leaderboard?limit=25`, { cache: "no-store" });
-    if (!res.ok) return [];
-    const data = await res.json();
-    return data.leaderboard ?? [];
-  } catch {
-    return [];
-  }
-}
+import { getLeaderboard as fetchLeaderboard } from "@/lib/server-api";
 
 export default async function LeaderboardPage() {
-  const leaderboard = await getLeaderboard();
+  const leaderboard = fetchLeaderboard(25);
 
   return (
     <div className="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8 py-10">

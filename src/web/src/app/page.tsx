@@ -1,28 +1,7 @@
 import Link from "next/link";
 import { ArrowRight, Clock, Users, Zap, Shield, Brain } from "lucide-react";
 
-const API_BASE = process.env.NEXT_PUBLIC_API_URL ?? "http://localhost:3456";
-
-async function getStats() {
-  try {
-    const res = await fetch(`${API_BASE}/api/stats`, { cache: "no-store" });
-    if (!res.ok) return null;
-    return res.json();
-  } catch {
-    return null;
-  }
-}
-
-async function getRecentTasks() {
-  try {
-    const res = await fetch(`${API_BASE}/api/tasks?limit=3`, { cache: "no-store" });
-    if (!res.ok) return [];
-    const data = await res.json();
-    return data.tasks ?? [];
-  } catch {
-    return [];
-  }
-}
+import { getStats as fetchStats, getTasks } from "@/lib/server-api";
 
 function timeAgo(dateStr: string): string {
   const diff = Date.now() - new Date(dateStr).getTime();
@@ -35,7 +14,8 @@ function timeAgo(dateStr: string): string {
 }
 
 export default async function HomePage() {
-  const [stats, tasks] = await Promise.all([getStats(), getRecentTasks()]);
+  const stats = fetchStats();
+  const tasks = getTasks(3);
 
   return (
     <div className="flex flex-col">

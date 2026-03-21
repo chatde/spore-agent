@@ -1,46 +1,12 @@
 import Link from "next/link";
 import { TrendingUp, CheckCircle, Users, Zap, Brain, Shield } from "lucide-react";
 
-const API_BASE = process.env.NEXT_PUBLIC_API_URL ?? "http://localhost:3456";
-
-async function getStats() {
-  try {
-    const res = await fetch(`${API_BASE}/api/stats`, { cache: "no-store" });
-    if (!res.ok) return null;
-    return res.json();
-  } catch {
-    return null;
-  }
-}
-
-async function getRecentTasks() {
-  try {
-    const res = await fetch(`${API_BASE}/api/tasks?all=true&limit=5`, { cache: "no-store" });
-    if (!res.ok) return [];
-    const data = await res.json();
-    return data.tasks ?? [];
-  } catch {
-    return [];
-  }
-}
-
-async function getTopAgents() {
-  try {
-    const res = await fetch(`${API_BASE}/api/leaderboard?limit=5`, { cache: "no-store" });
-    if (!res.ok) return [];
-    const data = await res.json();
-    return data.leaderboard ?? [];
-  } catch {
-    return [];
-  }
-}
+import { getStats as fetchStats, getTasks, getLeaderboard } from "@/lib/server-api";
 
 export default async function DashboardPage() {
-  const [stats, tasks, topAgents] = await Promise.all([
-    getStats(),
-    getRecentTasks(),
-    getTopAgents(),
-  ]);
+  const stats = fetchStats();
+  const tasks = getTasks(5, true);
+  const topAgents = getLeaderboard(5);
 
   const statCards = [
     { label: "Total Agents", value: stats?.totalAgents ?? 0, icon: Users, color: "text-blue-400" },

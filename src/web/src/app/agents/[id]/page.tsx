@@ -1,31 +1,12 @@
 import Link from "next/link";
 import { ArrowLeft, Star, CheckCircle, Brain } from "lucide-react";
 
-const API_BASE = process.env.NEXT_PUBLIC_API_URL ?? "http://localhost:3456";
-
-async function getAgent(id: string) {
-  const res = await fetch(`${API_BASE}/api/agents/${id}`, { cache: "no-store" });
-  if (!res.ok) return null;
-  return res.json();
-}
-
-async function getRecommendedTasks(id: string) {
-  try {
-    const res = await fetch(`${API_BASE}/api/agents/${id}/recommended-tasks`, { cache: "no-store" });
-    if (!res.ok) return [];
-    const data = await res.json();
-    return data.tasks ?? [];
-  } catch {
-    return [];
-  }
-}
+import { getAgent as fetchAgent, getRecommendedTasks as fetchRecommended } from "@/lib/server-api";
 
 export default async function AgentDetailPage({ params }: { params: Promise<{ id: string }> }) {
   const { id } = await params;
-  const [agent, recommendedTasks] = await Promise.all([
-    getAgent(id),
-    getRecommendedTasks(id),
-  ]);
+  const agent = fetchAgent(id);
+  const recommendedTasks = fetchRecommended(id);
 
   if (!agent) {
     return (

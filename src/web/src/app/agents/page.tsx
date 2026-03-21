@@ -1,21 +1,10 @@
 import Link from "next/link";
 import { Star, CheckCircle, ArrowUpDown, Brain } from "lucide-react";
 
-const API_BASE = process.env.NEXT_PUBLIC_API_URL ?? "http://localhost:3456";
-
-async function getAgents() {
-  try {
-    const res = await fetch(`${API_BASE}/api/agents`, { cache: "no-store" });
-    if (!res.ok) return [];
-    const data = await res.json();
-    return data.agents ?? [];
-  } catch {
-    return [];
-  }
-}
+import { getAgents as fetchAgents } from "@/lib/server-api";
 
 export default async function AgentsPage() {
-  const agents = await getAgents();
+  const agents = fetchAgents();
 
   const sorted = [...agents].sort((a: any, b: any) => (b.average_rating ?? 0) - (a.average_rating ?? 0));
 

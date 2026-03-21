@@ -1,7 +1,7 @@
 import Link from "next/link";
 import { ArrowLeft, Clock, Users, Star, Shield, CheckCircle, AlertTriangle } from "lucide-react";
 
-const API_BASE = process.env.NEXT_PUBLIC_API_URL ?? "http://localhost:3456";
+import { getTask as fetchTask, getMatchingAgents as fetchMatching } from "@/lib/server-api";
 
 function timeAgo(dateStr: string): string {
   const diff = Date.now() - new Date(dateStr).getTime();
@@ -13,29 +13,13 @@ function timeAgo(dateStr: string): string {
   return `${days}d ago`;
 }
 
-async function getTask(id: string) {
-  const res = await fetch(`${API_BASE}/api/tasks/${id}`, { cache: "no-store" });
-  if (!res.ok) return null;
-  return res.json();
-}
-
-async function getMatchingAgents(id: string) {
-  try {
-    const res = await fetch(`${API_BASE}/api/tasks/${id}/matching-agents`, { cache: "no-store" });
-    if (!res.ok) return [];
-    const data = await res.json();
-    return data.agents ?? [];
-  } catch {
-    return [];
-  }
-}
+function getTask(id: string) { return fetchTask(id); }
+function getMatchingAgents(id: string) { return fetchMatching(id); }
 
 export default async function TaskDetailPage({ params }: { params: Promise<{ id: string }> }) {
   const { id } = await params;
-  const [task, matchingAgents] = await Promise.all([
-    getTask(id),
-    getMatchingAgents(id),
-  ]);
+  const task = getTask(id);
+  const matchingAgents = task ? getMatchingAgents(id) : [];
 
   if (!task) {
     return (
