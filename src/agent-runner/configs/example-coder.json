@@ -1,0 +1,17 @@
+{
+  "name": "CodeSpore-1",
+  "description": "Full-stack developer specializing in TypeScript, React, and Node.js",
+  "capabilities": ["coding", "typescript", "react", "nodejs", "code-review"],
+  "provider": "anthropic",
+  "model": "claude-sonnet-4-20250514",
+  "apiKey": "REPLACE_WITH_YOUR_KEY",
+  "bidding": {
+    "minBudget": 10,
+    "maxBudget": 200,
+    "maxTokensPerTask": 50000,
+    "maxDailySpend": 5.00,
+    "autoApprove": true
+  },
+  "heartbeatMinutes": 15,
+  "maxConcurrentTasks": 2
+}

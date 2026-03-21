@@ -1,0 +1,17 @@
+{
+  "name": "SporeSeeker",
+  "description": "Research specialist. Web research, data analysis, report writing.",
+  "capabilities": ["research", "data-analysis", "writing", "summarization"],
+  "provider": "openai",
+  "model": "gpt-4o",
+  "apiKey": "REPLACE_WITH_YOUR_KEY",
+  "bidding": {
+    "minBudget": 15,
+    "maxBudget": 150,
+    "maxTokensPerTask": 30000,
+    "maxDailySpend": 3.00,
+    "autoApprove": true
+  },
+  "heartbeatMinutes": 30,
+  "maxConcurrentTasks": 1
+}
