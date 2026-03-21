@@ -1,363 +1,163 @@
-"use client";
+import Link from "next/link";
+import { TrendingUp, CheckCircle, Users, Zap, Brain, Shield } from "lucide-react";
 
-import {
-  TrendingUp,
-  CheckCircle,
-  Coins,
-  Wallet,
-  Star,
-  Clock,
-  Pause,
-  Settings,
-  FileCheck,
-  Gavel,
-  Send,
-  DollarSign,
-  MessageSquare,
-  AlertCircle,
-  Loader2,
-} from "lucide-react";
+const API_BASE = process.env.NEXT_PUBLIC_API_URL ?? "http://localhost:3456";
 
-/* ── mock data ────────────────────────────────────────── */
+async function getStats() {
+  try {
+    const res = await fetch(`${API_BASE}/api/stats`, { cache: "no-store" });
+    if (!res.ok) return null;
+    return res.json();
+  } catch {
+    return null;
+  }
+}
 
-const weeklyEarnings = [
-  { day: "Mon", amount: 380 },
-  { day: "Tue", amount: 420 },
-  { day: "Wed", amount: 310 },
-  { day: "Thu", amount: 490 },
-  { day: "Fri", amount: 520 },
-  { day: "Sat", amount: 280 },
-  { day: "Sun", amount: 447 },
-];
+async function getRecentTasks() {
+  try {
+    const res = await fetch(`${API_BASE}/api/tasks?all=true&limit=5`, { cache: "no-store" });
+    if (!res.ok) return [];
+    const data = await res.json();
+    return data.tasks ?? [];
+  } catch {
+    return [];
+  }
+}
 
-const maxEarning = Math.max(...weeklyEarnings.map((d) => d.amount));
+async function getTopAgents() {
+  try {
+    const res = await fetch(`${API_BASE}/api/leaderboard?limit=5`, { cache: "no-store" });
+    if (!res.ok) return [];
+    const data = await res.json();
+    return data.leaderboard ?? [];
+  } catch {
+    return [];
+  }
+}
 
-const activityFeed = [
-  {
-    icon: FileCheck,
-    text: "Delivered: API documentation review",
-    amount: "+$65.00",
-    amountColor: "text-accent",
-    time: "2 hours ago",
-  },
-  {
-    icon: Gavel,
-    text: "Bid accepted: Database migration script",
-    amount: "+$120.00",
-    amountColor: "text-accent",
-    time: "5 hours ago",
-  },
-  {
-    icon: Send,
-    text: "Bid placed: React component library",
-    amount: "$85.00",
-    amountColor: "text-muted",
-    time: "6 hours ago",
-  },
-  {
-    icon: DollarSign,
-    text: "Payment received: Security scan",
-    amount: "+$55.25",
-    amountColor: "text-accent",
-    time: "yesterday",
-  },
-  {
-    icon: Star,
-    text: "Rating received: 5/5 — Excellent work on API docs",
-    amount: null,
-    amountColor: "",
-    time: "yesterday",
-  },
-  {
-    icon: FileCheck,
-    text: "Delivered: CLI tool refactor",
-    amount: "+$90.00",
-    amountColor: "text-accent",
-    time: "2 days ago",
-  },
-  {
-    icon: Gavel,
-    text: "Bid accepted: Python test suite",
-    amount: "+$80.00",
-    amountColor: "text-accent",
-    time: "2 days ago",
-  },
-  {
-    icon: Send,
-    text: "Bid placed: GraphQL schema design",
-    amount: "$110.00",
-    amountColor: "text-muted",
-    time: "3 days ago",
-  },
-  {
-    icon: MessageSquare,
-    text: "Rating received: 4/5 — Good CLI tool, minor docs gap",
-    amount: null,
-    amountColor: "",
-    time: "3 days ago",
-  },
-  {
-    icon: AlertCircle,
-    text: "Bid declined: Solidity audit (outbid)",
-    amount: "$200.00",
-    amountColor: "text-muted",
-    time: "4 days ago",
-  },
-];
+export default async function DashboardPage() {
+  const [stats, tasks, topAgents] = await Promise.all([
+    getStats(),
+    getRecentTasks(),
+    getTopAgents(),
+  ]);
 
-const capabilities = [
-  "code-review",
-  "security",
-  "python",
-  "testing",
-  "fastapi",
-  "automation",
-];
+  const statCards = [
+    { label: "Total Agents", value: stats?.totalAgents ?? 0, icon: Users, color: "text-blue-400" },
+    { label: "Open Tasks", value: stats?.openTasks ?? 0, icon: Zap, color: "text-emerald-400" },
+    { label: "Completed", value: stats?.completedTasks ?? 0, icon: CheckCircle, color: "text-purple-400" },
+    { label: "Total Paid", value: `$${stats?.totalEarnings ?? 0}`, icon: TrendingUp, color: "text-accent" },
+  ];
 
-/* ── page ─────────────────────────────────────────────── */
-
-export default function DashboardPage() {
   return (
     <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-10">
-      {/* Header */}
-      <div className="mb-8">
-        <h1 className="text-2xl sm:text-3xl font-bold">Owner Dashboard</h1>
-        <p className="text-muted mt-1 text-sm">
-          Manage your agent, track earnings, and adjust bidding rules.
-        </p>
-      </div>
+      <h1 className="text-2xl sm:text-3xl font-bold mb-8">Dashboard</h1>
 
-      {/* ── 1. Stats Row ─────────────────────────────── */}
-      <div className="grid grid-cols-2 lg:grid-cols-4 gap-4 mb-8">
-        <StatCard
-          icon={<Wallet size={18} />}
-          label="Total Earnings"
-          value="$2,847.50"
-          badge="+23%"
-          badgeColor="text-accent"
-        />
-        <StatCard
-          icon={<CheckCircle size={18} />}
-          label="Tasks Completed"
-          value="147"
-        />
-        <StatCard
-          icon={<Coins size={18} />}
-          label="Token Costs"
-          value="$186.30"
-        />
-        <StatCard
-          icon={<TrendingUp size={18} />}
-          label="Net Profit"
-          value="$2,661.20"
-          badge="margin 93%"
-          badgeColor="text-accent"
-        />
-      </div>
-
-      {/* ── 2. Earnings Chart ────────────────────────── */}
-      <div className="rounded-xl border border-border bg-surface/50 p-6 mb-8">
-        <h2 className="text-lg font-semibold mb-6">Earnings — Last 7 Days</h2>
-
-        <div className="flex items-end justify-between gap-2 h-48">
-          {weeklyEarnings.map((d) => {
-            const pct = (d.amount / maxEarning) * 100;
-            return (
-              <div
-                key={d.day}
-                className="flex-1 flex flex-col items-center gap-2"
-              >
-                <span className="text-xs font-medium text-muted">
-                  ${d.amount}
-                </span>
-                <div className="w-full max-w-[48px] relative">
-                  <div
-                    className="w-full rounded-t-md bg-accent/80 hover:bg-accent transition-colors"
-                    style={{ height: `${(pct / 100) * 140}px` }}
-                  />
-                </div>
-                <span className="text-xs text-muted">{d.day}</span>
-              </div>
-            );
-          })}
-        </div>
-      </div>
-
-      {/* ── Bottom two-col: Agent Card + Activity Feed ── */}
-      <div className="grid lg:grid-cols-5 gap-8">
-        {/* ── 3. Active Agent Card ───────────────────── */}
-        <div className="lg:col-span-2 rounded-xl border border-border bg-surface/50 p-6 flex flex-col">
-          {/* Agent header */}
-          <div className="flex items-start gap-3 mb-5">
-            <div className="w-12 h-12 rounded-lg bg-accent/15 text-accent flex items-center justify-center font-bold text-xl shrink-0">
-              C
-            </div>
-            <div className="flex-1 min-w-0">
-              <div className="flex items-center gap-2">
-                <h3 className="font-semibold text-lg">CodeSpore-1</h3>
-                <span className="inline-flex items-center gap-1 px-2 py-0.5 rounded-full bg-accent/15 text-accent text-[11px] font-medium">
-                  <span className="w-1.5 h-1.5 rounded-full bg-accent animate-pulse" />
-                  Active
-                </span>
-              </div>
-              <div className="flex items-center gap-1 mt-1">
-                {[1, 2, 3, 4, 5].map((s) => (
-                  <Star
-                    key={s}
-                    size={13}
-                    className={
-                      s <= 4
-                        ? "text-amber-400 fill-amber-400"
-                        : "text-amber-400/40 fill-amber-400/40"
-                    }
-                  />
-                ))}
-                <span className="text-sm font-medium ml-1">4.8</span>
-                <span className="text-xs text-muted">/5.0</span>
-              </div>
-            </div>
+      {/* Stats grid */}
+      <div className="grid grid-cols-2 lg:grid-cols-4 gap-4 mb-10">
+        {statCards.map((stat) => (
+          <div key={stat.label} className="p-5 rounded-xl border border-border bg-surface/50">
+            <stat.icon size={18} className={`${stat.color} mb-2`} />
+            <div className="text-2xl font-bold">{stat.value}</div>
+            <div className="text-xs text-muted mt-1">{stat.label}</div>
           </div>
+        ))}
+      </div>
 
-          {/* Capabilities */}
-          <div className="flex flex-wrap gap-1.5 mb-5">
-            {capabilities.map((cap) => (
-              <span
-                key={cap}
-                className="px-2 py-0.5 rounded text-[11px] font-medium bg-surface-light text-muted border border-border"
+      <div className="grid lg:grid-cols-2 gap-6">
+        {/* Recent Tasks */}
+        <div className="p-5 rounded-xl border border-border bg-surface/50">
+          <div className="flex items-center justify-between mb-4">
+            <h2 className="text-sm font-medium text-muted uppercase tracking-wider">Recent Tasks</h2>
+            <Link href="/tasks" className="text-xs text-accent hover:underline">View all</Link>
+          </div>
+          <div className="space-y-3">
+            {tasks.map((task: any) => (
+              <Link
+                key={task.id}
+                href={`/tasks/${task.id}`}
+                className="flex items-center justify-between p-3 rounded-lg border border-border hover:border-accent/30 transition-colors"
               >
-                {cap}
-              </span>
+                <div className="flex-1 min-w-0">
+                  <div className="text-sm font-medium truncate">{task.title}</div>
+                  <div className="flex items-center gap-2 mt-1">
+                    <span className={`px-1.5 py-0.5 rounded text-[10px] font-medium ${
+                      task.status === "open" ? "bg-emerald-500/10 text-emerald-400" :
+                      task.status === "completed" ? "bg-purple-500/10 text-purple-400" :
+                      "bg-blue-500/10 text-blue-400"
+                    }`}>
+                      {task.status}
+                    </span>
+                    {task.budget_usd && <span className="text-xs font-mono text-accent">${task.budget_usd}</span>}
+                  </div>
+                </div>
+                <span className="text-xs text-muted shrink-0 ml-3">{task.bid_count} bids</span>
+              </Link>
             ))}
           </div>
-
-          {/* Info rows */}
-          <div className="space-y-3 text-sm flex-1">
-            <InfoRow
-              icon={<Clock size={14} />}
-              label="Uptime"
-              value="12d 7h 23m"
-            />
-            <InfoRow
-              icon={<Loader2 size={14} className="animate-spin" />}
-              label="Current task"
-              value="Security audit for e-commerce API"
-              highlight
-            />
-            <InfoRow
-              icon={<Coins size={14} />}
-              label="Bid range"
-              value="$10 – $200"
-            />
-            <InfoRow
-              icon={<Wallet size={14} />}
-              label="Token cap"
-              value="$5/day"
-            />
-          </div>
-
-          {/* Action buttons */}
-          <div className="flex gap-3 mt-6 pt-5 border-t border-border">
-            <button className="flex-1 inline-flex items-center justify-center gap-2 px-4 py-2.5 rounded-lg border border-border text-foreground text-sm font-medium hover:bg-surface-light transition-colors cursor-pointer">
-              <Pause size={14} />
-              Pause Agent
-            </button>
-            <button className="flex-1 inline-flex items-center justify-center gap-2 px-4 py-2.5 rounded-lg bg-accent text-black text-sm font-semibold hover:bg-accent-dim transition-colors cursor-pointer">
-              <Settings size={14} />
-              Edit Rules
-            </button>
-          </div>
         </div>
 
-        {/* ── 4. Recent Activity Feed ────────────────── */}
-        <div className="lg:col-span-3 rounded-xl border border-border bg-surface/50 p-6">
-          <h2 className="text-lg font-semibold mb-5">Recent Activity</h2>
-
-          <div className="space-y-0">
-            {activityFeed.map((event, i) => {
-              const Icon = event.icon;
-              return (
-                <div
-                  key={i}
-                  className="flex items-start gap-3 py-3 border-b border-border last:border-b-0"
-                >
-                  <div className="w-8 h-8 rounded-lg bg-surface-light flex items-center justify-center shrink-0 mt-0.5">
-                    <Icon size={14} className="text-muted" />
+        {/* Top Agents */}
+        <div className="p-5 rounded-xl border border-border bg-surface/50">
+          <div className="flex items-center justify-between mb-4">
+            <h2 className="text-sm font-medium text-muted uppercase tracking-wider">Top Agents</h2>
+            <Link href="/leaderboard" className="text-xs text-accent hover:underline">Leaderboard</Link>
+          </div>
+          <div className="space-y-3">
+            {topAgents.map((agent: any) => (
+              <Link
+                key={agent.agent_id}
+                href={`/agents/${agent.agent_id}`}
+                className="flex items-center justify-between p-3 rounded-lg border border-border hover:border-accent/30 transition-colors"
+              >
+                <div className="flex items-center gap-3">
+                  <div className={`w-8 h-8 rounded-lg flex items-center justify-center font-bold text-sm ${
+                    agent.rank <= 3 ? "bg-accent/15 text-accent" : "bg-surface text-muted"
+                  }`}>
+                    #{agent.rank}
                   </div>
-                  <div className="flex-1 min-w-0">
-                    <p className="text-sm leading-snug">{event.text}</p>
-                    <span className="text-xs text-muted">{event.time}</span>
+                  <div>
+                    <div className="text-sm font-medium">{agent.agent_name}</div>
+                    <div className="text-[10px] text-muted">{agent.total_deliveries} deliveries</div>
                   </div>
-                  {event.amount && (
-                    <span
-                      className={`text-sm font-medium whitespace-nowrap ${event.amountColor}`}
-                    >
-                      {event.amount}
-                    </span>
-                  )}
                 </div>
-              );
-            })}
+                <div className="flex items-center gap-1">
+                  <span className="text-amber-400">&#9733;</span>
+                  <span className="text-sm font-medium">{agent.average_rating}</span>
+                </div>
+              </Link>
+            ))}
           </div>
         </div>
       </div>
-    </div>
-  );
-}
 
-/* ── sub-components ───────────────────────────────────── */
-
-function StatCard({
-  icon,
-  label,
-  value,
-  badge,
-  badgeColor,
-}: {
-  icon: React.ReactNode;
-  label: string;
-  value: string;
-  badge?: string;
-  badgeColor?: string;
-}) {
-  return (
-    <div className="rounded-xl border border-border bg-surface/50 p-5 hover:border-accent/30 transition-colors">
-      <div className="flex items-center gap-2 text-muted mb-3">
-        {icon}
-        <span className="text-xs font-medium uppercase tracking-wider">
-          {label}
-        </span>
+      {/* Platform features */}
+      <div className="mt-10 p-5 rounded-xl border border-border bg-surface/50">
+        <h2 className="text-sm font-medium text-muted uppercase tracking-wider mb-4">Platform Features</h2>
+        <div className="grid sm:grid-cols-3 gap-4">
+          <div className="flex items-start gap-3">
+            <Brain size={16} className="text-accent mt-0.5 shrink-0" />
+            <div>
+              <div className="text-sm font-medium">Semantic Matching</div>
+              <div className="text-xs text-muted">Google Embeddings power task-to-agent matching</div>
+            </div>
+          </div>
+          <div className="flex items-start gap-3">
+            <Shield size={16} className="text-accent mt-0.5 shrink-0" />
+            <div>
+              <div className="text-sm font-medium">Proof of Work</div>
+              <div className="text-xs text-muted">Automated delivery verification prevents hallucination</div>
+            </div>
+          </div>
+          <div className="flex items-start gap-3">
+            <Zap size={16} className="text-accent mt-0.5 shrink-0" />
+            <div>
+              <div className="text-sm font-medium">MCP Protocol</div>
+              <div className="text-xs text-muted">14 tools, 3 resources — full marketplace via MCP</div>
+            </div>
+          </div>
+        </div>
       </div>
-      <div className="flex items-baseline gap-2">
-        <span className="text-2xl font-bold">{value}</span>
-        {badge && (
-          <span className={`text-xs font-medium ${badgeColor}`}>
-            <TrendingUp size={12} className="inline -mt-0.5 mr-0.5" />
-            {badge}
-          </span>
-        )}
-      </div>
-    </div>
-  );
-}
-
-function InfoRow({
-  icon,
-  label,
-  value,
-  highlight,
-}: {
-  icon: React.ReactNode;
-  label: string;
-  value: string;
-  highlight?: boolean;
-}) {
-  return (
-    <div className="flex items-start gap-2">
-      <span className="text-muted mt-0.5 shrink-0">{icon}</span>
-      <span className="text-muted shrink-0">{label}:</span>
-      <span className={highlight ? "text-accent" : "text-foreground"}>
-        {value}
-      </span>
     </div>
   );
 }

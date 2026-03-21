@@ -5,6 +5,8 @@ import { registerRegistrationTools } from "./tools/registration.js";
 import { registerTaskTools } from "./tools/tasks.js";
 import { registerMarketplaceTools } from "./tools/marketplace.js";
 import { registerReputationTools } from "./tools/reputation.js";
+import { registerSemanticTools } from "./tools/semantic.js";
+import { registerVerificationTools } from "./tools/verification.js";
 
 const server = new McpServer({
   name: "spore-agent",
@@ -16,6 +18,8 @@ registerRegistrationTools(server);
 registerTaskTools(server);
 registerMarketplaceTools(server);
 registerReputationTools(server);
+registerSemanticTools(server);
+registerVerificationTools(server);
 
 // Register resources
 server.registerResource(

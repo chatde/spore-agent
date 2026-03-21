@@ -1,0 +1,149 @@
+import { z } from "zod";
+import type { McpServer } from "@modelcontextprotocol/sdk/server/mcp.js";
+import { store } from "../store.js";
+import { embedQuery } from "../embeddings.js";
+
+export function registerSemanticTools(server: McpServer): void {
+  server.registerTool("spore_smart_browse", {
+    title: "Smart Browse Tasks",
+    description:
+      "Semantically search for tasks using natural language. Uses Google Embeddings for intelligent matching instead of keyword filtering.",
+    inputSchema: {
+      query: z.string().describe("Natural language description of what you're looking for"),
+      limit: z.number().default(10).describe("Maximum results to return"),
+    },
+  }, async ({ query, limit }) => {
+    try {
+      const queryEmbedding = await embedQuery(query);
+      const results = store.searchTasksByEmbedding(queryEmbedding, limit);
+
+      return {
+        content: [{
+          type: "text" as const,
+          text: JSON.stringify({
+            query,
+            total: results.length,
+            tasks: results.map((r) => ({
+              task_id: r.task.id,
+              title: r.task.title,
+              description: r.task.description,
+              requirements: r.task.requirements,
+              budget_usd: r.task.budget_usd ?? null,
+              status: r.task.status,
+              similarity: Math.round(r.score * 1000) / 1000,
+              bid_count: store.getTaskBids(r.task.id).length,
+            })),
+          }, null, 2),
+        }],
+      };
+    } catch (err) {
+      return {
+        content: [{
+          type: "text" as const,
+          text: JSON.stringify({ error: `Semantic search failed: ${err}` }),
+        }],
+        isError: true,
+      };
+    }
+  });
+
+  server.registerTool("spore_match_agents", {
+    title: "Match Agents to Task",
+    description:
+      "Find the best-matching agents for a task description using embedding similarity.",
+    inputSchema: {
+      task_description: z.string().describe("Description of the task to find agents for"),
+      limit: z.number().default(5).describe("Maximum agents to return"),
+    },
+  }, async ({ task_description, limit }) => {
+    try {
+      const taskEmbedding = await embedQuery(task_description);
+      const matches = store.matchAgentsByEmbedding(taskEmbedding, limit);
+
+      return {
+        content: [{
+          type: "text" as const,
+          text: JSON.stringify({
+            total: matches.length,
+            agents: matches.map((m) => {
+              const avgRating = m.agent.ratings.length > 0
+                ? Math.round(
+                    (m.agent.ratings.reduce((s, r) => s + r.rating, 0) /
+                      m.agent.ratings.length) * 100
+                  ) / 100
+                : null;
+              return {
+                agent_id: m.agent.id,
+                name: m.agent.name,
+                capabilities: m.agent.capabilities,
+                description: m.agent.description,
+                match_score: Math.round(m.score * 1000) / 1000,
+                average_rating: avgRating,
+                total_ratings: m.agent.ratings.length,
+              };
+            }),
+          }, null, 2),
+        }],
+      };
+    } catch (err) {
+      return {
+        content: [{
+          type: "text" as const,
+          text: JSON.stringify({ error: `Agent matching failed: ${err}` }),
+        }],
+        isError: true,
+      };
+    }
+  });
+
+  server.registerTool("spore_similar_tasks", {
+    title: "Find Similar Tasks",
+    description:
+      "Find tasks similar to a given task using embedding similarity.",
+    inputSchema: {
+      task_id: z.string().describe("ID of the task to find similar tasks for"),
+      limit: z.number().default(5).describe("Maximum results"),
+    },
+  }, async ({ task_id, limit }) => {
+    const task = store.tasks.get(task_id);
+    if (!task) {
+      return {
+        content: [{ type: "text" as const, text: JSON.stringify({ error: "Task not found" }) }],
+        isError: true,
+      };
+    }
+
+    if (!task.embedding) {
+      return {
+        content: [{
+          type: "text" as const,
+          text: JSON.stringify({ error: "Task has no embedding. Cannot find similar tasks." }),
+        }],
+        isError: true,
+      };
+    }
+
+    const results = store
+      .searchTasksByEmbedding(task.embedding, limit + 1)
+      .filter((r) => r.task.id !== task_id)
+      .slice(0, limit);
+
+    return {
+      content: [{
+        type: "text" as const,
+        text: JSON.stringify({
+          source_task: { id: task.id, title: task.title },
+          total: results.length,
+          similar_tasks: results.map((r) => ({
+            task_id: r.task.id,
+            title: r.task.title,
+            description: r.task.description,
+            requirements: r.task.requirements,
+            similarity: Math.round(r.score * 1000) / 1000,
+            status: r.task.status,
+          })),
+        }, null, 2),
+      }],
+    };
+  });
+}

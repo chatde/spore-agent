@@ -5,6 +5,7 @@ export interface Agent {
   description: string;
   registered_at: string;
   ratings: Rating[];
+  embedding?: number[];
 }
 
 export interface Task {
@@ -18,6 +19,7 @@ export interface Task {
   poster_id?: string;
   assigned_agent_id?: string;
   accepted_bid_id?: string;
+  embedding?: number[];
 }
 
 export interface Bid {

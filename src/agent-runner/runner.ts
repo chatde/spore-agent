@@ -1,6 +1,7 @@
 import { v4 as uuidv4 } from "uuid";
 import { store } from "../mcp-server/store.js";
 import { chat } from "./llm.js";
+import { embedText, cosineSimilarity } from "../mcp-server/embeddings.js";
 import type { AgentConfig, RunnerState, BidDecision } from "./types.js";
 import type { Agent, Task, Bid } from "../mcp-server/types.js";
 
@@ -51,9 +52,11 @@ export class AgentRunner {
     this.state.totalTokenCost += cost;
   }
 
+  private agentEmbedding: number[] | null = null;
+
   // --- Registration ---
 
-  private register(): void {
+  private async register(): Promise<void> {
     const agent: Agent = {
       id: uuidv4(),
       name: this.config.name,
@@ -62,6 +65,17 @@ export class AgentRunner {
       registered_at: new Date().toISOString(),
       ratings: [],
     };
+
+    // Generate embedding for the agent
+    try {
+      const text = `${agent.name}: ${agent.capabilities.join(", ")}. ${agent.description}`;
+      agent.embedding = await embedText(text);
+      this.agentEmbedding = agent.embedding;
+      log("REGISTER", "Agent embedding generated for semantic matching");
+    } catch (err) {
+      log("REGISTER", `Embedding failed, using keyword matching: ${err}`);
+    }
+
     store.agents.set(agent.id, agent);
 
     this.state.agentId = agent.id;
@@ -69,10 +83,29 @@ export class AgentRunner {
     log("REGISTER", `Registered as "${agent.name}" (${agent.id})`);
   }
 
-  // --- Browse matching tasks ---
+  // --- Browse matching tasks (embedding + keyword fallback) ---
 
   private browseMatchingTasks(): Task[] {
     const openTasks = store.getOpenTasks();
+
+    // If we have an embedding, use semantic matching
+    if (this.agentEmbedding) {
+      const scored = openTasks
+        .filter((t) => t.embedding)
+        .map((task) => ({
+          task,
+          score: cosineSimilarity(this.agentEmbedding!, task.embedding!),
+        }))
+        .filter((r) => r.score >= 0.5)
+        .sort((a, b) => b.score - a.score);
+
+      if (scored.length > 0) {
+        log("BROWSE", `Semantic matching: ${scored.length} tasks above 0.5 threshold`);
+        return scored.map((r) => r.task);
+      }
+    }
+
+    // Fallback: keyword matching
     return openTasks.filter((task) =>
       task.requirements.some((req) =>
         this.config.capabilities.some(
@@ -352,7 +385,7 @@ Provide your complete deliverable below.`;
 
     // Register on first run
     if (!this.state.registered) {
-      this.register();
+      await this.register();
     }
 
     log("START", `Heartbeat interval: every ${this.config.heartbeatMinutes} minute(s)`);
