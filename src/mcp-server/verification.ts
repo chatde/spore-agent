@@ -1,4 +1,4 @@
-import { embedText, cosineSimilarity } from "./embeddings.js";
+import { embedTexts, cosineSimilarity } from "./embeddings.js";
 
 export interface VerificationResult {
   passed: boolean;
@@ -59,14 +59,16 @@ export async function verifyDelivery(
 
   try {
     const taskText = `${taskTitle}. ${taskDescription}. Requirements: ${taskRequirements.join(", ")}`;
-
-    // Truncate delivery to first 2000 chars for embedding
     const deliverySnippet = deliveryResult.slice(0, 2000);
+    const reqText = taskRequirements.length > 0 ? taskRequirements.join(", ") : "";
 
-    const [taskEmbedding, deliveryEmbedding] = await Promise.all([
-      embedText(taskText),
-      embedText(deliverySnippet),
-    ]);
+    // Batch all embeddings in a single API call
+    const textsToEmbed = [taskText, deliverySnippet];
+    if (reqText) textsToEmbed.push(reqText);
+
+    const embeddings = await embedTexts(textsToEmbed);
+    const taskEmbedding = embeddings[0];
+    const deliveryEmbedding = embeddings[1];
 
     relevanceScore = cosineSimilarity(taskEmbedding, deliveryEmbedding);
 
@@ -76,11 +78,8 @@ export async function verifyDelivery(
       );
     }
 
-    // Check requirement coverage
-    if (taskRequirements.length > 0) {
-      const reqText = taskRequirements.join(", ");
-      const reqEmbedding = await embedText(reqText);
-      completenessScore = cosineSimilarity(reqEmbedding, deliveryEmbedding);
+    if (reqText && embeddings[2]) {
+      completenessScore = cosineSimilarity(embeddings[2], deliveryEmbedding);
 
       if (completenessScore < 0.3) {
         issues.push(
@@ -88,8 +87,8 @@ export async function verifyDelivery(
         );
       }
     }
-  } catch {
-    // Embeddings unavailable — skip semantic checks
+  } catch (err) {
+    console.error("[VERIFY] Embedding error:", err);
     issues.push("Semantic verification unavailable (embedding API error). Manual review recommended.");
   }
 

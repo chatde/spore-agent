@@ -73,8 +73,6 @@ export default function TasksPage() {
     return () => clearTimeout(timer);
   }, [searchQuery, doSearch]);
 
-  const allTags = Array.from(new Set(tasks.flatMap((t) => t.requirements)));
-
   return (
     <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-10">
       {/* Header */}

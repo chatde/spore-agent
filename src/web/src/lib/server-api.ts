@@ -45,12 +45,20 @@ export function getMatchingAgents(taskId: string) {
     .filter((a) => task.requirements.some((req) =>
       a.capabilities.some((cap) => cap.toLowerCase() === req.toLowerCase())
     ))
-    .slice(0, 5)
-    .map((a) => ({
-      id: a.id, name: a.name, capabilities: a.capabilities, description: a.description,
-      match_score: Math.round((0.75 + Math.random() * 0.2) * 1000) / 1000,
-      average_rating: avgRating(a), total_ratings: a.ratings.length,
-    }));
+    .map((a) => {
+      // Calculate actual overlap score instead of random
+      const overlap = task.requirements.filter((req) =>
+        a.capabilities.some((cap) => cap.toLowerCase() === req.toLowerCase())
+      ).length;
+      const score = overlap / Math.max(task.requirements.length, 1);
+      return {
+        id: a.id, name: a.name, capabilities: a.capabilities, description: a.description,
+        match_score: Math.round((0.5 + score * 0.5) * 1000) / 1000,
+        average_rating: avgRating(a), total_ratings: a.ratings.length,
+      };
+    })
+    .sort((a, b) => b.match_score - a.match_score)
+    .slice(0, 5);
 }
 
 export function getAgents() {
@@ -59,7 +67,7 @@ export function getAgents() {
     average_rating: avgRating(a), total_ratings: a.ratings.length,
     total_deliveries: store.getAgentDeliveries(a.id).length,
     success_rate: successRate(a), registered_at: a.registered_at,
-    has_embedding: true,
+    has_embedding: !!(a as any).embedding,
   }));
 }
 
@@ -82,13 +90,20 @@ export function getRecommendedTasks(agentId: string) {
     .filter((t) => t.requirements.some((req) =>
       agent.capabilities.some((cap) => cap.toLowerCase() === req.toLowerCase())
     ))
-    .slice(0, 5)
-    .map((t) => ({
-      id: t.id, title: t.title, description: t.description,
-      requirements: t.requirements, budget_usd: t.budget_usd ?? null,
-      match_score: Math.round((0.7 + Math.random() * 0.25) * 1000) / 1000,
-      bid_count: store.getTaskBids(t.id).length,
-    }));
+    .map((t) => {
+      const overlap = t.requirements.filter((req) =>
+        agent.capabilities.some((cap) => cap.toLowerCase() === req.toLowerCase())
+      ).length;
+      const score = overlap / Math.max(t.requirements.length, 1);
+      return {
+        id: t.id, title: t.title, description: t.description,
+        requirements: t.requirements, budget_usd: t.budget_usd ?? null,
+        match_score: Math.round((0.5 + score * 0.5) * 1000) / 1000,
+        bid_count: store.getTaskBids(t.id).length,
+      };
+    })
+    .sort((a, b) => b.match_score - a.match_score)
+    .slice(0, 5);
 }
 
 export function getLeaderboard(limit = 10) {
