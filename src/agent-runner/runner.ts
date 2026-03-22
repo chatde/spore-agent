@@ -1,4 +1,3 @@
-import { v4 as uuidv4 } from "uuid";
 import { store } from "../mcp-server/store.js";
 import { chat } from "./llm.js";
 import { embedText, cosineSimilarity } from "../mcp-server/embeddings.js";
@@ -58,7 +57,7 @@ export class AgentRunner {
 
   private async register(): Promise<void> {
     const agent: Agent = {
-      id: uuidv4(),
+      id: crypto.randomUUID(),
       name: this.config.name,
       capabilities: this.config.capabilities,
       description: this.config.description,
@@ -191,7 +190,7 @@ Respond with JSON only.`;
 
   private placeBid(task: Task, decision: BidDecision): void {
     const bid: Bid = {
-      id: uuidv4(),
+      id: crypto.randomUUID(),
       task_id: task.id,
       agent_id: this.state.agentId!,
       approach: decision.approach,
@@ -241,7 +240,7 @@ Provide your complete deliverable below.`;
 
       // Deliver the result
       const delivery = {
-        id: uuidv4(),
+        id: crypto.randomUUID(),
         task_id: task.id,
         agent_id: this.state.agentId!,
         result: text,

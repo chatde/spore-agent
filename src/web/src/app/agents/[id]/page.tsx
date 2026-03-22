@@ -55,7 +55,7 @@ export default async function AgentDetailPage({ params }: { params: Promise<{ id
         <h2 className="text-sm font-medium text-muted uppercase tracking-wider mb-3">Capabilities</h2>
         <div className="flex flex-wrap gap-2">
           {agent.capabilities.map((cap: string) => (
-            <span key={cap} className="px-3 py-1 rounded-lg text-xs font-medium bg-accent/10 text-accent border border-accent/20">
+            <span key={cap} className="px-3 py-1 rounded-lg text-xs font-medium bg-surface-light text-muted border border-border">
               {cap}
             </span>
           ))}
@@ -67,11 +67,11 @@ export default async function AgentDetailPage({ params }: { params: Promise<{ id
         <div className="p-5 rounded-xl border border-border bg-surface/50 mb-6">
           <h2 className="text-sm font-medium text-muted uppercase tracking-wider mb-3">
             <Brain size={14} className="inline mr-1" />
-            Recommended Tasks (by embedding match)
+            Recommended Tasks
           </h2>
           <div className="space-y-2">
             {recommendedTasks.map((task: any) => (
-              <Link key={task.id} href={`/tasks/${task.id}`} className="flex items-center justify-between p-3 rounded-lg border border-border hover:border-accent/30 transition-colors">
+              <Link key={task.id} href={`/tasks/${task.id}`} className="flex items-center justify-between p-3 rounded-lg border border-border border-l-2 border-l-transparent hover:border-l-accent hover:border-accent/30 transition-colors">
                 <div className="flex-1 min-w-0">
                   <span className="text-sm font-medium">{task.title}</span>
                 </div>

@@ -7,6 +7,7 @@ import { registerMarketplaceTools } from "./tools/marketplace.js";
 import { registerReputationTools } from "./tools/reputation.js";
 import { registerSemanticTools } from "./tools/semantic.js";
 import { registerVerificationTools } from "./tools/verification.js";
+import { averageRating } from "./utils.js";
 
 const server = new McpServer({
   name: "spore-agent",
@@ -61,26 +62,15 @@ server.registerResource(
     mimeType: "application/json",
   },
   async (uri) => {
-    const agents = Array.from(store.agents.values()).map((a) => {
-      const avgRating =
-        a.ratings.length > 0
-          ? Math.round(
-              (a.ratings.reduce((sum, r) => sum + r.rating, 0) /
-                a.ratings.length) *
-                100
-            ) / 100
-          : null;
-
-      return {
+    const agents = Array.from(store.agents.values()).map((a) => ({
         agent_id: a.id,
         name: a.name,
         capabilities: a.capabilities,
         description: a.description,
-        average_rating: avgRating,
+        average_rating: averageRating(a.ratings),
         total_ratings: a.ratings.length,
         registered_at: a.registered_at,
-      };
-    });
+    }));
 
     return {
       contents: [
@@ -103,21 +93,14 @@ server.registerResource(
   },
   async (uri) => {
     const topAgents = store.getLeaderboard(25);
-    const leaderboard = topAgents.map((agent, index) => {
-      const avgRating =
-        agent.ratings.reduce((sum, r) => sum + r.rating, 0) /
-        agent.ratings.length;
-      const deliveries = store.getAgentDeliveries(agent.id);
-
-      return {
-        rank: index + 1,
-        agent_id: agent.id,
-        agent_name: agent.name,
-        average_rating: Math.round(avgRating * 100) / 100,
-        total_deliveries: deliveries.length,
-        total_ratings: agent.ratings.length,
-      };
-    });
+    const leaderboard = topAgents.map((agent, index) => ({
+      rank: index + 1,
+      agent_id: agent.id,
+      agent_name: agent.name,
+      average_rating: averageRating(agent.ratings) ?? 0,
+      total_deliveries: store.getAgentDeliveries(agent.id).length,
+      total_ratings: agent.ratings.length,
+    }));
 
     return {
       contents: [

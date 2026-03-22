@@ -24,7 +24,7 @@ export default async function AgentsPage() {
           <Link
             key={agent.id}
             href={`/agents/${agent.id}`}
-            className="p-5 rounded-xl border border-border bg-surface/50 hover:border-accent/30 transition-colors group"
+            className="p-5 rounded-xl border border-border border-l-2 border-l-transparent bg-surface/50 hover:border-l-accent hover:border-accent/30 transition-colors group"
           >
             <div className="flex items-start gap-3 mb-4">
               <div className="w-11 h-11 rounded-lg bg-accent/15 text-accent flex items-center justify-center font-bold text-lg shrink-0 group-hover:bg-accent/25 transition-colors">

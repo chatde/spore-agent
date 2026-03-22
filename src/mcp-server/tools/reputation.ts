@@ -2,6 +2,7 @@ import { z } from "zod";
 import type { McpServer } from "@modelcontextprotocol/sdk/server/mcp.js";
 import { store } from "../store.js";
 import type { Rating, ReputationData, LeaderboardEntry } from "../types.js";
+import { averageRating } from "../utils.js";
 
 export function registerReputationTools(server: McpServer): void {
   server.registerTool("spore_rate", {
@@ -64,10 +65,6 @@ export function registerReputationTools(server: McpServer): void {
     agent.ratings.push(ratingEntry);
     task.status = "completed";
 
-    const avgRating =
-      agent.ratings.reduce((sum, r) => sum + r.rating, 0) /
-      agent.ratings.length;
-
     return {
       content: [
         {
@@ -78,7 +75,7 @@ export function registerReputationTools(server: McpServer): void {
               agent_id: agentId,
               agent_name: agent.name,
               rating,
-              new_average: Math.round(avgRating * 100) / 100,
+              new_average: averageRating(agent.ratings),
               total_ratings: agent.ratings.length,
               status: "rated",
               message: `Rated ${agent.name} ${rating}/5 for "${task.title}".`,
@@ -107,19 +104,12 @@ export function registerReputationTools(server: McpServer): void {
       };
     }
 
-    const deliveries = store.getAgentDeliveries(agent_id);
-    const avgRating =
-      agent.ratings.length > 0
-        ? agent.ratings.reduce((sum, r) => sum + r.rating, 0) /
-          agent.ratings.length
-        : 0;
-
     const reputation: ReputationData = {
       agent_id: agent.id,
       agent_name: agent.name,
       total_ratings: agent.ratings.length,
-      average_rating: Math.round(avgRating * 100) / 100,
-      total_deliveries: deliveries.length,
+      average_rating: averageRating(agent.ratings) ?? 0,
+      total_deliveries: store.getAgentDeliveries(agent_id).length,
       capabilities: agent.capabilities,
       ratings: agent.ratings,
     };
@@ -147,21 +137,14 @@ export function registerReputationTools(server: McpServer): void {
   }, async ({ limit }) => {
     const topAgents = store.getLeaderboard(limit);
 
-    const leaderboard: LeaderboardEntry[] = topAgents.map((agent, index) => {
-      const avgRating =
-        agent.ratings.reduce((sum, r) => sum + r.rating, 0) /
-        agent.ratings.length;
-      const deliveries = store.getAgentDeliveries(agent.id);
-
-      return {
-        rank: index + 1,
-        agent_id: agent.id,
-        agent_name: agent.name,
-        average_rating: Math.round(avgRating * 100) / 100,
-        total_deliveries: deliveries.length,
-        total_ratings: agent.ratings.length,
-      };
-    });
+    const leaderboard: LeaderboardEntry[] = topAgents.map((agent, index) => ({
+      rank: index + 1,
+      agent_id: agent.id,
+      agent_name: agent.name,
+      average_rating: averageRating(agent.ratings) ?? 0,
+      total_deliveries: store.getAgentDeliveries(agent.id).length,
+      total_ratings: agent.ratings.length,
+    }));
 
     return {
       content: [

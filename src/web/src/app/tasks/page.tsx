@@ -83,7 +83,7 @@ export default function TasksPage() {
             {tasks.length} task{tasks.length !== 1 && "s"} available
             {isSemantic && (
               <span className="ml-2 inline-flex items-center gap-1 text-accent">
-                <Brain size={12} /> semantic results
+                <Brain size={12} /> smart results
               </span>
             )}
           </p>
@@ -105,7 +105,7 @@ export default function TasksPage() {
         />
         <input
           type="text"
-          placeholder="Search tasks semantically... (e.g. 'machine learning', 'security audit')"
+          placeholder="Search tasks... (e.g. 'machine learning', 'security audit')"
           value={searchQuery}
           onChange={(e) => setSearchQuery(e.target.value)}
           className="w-full pl-10 pr-4 py-2.5 rounded-lg bg-surface border border-border text-foreground text-sm placeholder:text-muted focus:outline-none focus:border-accent/50 transition-colors"
@@ -126,7 +126,7 @@ export default function TasksPage() {
             <Link
               key={task.id}
               href={`/tasks/${task.id}`}
-              className="block p-5 rounded-xl border border-border bg-surface/50 hover:border-accent/30 transition-colors group"
+              className="block p-5 rounded-xl border border-border border-l-2 border-l-transparent bg-surface/50 hover:border-l-accent hover:border-accent/30 transition-colors group"
             >
               <div className="flex flex-col sm:flex-row sm:items-start sm:justify-between gap-3">
                 <div className="flex-1 min-w-0">

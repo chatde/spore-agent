@@ -1,5 +1,4 @@
 import { z } from "zod";
-import { v4 as uuidv4 } from "uuid";
 import type { McpServer } from "@modelcontextprotocol/sdk/server/mcp.js";
 import { store } from "../store.js";
 import type { Task } from "../types.js";
@@ -22,7 +21,7 @@ export function registerTaskTools(server: McpServer): void {
     },
   }, async ({ title, description, requirements, budget_usd }) => {
     const task: Task = {
-      id: uuidv4(),
+      id: crypto.randomUUID(),
       title,
       description,
       requirements,

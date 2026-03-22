@@ -1,4 +1,3 @@
-import { v4 as uuidv4 } from "uuid";
 import { store } from "./store.js";
 import { embedText, embedTexts } from "./embeddings.js";
 import type { Agent, Task, Rating } from "./types.js";
@@ -198,19 +197,19 @@ export async function seedStore(): Promise<void> {
   const agentTexts: string[] = [];
   const agentEntries: Agent[] = [];
 
-  for (const seed of SEED_AGENTS) {
+  for (const seedAgent of SEED_AGENTS) {
     const agent: Agent = {
-      id: uuidv4(),
-      name: seed.name,
-      capabilities: seed.capabilities,
-      description: seed.description,
+      id: crypto.randomUUID(),
+      name: seedAgent.name,
+      capabilities: seedAgent.capabilities,
+      description: seedAgent.description,
       registered_at: new Date(
         Date.now() - Math.random() * 90 * 24 * 60 * 60 * 1000
       ).toISOString(),
-      ratings: seed.ratings.map((r) => ({
-        task_id: uuidv4(),
-        rating: r.rating,
-        feedback: r.feedback,
+      ratings: seedAgent.ratings.map((ratingData) => ({
+        task_id: crypto.randomUUID(),
+        rating: ratingData.rating,
+        feedback: ratingData.feedback,
         rated_at: new Date(
           Date.now() - Math.random() * 60 * 24 * 60 * 60 * 1000
         ).toISOString(),
@@ -226,14 +225,14 @@ export async function seedStore(): Promise<void> {
   const taskTexts: string[] = [];
   const taskEntries: Task[] = [];
 
-  for (const seed of SEED_TASKS) {
+  for (const seedTask of SEED_TASKS) {
     const task: Task = {
-      id: uuidv4(),
-      title: seed.title,
-      description: seed.description,
-      requirements: seed.requirements,
-      budget_usd: seed.budget_usd,
-      status: seed.status,
+      id: crypto.randomUUID(),
+      title: seedTask.title,
+      description: seedTask.description,
+      requirements: seedTask.requirements,
+      budget_usd: seedTask.budget_usd,
+      status: seedTask.status,
       posted_at: new Date(
         Date.now() - Math.random() * 30 * 24 * 60 * 60 * 1000
       ).toISOString(),
@@ -280,7 +279,7 @@ export async function seedStore(): Promise<void> {
     const shuffled = [...agentArr].sort(() => Math.random() - 0.5);
     for (let i = 0; i < Math.min(numBids, shuffled.length); i++) {
       const bid = {
-        id: uuidv4(),
+        id: crypto.randomUUID(),
         task_id: task.id,
         agent_id: shuffled[i].id,
         approach: `I'll use my expertise in ${shuffled[i].capabilities.slice(0, 2).join(" and ")} to deliver this efficiently.`,
@@ -296,7 +295,7 @@ export async function seedStore(): Promise<void> {
   // Create some completed tasks with deliveries
   for (let i = 0; i < 3; i++) {
     const completedTask: Task = {
-      id: uuidv4(),
+      id: crypto.randomUUID(),
       title: [`Optimize PostgreSQL queries for analytics dashboard`, `Write Terraform modules for AWS infrastructure`, `Build Slack bot for team standup automation`][i],
       description: "Completed task from marketplace history.",
       requirements: [["sql", "optimization"], ["terraform", "aws"], ["automation", "slack"]][i],
@@ -307,8 +306,8 @@ export async function seedStore(): Promise<void> {
     };
     store.tasks.set(completedTask.id, completedTask);
 
-    store.deliveries.set(uuidv4(), {
-      id: uuidv4(),
+    store.deliveries.set(crypto.randomUUID(), {
+      id: crypto.randomUUID(),
       task_id: completedTask.id,
       agent_id: completedTask.assigned_agent_id!,
       result: "Task completed successfully.",

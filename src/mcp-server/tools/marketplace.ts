@@ -1,5 +1,4 @@
 import { z } from "zod";
-import { v4 as uuidv4 } from "uuid";
 import type { McpServer } from "@modelcontextprotocol/sdk/server/mcp.js";
 import { store } from "../store.js";
 import type { Bid, Delivery } from "../types.js";
@@ -43,7 +42,7 @@ export function registerMarketplaceTools(server: McpServer): void {
     }
 
     const bid: Bid = {
-      id: uuidv4(),
+      id: crypto.randomUUID(),
       task_id,
       agent_id,
       approach,
@@ -159,7 +158,7 @@ export function registerMarketplaceTools(server: McpServer): void {
     }
 
     const delivery: Delivery = {
-      id: uuidv4(),
+      id: crypto.randomUUID(),
       task_id,
       agent_id,
       result,

@@ -1,5 +1,4 @@
 import { z } from "zod";
-import { v4 as uuidv4 } from "uuid";
 import type { McpServer } from "@modelcontextprotocol/sdk/server/mcp.js";
 import { store } from "../store.js";
 import type { Agent } from "../types.js";
@@ -20,7 +19,7 @@ export function registerRegistrationTools(server: McpServer): void {
     },
   }, async ({ name, capabilities, description }) => {
     const agent: Agent = {
-      id: uuidv4(),
+      id: crypto.randomUUID(),
       name,
       capabilities,
       description,

@@ -10,17 +10,60 @@ config({ path: resolve(__dirname, "../../../.env") });
 import { Hono } from "hono";
 import { cors } from "hono/cors";
 import { serve } from "@hono/node-server";
-import { v4 as uuidv4 } from "uuid";
 import { store } from "./store.js";
 import { seedStore } from "./seed.js";
 import { embedText, embedQuery, cosineSimilarity } from "./embeddings.js";
 import type { Task, Bid, Delivery, Rating, Agent } from "./types.js";
 import { verifyDelivery } from "./verification.js";
+import { averageRating, successRate } from "./utils.js";
+import { z } from "zod";
+
+// --- Zod Schemas ---
+const CreateTaskSchema = z.object({
+  title: z.string(),
+  description: z.string(),
+  requirements: z.array(z.string()).min(1),
+  budget_usd: z.number().optional(),
+});
+
+const RegisterAgentSchema = z.object({
+  name: z.string(),
+  capabilities: z.array(z.string()).min(1),
+  description: z.string(),
+});
+
+const BidSchema = z.object({
+  agent_id: z.string().uuid(),
+  approach: z.string(),
+  estimated_minutes: z.number(),
+});
+
+const AcceptBidSchema = z.object({
+  bid_id: z.string(),
+});
+
+const DeliverSchema = z.object({
+  agent_id: z.string(),
+  result: z.string(),
+});
+
+const RateSchema = z.object({
+  rating: z.number().int().min(1).max(5),
+  feedback: z.string().optional(),
+});
 
 const app = new Hono();
 
 // CORS for web dashboard
 app.use("/*", cors());
+
+// Cache headers for GET requests
+app.use("/api/*", async (c, next) => {
+  await next();
+  if (c.req.method === "GET") {
+    c.header("Cache-Control", "public, max-age=30, stale-while-revalidate=60");
+  }
+});
 
 // --- Health ---
 app.get("/api/health", (c) => c.json({ status: "ok", timestamp: new Date().toISOString() }));
@@ -170,13 +213,7 @@ app.get("/api/tasks/:id/matching-agents", async (c) => {
         capabilities: m.agent.capabilities,
         description: m.agent.description,
         match_score: Math.round(m.score * 1000) / 1000,
-        average_rating: m.agent.ratings.length > 0
-          ? Math.round(
-              (m.agent.ratings.reduce((s, r) => s + r.rating, 0) /
-                m.agent.ratings.length) *
-                100
-            ) / 100
-          : null,
+        average_rating: averageRating(m.agent.ratings),
         total_ratings: m.agent.ratings.length,
       })),
     });
@@ -203,15 +240,17 @@ app.get("/api/tasks/:id/matching-agents", async (c) => {
 });
 
 app.post("/api/tasks", async (c) => {
-  const body = await c.req.json();
-  const { title, description, requirements, budget_usd } = body;
+  let body;
+  try { body = await c.req.json(); } catch { return c.json({ error: "Invalid JSON body" }, 400); }
 
-  if (!title || !description || !requirements?.length) {
-    return c.json({ error: "title, description, and requirements are required" }, 400);
+  const parseResult = CreateTaskSchema.safeParse(body);
+  if (!parseResult.success) {
+    return c.json({ error: "Invalid input", details: parseResult.error.flatten().fieldErrors }, 400);
   }
+  const { title, description, requirements, budget_usd } = parseResult.data;
 
   const task: Task = {
-    id: uuidv4(),
+    id: crypto.randomUUID(),
     title,
     description,
     requirements,
@@ -246,14 +285,20 @@ app.post("/api/tasks/:id/bid", async (c) => {
   if (!task) return c.json({ error: "Task not found" }, 404);
   if (task.status !== "open") return c.json({ error: "Task is not open for bids" }, 400);
 
-  const body = await c.req.json();
-  const { agent_id, approach, estimated_minutes } = body;
+  let body;
+  try { body = await c.req.json(); } catch { return c.json({ error: "Invalid JSON body" }, 400); }
+
+  const parseResult = BidSchema.safeParse(body);
+  if (!parseResult.success) {
+    return c.json({ error: "Invalid input", details: parseResult.error.flatten().fieldErrors }, 400);
+  }
+  const { agent_id, approach, estimated_minutes } = parseResult.data;
 
   const agent = store.agents.get(agent_id);
   if (!agent) return c.json({ error: "Agent not found" }, 404);
 
   const bid: Bid = {
-    id: uuidv4(),
+    id: crypto.randomUUID(),
     task_id: task.id,
     agent_id,
     approach,
@@ -275,8 +320,14 @@ app.post("/api/tasks/:id/accept-bid", async (c) => {
   if (!task) return c.json({ error: "Task not found" }, 404);
   if (task.status !== "open") return c.json({ error: "Task is not open" }, 400);
 
-  const body = await c.req.json();
-  const bid = store.bids.get(body.bid_id);
+  let body;
+  try { body = await c.req.json(); } catch { return c.json({ error: "Invalid JSON body" }, 400); }
+
+  const parseResult = AcceptBidSchema.safeParse(body);
+  if (!parseResult.success) {
+    return c.json({ error: "Invalid input", details: parseResult.error.flatten().fieldErrors }, 400);
+  }
+  const bid = store.bids.get(parseResult.data.bid_id);
   if (!bid || bid.task_id !== task.id) return c.json({ error: "Bid not found" }, 404);
 
   task.status = "assigned";
@@ -297,16 +348,23 @@ app.post("/api/tasks/:id/deliver", async (c) => {
   if (!task) return c.json({ error: "Task not found" }, 404);
   if (task.status !== "assigned") return c.json({ error: "Task not in assigned state" }, 400);
 
-  const body = await c.req.json();
-  if (task.assigned_agent_id !== body.agent_id) {
+  let body;
+  try { body = await c.req.json(); } catch { return c.json({ error: "Invalid JSON body" }, 400); }
+
+  const parseResult = DeliverSchema.safeParse(body);
+  if (!parseResult.success) {
+    return c.json({ error: "Invalid input", details: parseResult.error.flatten().fieldErrors }, 400);
+  }
+  if (task.assigned_agent_id !== parseResult.data.agent_id) {
     return c.json({ error: "Agent not assigned to this task" }, 403);
   }
+  const { agent_id, result } = parseResult.data;
 
   const delivery: Delivery = {
-    id: uuidv4(),
+    id: crypto.randomUUID(),
     task_id: task.id,
-    agent_id: body.agent_id,
-    result: body.result,
+    agent_id,
+    result,
     delivered_at: new Date().toISOString(),
   };
   store.deliveries.set(delivery.id, delivery);
@@ -320,12 +378,14 @@ app.post("/api/tasks/:id/rate", async (c) => {
   if (!task) return c.json({ error: "Task not found" }, 404);
   if (task.status !== "delivered") return c.json({ error: "Task must be delivered to rate" }, 400);
 
-  const body = await c.req.json();
-  const { rating, feedback } = body;
+  let body;
+  try { body = await c.req.json(); } catch { return c.json({ error: "Invalid JSON body" }, 400); }
 
-  if (!rating || rating < 1 || rating > 5) {
-    return c.json({ error: "Rating must be 1-5" }, 400);
+  const parseResult = RateSchema.safeParse(body);
+  if (!parseResult.success) {
+    return c.json({ error: "Invalid input", details: parseResult.error.flatten().fieldErrors }, 400);
   }
+  const { rating, feedback } = parseResult.data;
 
   const agent = store.agents.get(task.assigned_agent_id!);
   if (!agent) return c.json({ error: "Agent not found" }, 404);
@@ -339,15 +399,12 @@ app.post("/api/tasks/:id/rate", async (c) => {
   agent.ratings.push(ratingEntry);
   task.status = "completed";
 
-  const avgRating =
-    agent.ratings.reduce((s, r) => s + r.rating, 0) / agent.ratings.length;
-
   return c.json({
     task_id: task.id,
     agent_id: agent.id,
     agent_name: agent.name,
     rating,
-    new_average: Math.round(avgRating * 100) / 100,
+    new_average: averageRating(agent.ratings),
     status: "completed",
   });
 });
@@ -397,28 +454,15 @@ app.get("/api/tasks/:id/verify/:deliveryId", async (c) => {
 // --- Agents ---
 app.get("/api/agents", (c) => {
   const agents = store.getAllAgents().map((a) => {
-    const avgRating =
-      a.ratings.length > 0
-        ? Math.round(
-            (a.ratings.reduce((s, r) => s + r.rating, 0) / a.ratings.length) *
-              100
-          ) / 100
-        : null;
-    const deliveries = store.getAgentDeliveries(a.id);
     return {
       id: a.id,
       name: a.name,
       capabilities: a.capabilities,
       description: a.description,
-      average_rating: avgRating,
+      average_rating: averageRating(a.ratings),
       total_ratings: a.ratings.length,
-      total_deliveries: deliveries.length,
-      success_rate: a.ratings.length > 0
-        ? Math.round(
-            (a.ratings.filter((r) => r.rating >= 4).length / a.ratings.length) *
-              100
-          )
-        : null,
+      total_deliveries: store.getAgentDeliveries(a.id).length,
+      success_rate: successRate(a.ratings),
       registered_at: a.registered_at,
       has_embedding: !!a.embedding,
     };
@@ -432,31 +476,16 @@ app.get("/api/agents/:id", (c) => {
   if (!agent) return c.json({ error: "Agent not found" }, 404);
 
   const deliveries = store.getAgentDeliveries(agent.id);
-  const avgRating =
-    agent.ratings.length > 0
-      ? Math.round(
-          (agent.ratings.reduce((s, r) => s + r.rating, 0) /
-            agent.ratings.length) *
-            100
-        ) / 100
-      : null;
-
   return c.json({
     id: agent.id,
     name: agent.name,
     capabilities: agent.capabilities,
     description: agent.description,
     registered_at: agent.registered_at,
-    average_rating: avgRating,
+    average_rating: averageRating(agent.ratings),
     total_ratings: agent.ratings.length,
     total_deliveries: deliveries.length,
-    success_rate: agent.ratings.length > 0
-      ? Math.round(
-          (agent.ratings.filter((r) => r.rating >= 4).length /
-            agent.ratings.length) *
-            100
-        )
-      : null,
+    success_rate: successRate(agent.ratings),
     ratings: agent.ratings.map((r) => ({
       task_id: r.task_id,
       rating: r.rating,
@@ -512,15 +541,17 @@ app.get("/api/agents/:id/recommended-tasks", async (c) => {
 });
 
 app.post("/api/agents/register", async (c) => {
-  const body = await c.req.json();
-  const { name, capabilities, description } = body;
+  let body;
+  try { body = await c.req.json(); } catch { return c.json({ error: "Invalid JSON body" }, 400); }
 
-  if (!name || !capabilities?.length || !description) {
-    return c.json({ error: "name, capabilities, and description are required" }, 400);
+  const parseResult = RegisterAgentSchema.safeParse(body);
+  if (!parseResult.success) {
+    return c.json({ error: "Invalid input", details: parseResult.error.flatten().fieldErrors }, 400);
   }
+  const { name, capabilities, description } = parseResult.data;
 
   const agent: Agent = {
-    id: uuidv4(),
+    id: crypto.randomUUID(),
     name,
     capabilities,
     description,
@@ -552,26 +583,16 @@ app.get("/api/leaderboard", (c) => {
   const limit = parseInt(c.req.query("limit") ?? "10");
   const topAgents = store.getLeaderboard(limit);
 
-  const leaderboard = topAgents.map((agent, index) => {
-    const avgRating =
-      agent.ratings.reduce((s, r) => s + r.rating, 0) / agent.ratings.length;
-    const deliveries = store.getAgentDeliveries(agent.id);
-
-    return {
-      rank: index + 1,
-      agent_id: agent.id,
-      agent_name: agent.name,
-      capabilities: agent.capabilities,
-      average_rating: Math.round(avgRating * 100) / 100,
-      total_deliveries: deliveries.length,
-      total_ratings: agent.ratings.length,
-      success_rate: Math.round(
-        (agent.ratings.filter((r) => r.rating >= 4).length /
-          agent.ratings.length) *
-          100
-      ),
-    };
-  });
+  const leaderboard = topAgents.map((agent, index) => ({
+    rank: index + 1,
+    agent_id: agent.id,
+    agent_name: agent.name,
+    capabilities: agent.capabilities,
+    average_rating: averageRating(agent.ratings),
+    total_deliveries: store.getAgentDeliveries(agent.id).length,
+    total_ratings: agent.ratings.length,
+    success_rate: successRate(agent.ratings),
+  }));
 
   return c.json({ total: leaderboard.length, leaderboard });
 });

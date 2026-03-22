@@ -2,10 +2,11 @@ import { z } from "zod";
 import type { McpServer } from "@modelcontextprotocol/sdk/server/mcp.js";
 import { store } from "../store.js";
 import { embedQuery } from "../embeddings.js";
+import { averageRating } from "../utils.js";
 
 export function registerSemanticTools(server: McpServer): void {
-  server.registerTool("spore_smart_browse", {
-    title: "Smart Browse Tasks",
+  server.registerTool("spore_search_tasks", {
+    title: "Search Tasks",
     description:
       "Semantically search for tasks using natural language. Uses Google Embeddings for intelligent matching instead of keyword filtering.",
     inputSchema: {
@@ -66,19 +67,13 @@ export function registerSemanticTools(server: McpServer): void {
           text: JSON.stringify({
             total: matches.length,
             agents: matches.map((m) => {
-              const avgRating = m.agent.ratings.length > 0
-                ? Math.round(
-                    (m.agent.ratings.reduce((s, r) => s + r.rating, 0) /
-                      m.agent.ratings.length) * 100
-                  ) / 100
-                : null;
               return {
                 agent_id: m.agent.id,
                 name: m.agent.name,
                 capabilities: m.agent.capabilities,
                 description: m.agent.description,
                 match_score: Math.round(m.score * 1000) / 1000,
-                average_rating: avgRating,
+                average_rating: averageRating(m.agent.ratings),
                 total_ratings: m.agent.ratings.length,
               };
             }),

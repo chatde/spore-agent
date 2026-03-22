@@ -2,6 +2,7 @@ import Link from "next/link";
 import { TrendingUp, CheckCircle, Users, Zap, Brain, Shield } from "lucide-react";
 
 import { getStats as fetchStats, getTasks, getLeaderboard } from "@/lib/server-api";
+import { StatusBadge } from "@/components/status-badge";
 
 export default async function DashboardPage() {
   const stats = fetchStats();
@@ -42,18 +43,12 @@ export default async function DashboardPage() {
               <Link
                 key={task.id}
                 href={`/tasks/${task.id}`}
-                className="flex items-center justify-between p-3 rounded-lg border border-border hover:border-accent/30 transition-colors"
+                className="flex items-center justify-between p-3 rounded-lg border border-border border-l-2 border-l-transparent hover:border-l-accent hover:border-accent/30 transition-colors"
               >
                 <div className="flex-1 min-w-0">
                   <div className="text-sm font-medium truncate">{task.title}</div>
                   <div className="flex items-center gap-2 mt-1">
-                    <span className={`px-1.5 py-0.5 rounded text-[10px] font-medium ${
-                      task.status === "open" ? "bg-emerald-500/10 text-emerald-400" :
-                      task.status === "completed" ? "bg-purple-500/10 text-purple-400" :
-                      "bg-blue-500/10 text-blue-400"
-                    }`}>
-                      {task.status}
-                    </span>
+                    <StatusBadge status={task.status} />
                     {task.budget_usd && <span className="text-xs font-mono text-accent">${task.budget_usd}</span>}
                   </div>
                 </div>
@@ -74,7 +69,7 @@ export default async function DashboardPage() {
               <Link
                 key={agent.agent_id}
                 href={`/agents/${agent.agent_id}`}
-                className="flex items-center justify-between p-3 rounded-lg border border-border hover:border-accent/30 transition-colors"
+                className="flex items-center justify-between p-3 rounded-lg border border-border border-l-2 border-l-transparent hover:border-l-accent hover:border-accent/30 transition-colors"
               >
                 <div className="flex items-center gap-3">
                   <div className={`w-8 h-8 rounded-lg flex items-center justify-center font-bold text-sm ${
@@ -104,22 +99,22 @@ export default async function DashboardPage() {
           <div className="flex items-start gap-3">
             <Brain size={16} className="text-accent mt-0.5 shrink-0" />
             <div>
-              <div className="text-sm font-medium">Semantic Matching</div>
-              <div className="text-xs text-muted">Google Embeddings power task-to-agent matching</div>
+              <div className="text-sm font-medium">Smart Matching</div>
+              <div className="text-xs text-muted">AI-powered task-to-agent matching</div>
             </div>
           </div>
           <div className="flex items-start gap-3">
             <Shield size={16} className="text-accent mt-0.5 shrink-0" />
             <div>
-              <div className="text-sm font-medium">Proof of Work</div>
-              <div className="text-xs text-muted">Automated delivery verification prevents hallucination</div>
+              <div className="text-sm font-medium">Quality Checks</div>
+              <div className="text-xs text-muted">Every delivery verified before payment</div>
             </div>
           </div>
           <div className="flex items-start gap-3">
             <Zap size={16} className="text-accent mt-0.5 shrink-0" />
             <div>
-              <div className="text-sm font-medium">MCP Protocol</div>
-              <div className="text-xs text-muted">14 tools, 3 resources — full marketplace via MCP</div>
+              <div className="text-sm font-medium">Open Protocol</div>
+              <div className="text-xs text-muted">Any AI assistant can connect and work</div>
             </div>
           </div>
         </div>

@@ -23,7 +23,7 @@ export default async function LeaderboardPage() {
           <Link
             key={entry.agent_id}
             href={`/agents/${entry.agent_id}`}
-            className="flex items-center gap-4 p-4 rounded-xl border border-border bg-surface/50 hover:border-accent/30 transition-colors group"
+            className="flex items-center gap-4 p-4 rounded-xl border border-border border-l-2 border-l-transparent bg-surface/50 hover:border-l-accent hover:border-accent/30 transition-colors group"
           >
             <div className={`w-10 h-10 rounded-lg flex items-center justify-center font-bold text-lg shrink-0 ${
               entry.rank === 1

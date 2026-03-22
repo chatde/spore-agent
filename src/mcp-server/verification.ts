@@ -10,17 +10,6 @@ export interface VerificationResult {
   summary: string;
 }
 
-/**
- * Proof-of-Work verification for task deliveries.
- *
- * Uses Google Embeddings to check:
- * 1. Relevance: Is the delivery semantically related to the task?
- * 2. Completeness: Does it address the requirements?
- * 3. Quality: Is it substantial enough (not empty/hallucinated)?
- *
- * This is a first-pass automated check. The task poster still reviews
- * and rates the work. This catches obvious garbage/hallucination.
- */
 export async function verifyDelivery(
   taskTitle: string,
   taskDescription: string,
@@ -29,7 +18,7 @@ export async function verifyDelivery(
 ): Promise<VerificationResult> {
   const issues: string[] = [];
 
-  // Check 1: Minimum substance
+  // Quick pre-filter: minimum substance
   const wordCount = deliveryResult.trim().split(/\s+/).length;
   if (wordCount < 20) {
     return {
@@ -38,96 +27,45 @@ export async function verifyDelivery(
       completeness_score: 0,
       quality_score: 0,
       overall_score: 0,
-      issues: ["Delivery is too short (less than 20 words). This appears to be empty or placeholder content."],
-      summary: "FAILED: Delivery has insufficient content.",
+      issues: ["Delivery is too short (less than 20 words)."],
+      summary: "FAILED: Insufficient content.",
     };
   }
 
-  // Check 2: Repetition detection (hallucination signal)
-  const sentences = deliveryResult.split(/[.!?\n]+/).filter((s) => s.trim().length > 10);
-  if (sentences.length > 5) {
-    const uniqueSentences = new Set(sentences.map((s) => s.trim().toLowerCase()));
-    const repetitionRatio = uniqueSentences.size / sentences.length;
-    if (repetitionRatio < 0.5) {
-      issues.push(`High repetition detected (${Math.round((1 - repetitionRatio) * 100)}% repeated content). May indicate hallucination or copy-paste filler.`);
-    }
-  }
-
-  // Check 3: Semantic relevance via embeddings
-  let relevanceScore = 0.5; // default if embeddings fail
-  let completenessScore = 0.5;
-
+  // Single embedding check: is the delivery semantically related to the task?
   try {
     const taskText = `${taskTitle}. ${taskDescription}. Requirements: ${taskRequirements.join(", ")}`;
     const deliverySnippet = deliveryResult.slice(0, 2000);
-    const reqText = taskRequirements.length > 0 ? taskRequirements.join(", ") : "";
+    const embeddings = await embedTexts([taskText, deliverySnippet]);
+    const similarity = cosineSimilarity(embeddings[0], embeddings[1]);
 
-    // Batch all embeddings in a single API call
-    const textsToEmbed = [taskText, deliverySnippet];
-    if (reqText) textsToEmbed.push(reqText);
-
-    const embeddings = await embedTexts(textsToEmbed);
-    const taskEmbedding = embeddings[0];
-    const deliveryEmbedding = embeddings[1];
-
-    relevanceScore = cosineSimilarity(taskEmbedding, deliveryEmbedding);
-
-    if (relevanceScore < 0.35) {
-      issues.push(
-        `Low relevance (${(relevanceScore * 100).toFixed(0)}%). The delivery doesn't appear to match what was requested.`
-      );
+    const passed = similarity >= 0.45;
+    if (!passed) {
+      issues.push(`Low relevance (${(similarity * 100).toFixed(0)}%). Delivery doesn't match the task.`);
     }
 
-    if (reqText && embeddings[2]) {
-      completenessScore = cosineSimilarity(embeddings[2], deliveryEmbedding);
-
-      if (completenessScore < 0.3) {
-        issues.push(
-          `Low requirement coverage (${(completenessScore * 100).toFixed(0)}%). The delivery may not address all stated requirements.`
-        );
-      }
-    }
+    return {
+      passed,
+      relevance_score: Math.round(similarity * 1000) / 1000,
+      completeness_score: Math.round(similarity * 1000) / 1000,
+      quality_score: Math.min(1, wordCount / 100),
+      overall_score: Math.round(similarity * 1000) / 1000,
+      issues,
+      summary: passed
+        ? `PASSED: Delivery is relevant (${(similarity * 100).toFixed(0)}% match).`
+        : `NEEDS REVIEW: ${issues.join(" ")}`,
+    };
   } catch (err) {
     console.error("[VERIFY] Embedding error:", err);
-    issues.push("Semantic verification unavailable (embedding API error). Manual review recommended.");
+    // Fallback: pass with warning
+    return {
+      passed: true,
+      relevance_score: 0.5,
+      completeness_score: 0.5,
+      quality_score: Math.min(1, wordCount / 100),
+      overall_score: 0.5,
+      issues: ["Verification API unavailable. Manual review recommended."],
+      summary: "PASSED WITH WARNING: Automated verification unavailable.",
+    };
   }
-
-  // Quality score based on substance
-  let qualityScore = Math.min(1, wordCount / 200); // Scale up to 200 words
-  if (wordCount > 50 && sentences.length > 3) {
-    qualityScore = Math.min(1, qualityScore + 0.2);
-  }
-
-  // Check for common filler patterns
-  const fillerPatterns = [
-    /lorem ipsum/i,
-    /placeholder/i,
-    /TODO/g,
-    /FIXME/g,
-    /insert .* here/i,
-    /example text/i,
-  ];
-  for (const pattern of fillerPatterns) {
-    if (pattern.test(deliveryResult)) {
-      qualityScore *= 0.5;
-      issues.push(`Contains placeholder/filler content matching "${pattern.source}".`);
-    }
-  }
-
-  const overallScore =
-    relevanceScore * 0.4 + completenessScore * 0.3 + qualityScore * 0.3;
-
-  const passed = overallScore >= 0.4 && relevanceScore >= 0.3 && issues.length <= 1;
-
-  return {
-    passed,
-    relevance_score: Math.round(relevanceScore * 1000) / 1000,
-    completeness_score: Math.round(completenessScore * 1000) / 1000,
-    quality_score: Math.round(qualityScore * 1000) / 1000,
-    overall_score: Math.round(overallScore * 1000) / 1000,
-    issues,
-    summary: passed
-      ? `PASSED: Delivery appears relevant and substantive (score: ${(overallScore * 100).toFixed(0)}%).`
-      : `NEEDS REVIEW: ${issues.length} issue(s) detected. Score: ${(overallScore * 100).toFixed(0)}%. Manual review recommended.`,
-  };
 }

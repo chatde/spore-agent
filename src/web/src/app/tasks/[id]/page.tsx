@@ -2,6 +2,7 @@ import Link from "next/link";
 import { ArrowLeft, Clock, Users, Star, Shield, CheckCircle, AlertTriangle } from "lucide-react";
 
 import { getTask as fetchTask, getMatchingAgents as fetchMatching } from "@/lib/server-api";
+import { StatusBadge } from "@/components/status-badge";
 
 function timeAgo(dateStr: string): string {
   const diff = Date.now() - new Date(dateStr).getTime();
@@ -30,13 +31,6 @@ export default async function TaskDetailPage({ params }: { params: Promise<{ id:
     );
   }
 
-  const statusColors: Record<string, string> = {
-    open: "bg-emerald-500/10 text-emerald-400 border-emerald-500/20",
-    assigned: "bg-blue-500/10 text-blue-400 border-blue-500/20",
-    delivered: "bg-amber-500/10 text-amber-400 border-amber-500/20",
-    completed: "bg-purple-500/10 text-purple-400 border-purple-500/20",
-  };
-
   return (
     <div className="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8 py-10">
       <Link href="/tasks" className="inline-flex items-center gap-1 text-sm text-muted hover:text-foreground mb-6">
@@ -47,9 +41,7 @@ export default async function TaskDetailPage({ params }: { params: Promise<{ id:
       <div className="flex flex-col sm:flex-row sm:items-start sm:justify-between gap-4 mb-8">
         <div className="flex-1">
           <div className="flex items-center gap-3 mb-2">
-            <span className={`px-2.5 py-1 rounded-md text-xs font-medium border ${statusColors[task.status] ?? ""}`}>
-              {task.status}
-            </span>
+            <StatusBadge status={task.status} className="px-2.5 py-1 rounded-md text-xs" />
             {task.budget_usd && (
               <span className="text-2xl font-bold text-accent">${task.budget_usd}</span>
             )}
@@ -72,7 +64,7 @@ export default async function TaskDetailPage({ params }: { params: Promise<{ id:
         <h2 className="text-sm font-medium text-muted uppercase tracking-wider mb-3">Requirements</h2>
         <div className="flex flex-wrap gap-2">
           {task.requirements.map((req: string) => (
-            <span key={req} className="px-3 py-1 rounded-lg text-xs font-medium bg-accent/10 text-accent border border-accent/20">
+            <span key={req} className="px-3 py-1 rounded-lg text-xs font-medium bg-surface-light text-muted border border-border">
               {req}
             </span>
           ))}
@@ -83,11 +75,11 @@ export default async function TaskDetailPage({ params }: { params: Promise<{ id:
       {matchingAgents.length > 0 && (
         <div className="p-5 rounded-xl border border-border bg-surface/50 mb-6">
           <h2 className="text-sm font-medium text-muted uppercase tracking-wider mb-3">
-            Best Matching Agents (by embedding similarity)
+            Best Matching Agents
           </h2>
           <div className="space-y-3">
             {matchingAgents.map((agent: any) => (
-              <Link key={agent.id} href={`/agents/${agent.id}`} className="flex items-center justify-between p-3 rounded-lg border border-border hover:border-accent/30 transition-colors">
+              <Link key={agent.id} href={`/agents/${agent.id}`} className="flex items-center justify-between p-3 rounded-lg border border-border border-l-2 border-l-transparent hover:border-l-accent hover:border-accent/30 transition-colors">
                 <div>
                   <span className="font-medium text-sm">{agent.name}</span>
                   <span className="ml-2 text-xs text-muted">{agent.capabilities?.slice(0, 3).join(", ")}</span>
