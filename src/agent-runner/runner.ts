@@ -75,7 +75,7 @@ export class AgentRunner {
       log("REGISTER", `Embedding failed, using keyword matching: ${err}`);
     }
 
-    store.agents.set(agent.id, agent);
+    await store.createAgent(agent);
 
     this.state.agentId = agent.id;
     this.state.registered = true;
@@ -84,14 +84,14 @@ export class AgentRunner {
 
   // --- Browse matching tasks (embedding + keyword fallback) ---
 
-  private browseMatchingTasks(): Task[] {
-    const openTasks = store.getOpenTasks();
+  private async browseMatchingTasks(): Promise<Task[]> {
+    const openTasks = await store.getOpenTasks();
 
     // If we have an embedding, use semantic matching
     if (this.agentEmbedding) {
       const scored = openTasks
-        .filter((t) => t.embedding)
-        .map((task) => ({
+        .filter((t: Task) => t.embedding)
+        .map((task: Task) => ({
           task,
           score: cosineSimilarity(this.agentEmbedding!, task.embedding!),
         }))
@@ -105,8 +105,8 @@ export class AgentRunner {
     }
 
     // Fallback: keyword matching
-    return openTasks.filter((task) =>
-      task.requirements.some((req) =>
+    return openTasks.filter((task: Task) =>
+      task.requirements.some((req: string) =>
         this.config.capabilities.some(
           (cap) => cap.toLowerCase() === req.toLowerCase()
         )
@@ -116,25 +116,27 @@ export class AgentRunner {
 
   // --- Check for tasks assigned to this agent ---
 
-  private getAssignedTasks(): Task[] {
-    return Array.from(store.tasks.values()).filter(
-      (t) =>
+  private async getAssignedTasks(): Promise<Task[]> {
+    const allTasks = await store.getAllTasks();
+    return allTasks.filter(
+      (t: Task) =>
         t.status === "assigned" && t.assigned_agent_id === this.state.agentId
     );
   }
 
   // --- Check if already bid on a task ---
 
-  private hasAlreadyBid(taskId: string): boolean {
-    return Array.from(store.bids.values()).some(
-      (b) => b.task_id === taskId && b.agent_id === this.state.agentId
+  private async hasAlreadyBid(taskId: string): Promise<boolean> {
+    const bids = await store.getTaskBids(taskId);
+    return bids.some(
+      (b: Bid) => b.agent_id === this.state.agentId
     );
   }
 
   // --- Ask LLM whether to bid ---
 
   private async decideBid(task: Task): Promise<BidDecision | null> {
-    const existingBids = store.getTaskBids(task.id);
+    const existingBids = await store.getTaskBids(task.id);
 
     const systemPrompt = `You are ${this.config.name}, an autonomous AI agent on the Spore Agent marketplace. You evaluate tasks and decide whether to bid on them.
 
@@ -188,7 +190,7 @@ Respond with JSON only.`;
 
   // --- Place a bid ---
 
-  private placeBid(task: Task, decision: BidDecision): void {
+  private async placeBid(task: Task, decision: BidDecision): Promise<void> {
     const bid: Bid = {
       id: crypto.randomUUID(),
       task_id: task.id,
@@ -197,7 +199,7 @@ Respond with JSON only.`;
       estimated_minutes: decision.estimatedMinutes,
       submitted_at: new Date().toISOString(),
     };
-    store.bids.set(bid.id, bid);
+    await store.createBid(bid);
     log(
       "BID",
       `Bid placed on "${task.title}" -- ${decision.approach.slice(0, 100)}...`
@@ -246,8 +248,8 @@ Provide your complete deliverable below.`;
         result: text,
         delivered_at: new Date().toISOString(),
       };
-      store.deliveries.set(delivery.id, delivery);
-      task.status = "delivered";
+      await store.createDelivery(delivery);
+      await store.updateTask(task.id, { status: "delivered" });
 
       this.state.tasksCompleted++;
       this.state.activeTasks = this.state.activeTasks.filter(
@@ -285,7 +287,7 @@ Provide your complete deliverable below.`;
     }
 
     // Phase 1: Work on assigned tasks
-    const assignedTasks = this.getAssignedTasks();
+    const assignedTasks = await this.getAssignedTasks();
     if (assignedTasks.length > 0) {
       log("WORK", `${assignedTasks.length} task(s) assigned and awaiting completion`);
       for (const task of assignedTasks) {
@@ -312,7 +314,7 @@ Provide your complete deliverable below.`;
       return;
     }
 
-    const matchingTasks = this.browseMatchingTasks();
+    const matchingTasks = await this.browseMatchingTasks();
     log(
       "BROWSE",
       `Found ${matchingTasks.length} open task(s) matching capabilities`
@@ -321,7 +323,7 @@ Provide your complete deliverable below.`;
     let bidCount = 0;
     for (const task of matchingTasks) {
       if (currentTaskCount + bidCount >= this.config.maxConcurrentTasks) break;
-      if (this.hasAlreadyBid(task.id)) {
+      if (await this.hasAlreadyBid(task.id)) {
         log("BROWSE", `Already bid on "${task.title}", skipping`);
         continue;
       }
@@ -347,7 +349,7 @@ Provide your complete deliverable below.`;
       // Ask LLM for bid decision
       const decision = await this.decideBid(task);
       if (decision && decision.bid) {
-        this.placeBid(task, decision);
+        await this.placeBid(task, decision);
         bidCount++;
       } else if (decision) {
         log(

@@ -32,15 +32,21 @@ server.registerResource(
     mimeType: "application/json",
   },
   async (uri) => {
-    const tasks = store.getOpenTasks().map((t) => ({
-      task_id: t.id,
-      title: t.title,
-      description: t.description,
-      requirements: t.requirements,
-      budget_usd: t.budget_usd ?? null,
-      posted_at: t.posted_at,
-      bid_count: store.getTaskBids(t.id).length,
-    }));
+    const openTasks = await store.getOpenTasks();
+    const tasks = await Promise.all(
+      openTasks.map(async (t) => {
+        const bids = await store.getTaskBids(t.id);
+        return {
+          task_id: t.id,
+          title: t.title,
+          description: t.description,
+          requirements: t.requirements,
+          budget_usd: t.budget_usd ?? null,
+          posted_at: t.posted_at,
+          bid_count: bids.length,
+        };
+      })
+    );
 
     return {
       contents: [
@@ -62,7 +68,8 @@ server.registerResource(
     mimeType: "application/json",
   },
   async (uri) => {
-    const agents = Array.from(store.agents.values()).map((a) => ({
+    const allAgents = await store.getAllAgents();
+    const agents = allAgents.map((a) => ({
         agent_id: a.id,
         name: a.name,
         capabilities: a.capabilities,
@@ -92,15 +99,20 @@ server.registerResource(
     mimeType: "application/json",
   },
   async (uri) => {
-    const topAgents = store.getLeaderboard(25);
-    const leaderboard = topAgents.map((agent, index) => ({
-      rank: index + 1,
-      agent_id: agent.id,
-      agent_name: agent.name,
-      average_rating: averageRating(agent.ratings) ?? 0,
-      total_deliveries: store.getAgentDeliveries(agent.id).length,
-      total_ratings: agent.ratings.length,
-    }));
+    const topAgents = await store.getLeaderboard(25);
+    const leaderboard = await Promise.all(
+      topAgents.map(async (agent, index) => {
+        const deliveries = await store.getAgentDeliveries(agent.id);
+        return {
+          rank: index + 1,
+          agent_id: agent.id,
+          agent_name: agent.name,
+          average_rating: averageRating(agent.ratings) ?? 0,
+          total_deliveries: deliveries.length,
+          total_ratings: agent.ratings.length,
+        };
+      })
+    );
 
     return {
       contents: [

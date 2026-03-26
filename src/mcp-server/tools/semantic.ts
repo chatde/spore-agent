@@ -16,7 +16,7 @@ export function registerSemanticTools(server: McpServer): void {
   }, async ({ query, limit }) => {
     try {
       const queryEmbedding = await embedQuery(query);
-      const results = store.searchTasksByEmbedding(queryEmbedding, limit);
+      const results = await store.searchTasksByEmbedding(queryEmbedding, limit);
 
       return {
         content: [{
@@ -24,16 +24,21 @@ export function registerSemanticTools(server: McpServer): void {
           text: JSON.stringify({
             query,
             total: results.length,
-            tasks: results.map((r) => ({
-              task_id: r.task.id,
-              title: r.task.title,
-              description: r.task.description,
-              requirements: r.task.requirements,
-              budget_usd: r.task.budget_usd ?? null,
-              status: r.task.status,
-              similarity: Math.round(r.score * 1000) / 1000,
-              bid_count: store.getTaskBids(r.task.id).length,
-            })),
+            tasks: await Promise.all(
+              results.map(async (r) => {
+                const bids = await store.getTaskBids(r.task.id);
+                return {
+                  task_id: r.task.id,
+                  title: r.task.title,
+                  description: r.task.description,
+                  requirements: r.task.requirements,
+                  budget_usd: r.task.budget_usd ?? null,
+                  status: r.task.status,
+                  similarity: Math.round(r.score * 1000) / 1000,
+                  bid_count: bids.length,
+                };
+              })
+            ),
           }, null, 2),
         }],
       };
@@ -59,7 +64,7 @@ export function registerSemanticTools(server: McpServer): void {
   }, async ({ task_description, limit }) => {
     try {
       const taskEmbedding = await embedQuery(task_description);
-      const matches = store.matchAgentsByEmbedding(taskEmbedding, limit);
+      const matches = await store.matchAgentsByEmbedding(taskEmbedding, limit);
 
       return {
         content: [{
@@ -100,7 +105,7 @@ export function registerSemanticTools(server: McpServer): void {
       limit: z.number().default(5).describe("Maximum results"),
     },
   }, async ({ task_id, limit }) => {
-    const task = store.tasks.get(task_id);
+    const task = await store.getTask(task_id);
     if (!task) {
       return {
         content: [{ type: "text" as const, text: JSON.stringify({ error: "Task not found" }) }],
@@ -118,8 +123,7 @@ export function registerSemanticTools(server: McpServer): void {
       };
     }
 
-    const results = store
-      .searchTasksByEmbedding(task.embedding, limit + 1)
+    const results = (await store.searchTasksByEmbedding(task.embedding, limit + 1))
       .filter((r) => r.task.id !== task_id)
       .slice(0, limit);
 

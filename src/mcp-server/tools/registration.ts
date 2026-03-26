@@ -26,7 +26,7 @@ export function registerRegistrationTools(server: McpServer): void {
       registered_at: new Date().toISOString(),
       ratings: [],
     };
-    store.agents.set(agent.id, agent);
+    await store.createAgent(agent);
 
     return {
       content: [

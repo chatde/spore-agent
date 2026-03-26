@@ -69,37 +69,44 @@ app.use("/api/*", async (c, next) => {
 app.get("/api/health", (c) => c.json({ status: "ok", timestamp: new Date().toISOString() }));
 
 // --- Stats ---
-app.get("/api/stats", (c) => {
-  const stats = store.getStats();
+app.get("/api/stats", async (c) => {
+  const stats = await store.getStats();
   return c.json(stats);
 });
 
 // --- Tasks ---
-app.get("/api/tasks", (c) => {
+app.get("/api/tasks", async (c) => {
   const status = c.req.query("status");
-  let tasks = status
-    ? Array.from(store.tasks.values()).filter((t) => t.status === status)
-    : store.getOpenTasks();
+  let tasks: Task[];
 
   if (c.req.query("all") === "true") {
-    tasks = store.getAllTasks();
+    tasks = await store.getAllTasks();
+  } else if (status) {
+    tasks = (await store.getAllTasks()).filter((t) => t.status === status);
+  } else {
+    tasks = await store.getOpenTasks();
   }
 
   const limit = parseInt(c.req.query("limit") ?? "50");
   tasks = tasks.slice(0, limit);
 
-  const result = tasks.map((t) => ({
-    id: t.id,
-    title: t.title,
-    description: t.description,
-    requirements: t.requirements,
-    budget_usd: t.budget_usd ?? null,
-    status: t.status,
-    posted_at: t.posted_at,
-    assigned_agent_id: t.assigned_agent_id ?? null,
-    bid_count: store.getTaskBids(t.id).length,
-    has_embedding: !!t.embedding,
-  }));
+  const result = await Promise.all(
+    tasks.map(async (t) => {
+      const bids = await store.getTaskBids(t.id);
+      return {
+        id: t.id,
+        title: t.title,
+        description: t.description,
+        requirements: t.requirements,
+        budget_usd: t.budget_usd ?? null,
+        status: t.status,
+        posted_at: t.posted_at,
+        assigned_agent_id: t.assigned_agent_id ?? null,
+        bid_count: bids.length,
+        has_embedding: !!t.embedding,
+      };
+    })
+  );
 
   return c.json({ total: result.length, tasks: result });
 });
@@ -112,27 +119,33 @@ app.get("/api/tasks/search", async (c) => {
 
   try {
     const queryEmbedding = await embedQuery(q);
-    const results = store.searchTasksByEmbedding(queryEmbedding, limit);
+    const results = await store.searchTasksByEmbedding(queryEmbedding, limit);
 
     return c.json({
       query: q,
       total: results.length,
-      tasks: results.map((r) => ({
-        id: r.task.id,
-        title: r.task.title,
-        description: r.task.description,
-        requirements: r.task.requirements,
-        budget_usd: r.task.budget_usd ?? null,
-        status: r.task.status,
-        posted_at: r.task.posted_at,
-        bid_count: store.getTaskBids(r.task.id).length,
-        similarity_score: Math.round(r.score * 1000) / 1000,
-      })),
+      tasks: await Promise.all(
+        results.map(async (r) => {
+          const bids = await store.getTaskBids(r.task.id);
+          return {
+            id: r.task.id,
+            title: r.task.title,
+            description: r.task.description,
+            requirements: r.task.requirements,
+            budget_usd: r.task.budget_usd ?? null,
+            status: r.task.status,
+            posted_at: r.task.posted_at,
+            bid_count: bids.length,
+            similarity_score: Math.round(r.score * 1000) / 1000,
+          };
+        })
+      ),
     });
   } catch (err) {
     // Fallback to keyword search
     const lower = q.toLowerCase();
-    const tasks = store.getAllTasks().filter(
+    const allTasks = await store.getAllTasks();
+    const tasks = allTasks.filter(
       (t) =>
         t.title.toLowerCase().includes(lower) ||
         t.description.toLowerCase().includes(lower) ||
@@ -143,44 +156,51 @@ app.get("/api/tasks/search", async (c) => {
       query: q,
       total: tasks.length,
       fallback: "keyword",
-      tasks: tasks.slice(0, limit).map((t) => ({
-        id: t.id,
-        title: t.title,
-        description: t.description,
-        requirements: t.requirements,
-        budget_usd: t.budget_usd ?? null,
-        status: t.status,
-        posted_at: t.posted_at,
-        bid_count: store.getTaskBids(t.id).length,
-      })),
+      tasks: await Promise.all(
+        tasks.slice(0, limit).map(async (t) => {
+          const bids = await store.getTaskBids(t.id);
+          return {
+            id: t.id,
+            title: t.title,
+            description: t.description,
+            requirements: t.requirements,
+            budget_usd: t.budget_usd ?? null,
+            status: t.status,
+            posted_at: t.posted_at,
+            bid_count: bids.length,
+          };
+        })
+      ),
     });
   }
 });
 
-app.get("/api/tasks/:id", (c) => {
-  const task = store.tasks.get(c.req.param("id"));
+app.get("/api/tasks/:id", async (c) => {
+  const task = await store.getTask(c.req.param("id"));
   if (!task) return c.json({ error: "Task not found" }, 404);
 
-  const bids = store.getTaskBids(task.id).map((b) => {
-    const agent = store.agents.get(b.agent_id);
-    return {
-      id: b.id,
-      agent_id: b.agent_id,
-      agent_name: agent?.name ?? "Unknown",
-      approach: b.approach,
-      estimated_minutes: b.estimated_minutes,
-      submitted_at: b.submitted_at,
-    };
-  });
+  const rawBids = await store.getTaskBids(task.id);
+  const bids = await Promise.all(
+    rawBids.map(async (b) => {
+      const agent = await store.getAgent(b.agent_id);
+      return {
+        id: b.id,
+        agent_id: b.agent_id,
+        agent_name: agent?.name ?? "Unknown",
+        approach: b.approach,
+        estimated_minutes: b.estimated_minutes,
+        submitted_at: b.submitted_at,
+      };
+    })
+  );
 
-  const deliveries = Array.from(store.deliveries.values())
-    .filter((d) => d.task_id === task.id)
-    .map((d) => ({
-      id: d.id,
-      agent_id: d.agent_id,
-      result: d.result,
-      delivered_at: d.delivered_at,
-    }));
+  const rawDeliveries = await store.getTaskDeliveries(task.id);
+  const deliveries = rawDeliveries.map((d) => ({
+    id: d.id,
+    agent_id: d.agent_id,
+    result: d.result,
+    delivered_at: d.delivered_at,
+  }));
 
   return c.json({
     id: task.id,
@@ -197,13 +217,13 @@ app.get("/api/tasks/:id", (c) => {
 });
 
 app.get("/api/tasks/:id/matching-agents", async (c) => {
-  const task = store.tasks.get(c.req.param("id"));
+  const task = await store.getTask(c.req.param("id"));
   if (!task) return c.json({ error: "Task not found" }, 404);
 
   const limit = parseInt(c.req.query("limit") ?? "5");
 
   if (task.embedding) {
-    const matches = store.matchAgentsByEmbedding(task.embedding, limit);
+    const matches = await store.matchAgentsByEmbedding(task.embedding, limit);
     return c.json({
       task_id: task.id,
       total: matches.length,
@@ -220,7 +240,8 @@ app.get("/api/tasks/:id/matching-agents", async (c) => {
   }
 
   // Fallback: keyword matching
-  const agents = store.getAllAgents().filter((a) =>
+  const allAgents = await store.getAllAgents();
+  const agents = allAgents.filter((a) =>
     task.requirements.some((req) =>
       a.capabilities.some((cap) => cap.toLowerCase() === req.toLowerCase())
     )
@@ -268,7 +289,7 @@ app.post("/api/tasks", async (c) => {
     // Proceed without embedding
   }
 
-  store.tasks.set(task.id, task);
+  await store.createTask(task);
 
   return c.json({
     task_id: task.id,
@@ -281,7 +302,7 @@ app.post("/api/tasks", async (c) => {
 
 // --- Bids ---
 app.post("/api/tasks/:id/bid", async (c) => {
-  const task = store.tasks.get(c.req.param("id"));
+  const task = await store.getTask(c.req.param("id"));
   if (!task) return c.json({ error: "Task not found" }, 404);
   if (task.status !== "open") return c.json({ error: "Task is not open for bids" }, 400);
 
@@ -294,7 +315,7 @@ app.post("/api/tasks/:id/bid", async (c) => {
   }
   const { agent_id, approach, estimated_minutes } = parseResult.data;
 
-  const agent = store.agents.get(agent_id);
+  const agent = await store.getAgent(agent_id);
   if (!agent) return c.json({ error: "Agent not found" }, 404);
 
   const bid: Bid = {
@@ -305,7 +326,7 @@ app.post("/api/tasks/:id/bid", async (c) => {
     estimated_minutes,
     submitted_at: new Date().toISOString(),
   };
-  store.bids.set(bid.id, bid);
+  await store.createBid(bid);
 
   return c.json({
     bid_id: bid.id,
@@ -316,7 +337,7 @@ app.post("/api/tasks/:id/bid", async (c) => {
 });
 
 app.post("/api/tasks/:id/accept-bid", async (c) => {
-  const task = store.tasks.get(c.req.param("id"));
+  const task = await store.getTask(c.req.param("id"));
   if (!task) return c.json({ error: "Task not found" }, 404);
   if (task.status !== "open") return c.json({ error: "Task is not open" }, 400);
 
@@ -327,14 +348,16 @@ app.post("/api/tasks/:id/accept-bid", async (c) => {
   if (!parseResult.success) {
     return c.json({ error: "Invalid input", details: parseResult.error.flatten().fieldErrors }, 400);
   }
-  const bid = store.bids.get(parseResult.data.bid_id);
+  const bid = await store.getBid(parseResult.data.bid_id);
   if (!bid || bid.task_id !== task.id) return c.json({ error: "Bid not found" }, 404);
 
-  task.status = "assigned";
-  task.assigned_agent_id = bid.agent_id;
-  task.accepted_bid_id = bid.id;
+  await store.updateTask(task.id, {
+    status: "assigned",
+    assigned_agent_id: bid.agent_id,
+    accepted_bid_id: bid.id,
+  });
 
-  const agent = store.agents.get(bid.agent_id);
+  const agent = await store.getAgent(bid.agent_id);
   return c.json({
     task_id: task.id,
     bid_id: bid.id,
@@ -344,7 +367,7 @@ app.post("/api/tasks/:id/accept-bid", async (c) => {
 });
 
 app.post("/api/tasks/:id/deliver", async (c) => {
-  const task = store.tasks.get(c.req.param("id"));
+  const task = await store.getTask(c.req.param("id"));
   if (!task) return c.json({ error: "Task not found" }, 404);
   if (task.status !== "assigned") return c.json({ error: "Task not in assigned state" }, 400);
 
@@ -367,14 +390,14 @@ app.post("/api/tasks/:id/deliver", async (c) => {
     result,
     delivered_at: new Date().toISOString(),
   };
-  store.deliveries.set(delivery.id, delivery);
-  task.status = "delivered";
+  await store.createDelivery(delivery);
+  await store.updateTask(task.id, { status: "delivered" });
 
   return c.json({ delivery_id: delivery.id, status: "delivered" });
 });
 
 app.post("/api/tasks/:id/rate", async (c) => {
-  const task = store.tasks.get(c.req.param("id"));
+  const task = await store.getTask(c.req.param("id"));
   if (!task) return c.json({ error: "Task not found" }, 404);
   if (task.status !== "delivered") return c.json({ error: "Task must be delivered to rate" }, 400);
 
@@ -387,7 +410,7 @@ app.post("/api/tasks/:id/rate", async (c) => {
   }
   const { rating, feedback } = parseResult.data;
 
-  const agent = store.agents.get(task.assigned_agent_id!);
+  const agent = await store.getAgent(task.assigned_agent_id!);
   if (!agent) return c.json({ error: "Agent not found" }, 404);
 
   const ratingEntry: Rating = {
@@ -396,26 +419,29 @@ app.post("/api/tasks/:id/rate", async (c) => {
     feedback: feedback ?? "",
     rated_at: new Date().toISOString(),
   };
-  agent.ratings.push(ratingEntry);
-  task.status = "completed";
+  await store.createRating(agent.id, ratingEntry);
+  await store.updateTask(task.id, { status: "completed" });
+
+  // Re-fetch to get updated ratings
+  const updatedAgent = await store.getAgent(agent.id);
 
   return c.json({
     task_id: task.id,
     agent_id: agent.id,
     agent_name: agent.name,
     rating,
-    new_average: averageRating(agent.ratings),
+    new_average: averageRating(updatedAgent?.ratings ?? []),
     status: "completed",
   });
 });
 
 // --- Verification (Proof of Work) ---
 app.post("/api/tasks/:id/verify/:deliveryId", async (c) => {
-  const task = store.tasks.get(c.req.param("id"));
+  const task = await store.getTask(c.req.param("id"));
   if (!task) return c.json({ error: "Task not found" }, 404);
 
   const deliveryId = c.req.param("deliveryId");
-  const delivery = store.deliveries.get(deliveryId);
+  const delivery = await store.getDelivery(deliveryId);
   if (!delivery || delivery.task_id !== task.id) {
     return c.json({ error: "Delivery not found" }, 404);
   }
@@ -432,11 +458,11 @@ app.post("/api/tasks/:id/verify/:deliveryId", async (c) => {
 
 // Also support GET for convenience
 app.get("/api/tasks/:id/verify/:deliveryId", async (c) => {
-  const task = store.tasks.get(c.req.param("id"));
+  const task = await store.getTask(c.req.param("id"));
   if (!task) return c.json({ error: "Task not found" }, 404);
 
   const deliveryId = c.req.param("deliveryId");
-  const delivery = store.deliveries.get(deliveryId);
+  const delivery = await store.getDelivery(deliveryId);
   if (!delivery || delivery.task_id !== task.id) {
     return c.json({ error: "Delivery not found" }, 404);
   }
@@ -452,30 +478,34 @@ app.get("/api/tasks/:id/verify/:deliveryId", async (c) => {
 });
 
 // --- Agents ---
-app.get("/api/agents", (c) => {
-  const agents = store.getAllAgents().map((a) => {
-    return {
-      id: a.id,
-      name: a.name,
-      capabilities: a.capabilities,
-      description: a.description,
-      average_rating: averageRating(a.ratings),
-      total_ratings: a.ratings.length,
-      total_deliveries: store.getAgentDeliveries(a.id).length,
-      success_rate: successRate(a.ratings),
-      registered_at: a.registered_at,
-      has_embedding: !!a.embedding,
-    };
-  });
+app.get("/api/agents", async (c) => {
+  const allAgents = await store.getAllAgents();
+  const agents = await Promise.all(
+    allAgents.map(async (a) => {
+      const deliveries = await store.getAgentDeliveries(a.id);
+      return {
+        id: a.id,
+        name: a.name,
+        capabilities: a.capabilities,
+        description: a.description,
+        average_rating: averageRating(a.ratings),
+        total_ratings: a.ratings.length,
+        total_deliveries: deliveries.length,
+        success_rate: successRate(a.ratings),
+        registered_at: a.registered_at,
+        has_embedding: !!a.embedding,
+      };
+    })
+  );
 
   return c.json({ total: agents.length, agents });
 });
 
-app.get("/api/agents/:id", (c) => {
-  const agent = store.agents.get(c.req.param("id"));
+app.get("/api/agents/:id", async (c) => {
+  const agent = await store.getAgent(c.req.param("id"));
   if (!agent) return c.json({ error: "Agent not found" }, 404);
 
-  const deliveries = store.getAgentDeliveries(agent.id);
+  const deliveries = await store.getAgentDeliveries(agent.id);
   return c.json({
     id: agent.id,
     name: agent.name,
@@ -496,31 +526,37 @@ app.get("/api/agents/:id", (c) => {
 });
 
 app.get("/api/agents/:id/recommended-tasks", async (c) => {
-  const agent = store.agents.get(c.req.param("id"));
+  const agent = await store.getAgent(c.req.param("id"));
   if (!agent) return c.json({ error: "Agent not found" }, 404);
 
   const limit = parseInt(c.req.query("limit") ?? "5");
 
   if (agent.embedding) {
-    const results = store.searchTasksByEmbedding(agent.embedding, limit);
+    const results = await store.searchTasksByEmbedding(agent.embedding, limit);
     const openResults = results.filter((r) => r.task.status === "open");
     return c.json({
       agent_id: agent.id,
       total: openResults.length,
-      tasks: openResults.map((r) => ({
-        id: r.task.id,
-        title: r.task.title,
-        description: r.task.description,
-        requirements: r.task.requirements,
-        budget_usd: r.task.budget_usd ?? null,
-        match_score: Math.round(r.score * 1000) / 1000,
-        bid_count: store.getTaskBids(r.task.id).length,
-      })),
+      tasks: await Promise.all(
+        openResults.map(async (r) => {
+          const bids = await store.getTaskBids(r.task.id);
+          return {
+            id: r.task.id,
+            title: r.task.title,
+            description: r.task.description,
+            requirements: r.task.requirements,
+            budget_usd: r.task.budget_usd ?? null,
+            match_score: Math.round(r.score * 1000) / 1000,
+            bid_count: bids.length,
+          };
+        })
+      ),
     });
   }
 
   // Fallback
-  const tasks = store.getOpenTasks().filter((t) =>
+  const openTasks = await store.getOpenTasks();
+  const tasks = openTasks.filter((t) =>
     t.requirements.some((req) =>
       agent.capabilities.some((cap) => cap.toLowerCase() === req.toLowerCase())
     )
@@ -530,13 +566,18 @@ app.get("/api/agents/:id/recommended-tasks", async (c) => {
     agent_id: agent.id,
     total: tasks.length,
     fallback: "keyword",
-    tasks: tasks.slice(0, limit).map((t) => ({
-      id: t.id,
-      title: t.title,
-      requirements: t.requirements,
-      budget_usd: t.budget_usd ?? null,
-      bid_count: store.getTaskBids(t.id).length,
-    })),
+    tasks: await Promise.all(
+      tasks.slice(0, limit).map(async (t) => {
+        const bids = await store.getTaskBids(t.id);
+        return {
+          id: t.id,
+          title: t.title,
+          requirements: t.requirements,
+          budget_usd: t.budget_usd ?? null,
+          bid_count: bids.length,
+        };
+      })
+    ),
   });
 });
 
@@ -567,7 +608,7 @@ app.post("/api/agents/register", async (c) => {
     // Proceed without embedding
   }
 
-  store.agents.set(agent.id, agent);
+  await store.createAgent(agent);
 
   return c.json({
     agent_id: agent.id,
@@ -579,20 +620,25 @@ app.post("/api/agents/register", async (c) => {
 });
 
 // --- Leaderboard ---
-app.get("/api/leaderboard", (c) => {
+app.get("/api/leaderboard", async (c) => {
   const limit = parseInt(c.req.query("limit") ?? "10");
-  const topAgents = store.getLeaderboard(limit);
+  const topAgents = await store.getLeaderboard(limit);
 
-  const leaderboard = topAgents.map((agent, index) => ({
-    rank: index + 1,
-    agent_id: agent.id,
-    agent_name: agent.name,
-    capabilities: agent.capabilities,
-    average_rating: averageRating(agent.ratings),
-    total_deliveries: store.getAgentDeliveries(agent.id).length,
-    total_ratings: agent.ratings.length,
-    success_rate: successRate(agent.ratings),
-  }));
+  const leaderboard = await Promise.all(
+    topAgents.map(async (agent, index) => {
+      const deliveries = await store.getAgentDeliveries(agent.id);
+      return {
+        rank: index + 1,
+        agent_id: agent.id,
+        agent_name: agent.name,
+        capabilities: agent.capabilities,
+        average_rating: averageRating(agent.ratings),
+        total_deliveries: deliveries.length,
+        total_ratings: agent.ratings.length,
+        success_rate: successRate(agent.ratings),
+      };
+    })
+  );
 
   return c.json({ total: leaderboard.length, leaderboard });
 });

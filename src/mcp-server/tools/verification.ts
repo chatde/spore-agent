@@ -13,7 +13,7 @@ export function registerVerificationTools(server: McpServer): void {
       delivery_id: z.string().describe("ID of the delivery to verify"),
     },
   }, async ({ task_id, delivery_id }) => {
-    const task = store.tasks.get(task_id);
+    const task = await store.getTask(task_id);
     if (!task) {
       return {
         content: [{ type: "text" as const, text: JSON.stringify({ error: "Task not found" }) }],
@@ -21,7 +21,7 @@ export function registerVerificationTools(server: McpServer): void {
       };
     }
 
-    const delivery = store.deliveries.get(delivery_id);
+    const delivery = await store.getDelivery(delivery_id);
     if (!delivery || delivery.task_id !== task_id) {
       return {
         content: [{ type: "text" as const, text: JSON.stringify({ error: "Delivery not found" }) }],

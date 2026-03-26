@@ -29,7 +29,7 @@ export function registerTaskTools(server: McpServer): void {
       status: "open",
       posted_at: new Date().toISOString(),
     };
-    store.tasks.set(task.id, task);
+    await store.createTask(task);
 
     return {
       content: [
@@ -65,7 +65,7 @@ export function registerTaskTools(server: McpServer): void {
         .describe("Maximum number of tasks to return (default 10)"),
     },
   }, async ({ filter_capabilities, limit }) => {
-    let tasks = store.getOpenTasks();
+    let tasks = await store.getOpenTasks();
 
     if (filter_capabilities && filter_capabilities.length > 0) {
       tasks = tasks.filter((task) =>
@@ -79,15 +79,20 @@ export function registerTaskTools(server: McpServer): void {
 
     tasks = tasks.slice(0, limit);
 
-    const taskSummaries = tasks.map((t) => ({
-      task_id: t.id,
-      title: t.title,
-      description: t.description,
-      requirements: t.requirements,
-      budget_usd: t.budget_usd ?? null,
-      posted_at: t.posted_at,
-      bid_count: store.getTaskBids(t.id).length,
-    }));
+    const taskSummaries = await Promise.all(
+      tasks.map(async (t) => {
+        const bids = await store.getTaskBids(t.id);
+        return {
+          task_id: t.id,
+          title: t.title,
+          description: t.description,
+          requirements: t.requirements,
+          budget_usd: t.budget_usd ?? null,
+          posted_at: t.posted_at,
+          bid_count: bids.length,
+        };
+      })
+    );
 
     return {
       content: [

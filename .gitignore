@@ -10,3 +10,4 @@ dist/
 .vercel/
 chromadb_store/
 __pycache__/
+.gitnexus

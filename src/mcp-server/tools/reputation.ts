@@ -19,7 +19,7 @@ export function registerReputationTools(server: McpServer): void {
       feedback: z.string().describe("Written feedback about the delivery"),
     },
   }, async ({ task_id, rating, feedback }) => {
-    const task = store.tasks.get(task_id);
+    const task = await store.getTask(task_id);
     if (!task) {
       return {
         content: [{ type: "text" as const, text: JSON.stringify({ error: "Task not found" }) }],
@@ -48,7 +48,7 @@ export function registerReputationTools(server: McpServer): void {
       };
     }
 
-    const agent = store.agents.get(agentId);
+    const agent = await store.getAgent(agentId);
     if (!agent) {
       return {
         content: [{ type: "text" as const, text: JSON.stringify({ error: "Agent not found" }) }],
@@ -62,8 +62,11 @@ export function registerReputationTools(server: McpServer): void {
       feedback,
       rated_at: new Date().toISOString(),
     };
-    agent.ratings.push(ratingEntry);
-    task.status = "completed";
+    await store.createRating(agentId, ratingEntry);
+    await store.updateTask(task_id, { status: "completed" });
+
+    // Re-fetch updated agent
+    const updatedAgent = await store.getAgent(agentId);
 
     return {
       content: [
@@ -75,8 +78,8 @@ export function registerReputationTools(server: McpServer): void {
               agent_id: agentId,
               agent_name: agent.name,
               rating,
-              new_average: averageRating(agent.ratings),
-              total_ratings: agent.ratings.length,
+              new_average: averageRating(updatedAgent?.ratings ?? []),
+              total_ratings: (updatedAgent?.ratings ?? []).length,
               status: "rated",
               message: `Rated ${agent.name} ${rating}/5 for "${task.title}".`,
             },
@@ -96,7 +99,7 @@ export function registerReputationTools(server: McpServer): void {
       agent_id: z.string().describe("ID of the agent to look up"),
     },
   }, async ({ agent_id }) => {
-    const agent = store.agents.get(agent_id);
+    const agent = await store.getAgent(agent_id);
     if (!agent) {
       return {
         content: [{ type: "text" as const, text: JSON.stringify({ error: "Agent not found" }) }],
@@ -104,12 +107,14 @@ export function registerReputationTools(server: McpServer): void {
       };
     }
 
+    const deliveries = await store.getAgentDeliveries(agent_id);
+
     const reputation: ReputationData = {
       agent_id: agent.id,
       agent_name: agent.name,
       total_ratings: agent.ratings.length,
       average_rating: averageRating(agent.ratings) ?? 0,
-      total_deliveries: store.getAgentDeliveries(agent_id).length,
+      total_deliveries: deliveries.length,
       capabilities: agent.capabilities,
       ratings: agent.ratings,
     };
@@ -135,16 +140,21 @@ export function registerReputationTools(server: McpServer): void {
         .describe("Number of top agents to return (default 10)"),
     },
   }, async ({ limit }) => {
-    const topAgents = store.getLeaderboard(limit);
+    const topAgents = await store.getLeaderboard(limit);
 
-    const leaderboard: LeaderboardEntry[] = topAgents.map((agent, index) => ({
-      rank: index + 1,
-      agent_id: agent.id,
-      agent_name: agent.name,
-      average_rating: averageRating(agent.ratings) ?? 0,
-      total_deliveries: store.getAgentDeliveries(agent.id).length,
-      total_ratings: agent.ratings.length,
-    }));
+    const leaderboard: LeaderboardEntry[] = await Promise.all(
+      topAgents.map(async (agent, index) => {
+        const deliveries = await store.getAgentDeliveries(agent.id);
+        return {
+          rank: index + 1,
+          agent_id: agent.id,
+          agent_name: agent.name,
+          average_rating: averageRating(agent.ratings) ?? 0,
+          total_deliveries: deliveries.length,
+          total_ratings: agent.ratings.length,
+        };
+      })
+    );
 
     return {
       content: [

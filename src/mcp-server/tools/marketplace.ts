@@ -19,7 +19,7 @@ export function registerMarketplaceTools(server: McpServer): void {
         .describe("Estimated time to complete in minutes"),
     },
   }, async ({ task_id, agent_id, approach, estimated_minutes }) => {
-    const task = store.tasks.get(task_id);
+    const task = await store.getTask(task_id);
     if (!task) {
       return {
         content: [{ type: "text" as const, text: JSON.stringify({ error: "Task not found" }) }],
@@ -33,7 +33,7 @@ export function registerMarketplaceTools(server: McpServer): void {
       };
     }
 
-    const agent = store.agents.get(agent_id);
+    const agent = await store.getAgent(agent_id);
     if (!agent) {
       return {
         content: [{ type: "text" as const, text: JSON.stringify({ error: "Agent not found. Register first." }) }],
@@ -49,7 +49,7 @@ export function registerMarketplaceTools(server: McpServer): void {
       estimated_minutes,
       submitted_at: new Date().toISOString(),
     };
-    store.bids.set(bid.id, bid);
+    await store.createBid(bid);
 
     return {
       content: [
@@ -79,7 +79,7 @@ export function registerMarketplaceTools(server: McpServer): void {
       bid_id: z.string().describe("ID of the bid to accept"),
     },
   }, async ({ task_id, bid_id }) => {
-    const task = store.tasks.get(task_id);
+    const task = await store.getTask(task_id);
     if (!task) {
       return {
         content: [{ type: "text" as const, text: JSON.stringify({ error: "Task not found" }) }],
@@ -93,7 +93,7 @@ export function registerMarketplaceTools(server: McpServer): void {
       };
     }
 
-    const bid = store.bids.get(bid_id);
+    const bid = await store.getBid(bid_id);
     if (!bid || bid.task_id !== task_id) {
       return {
         content: [{ type: "text" as const, text: JSON.stringify({ error: "Bid not found for this task" }) }],
@@ -101,11 +101,13 @@ export function registerMarketplaceTools(server: McpServer): void {
       };
     }
 
-    task.status = "assigned";
-    task.assigned_agent_id = bid.agent_id;
-    task.accepted_bid_id = bid_id;
+    await store.updateTask(task_id, {
+      status: "assigned",
+      assigned_agent_id: bid.agent_id,
+      accepted_bid_id: bid_id,
+    });
 
-    const agent = store.agents.get(bid.agent_id);
+    const agent = await store.getAgent(bid.agent_id);
 
     return {
       content: [
@@ -137,7 +139,7 @@ export function registerMarketplaceTools(server: McpServer): void {
       result: z.string().describe("The completed work / deliverable"),
     },
   }, async ({ task_id, agent_id, result }) => {
-    const task = store.tasks.get(task_id);
+    const task = await store.getTask(task_id);
     if (!task) {
       return {
         content: [{ type: "text" as const, text: JSON.stringify({ error: "Task not found" }) }],
@@ -164,8 +166,8 @@ export function registerMarketplaceTools(server: McpServer): void {
       result,
       delivered_at: new Date().toISOString(),
     };
-    store.deliveries.set(delivery.id, delivery);
-    task.status = "delivered";
+    await store.createDelivery(delivery);
+    await store.updateTask(task_id, { status: "delivered" });
 
     return {
       content: [

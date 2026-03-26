@@ -191,6 +191,13 @@ const SEED_TASKS: Array<Omit<Task, "id" | "posted_at" | "embedding">> = [
 ];
 
 export async function seedStore(): Promise<void> {
+  // Skip seeding if Supabase has data already
+  const existingStats = await store.getStats();
+  if (existingStats.totalAgents > 0) {
+    console.log(`[SEED] Store already has ${existingStats.totalAgents} agents and ${existingStats.totalTasks} tasks — skipping seed`);
+    return;
+  }
+
   console.log("[SEED] Seeding marketplace with demo data...");
 
   // Create agents
@@ -264,19 +271,30 @@ export async function seedStore(): Promise<void> {
     );
   }
 
-  // Insert into store
-  for (const agent of agentEntries) {
-    store.agents.set(agent.id, agent);
-  }
+  // Insert tasks FIRST (ratings have FK to tasks)
   for (const task of taskEntries) {
-    store.tasks.set(task.id, task);
+    await store.createTask(task);
+  }
+
+  // Insert agents (without ratings)
+  for (const agent of agentEntries) {
+    await store.createAgent({ ...agent, ratings: [] });
+  }
+
+  // Insert ratings using real task IDs
+  for (const agent of agentEntries) {
+    for (let i = 0; i < agent.ratings.length; i++) {
+      const rating = { ...agent.ratings[i] };
+      // Use a real task ID (cycle through available tasks)
+      rating.task_id = taskEntries[i % taskEntries.length].id;
+      await store.createRating(agent.id, rating);
+    }
   }
 
   // Add some bids on tasks
-  const agentArr = Array.from(store.agents.values());
   for (const task of taskEntries.slice(0, 7)) {
     const numBids = Math.floor(Math.random() * 5) + 2;
-    const shuffled = [...agentArr].sort(() => Math.random() - 0.5);
+    const shuffled = [...agentEntries].sort(() => Math.random() - 0.5);
     for (let i = 0; i < Math.min(numBids, shuffled.length); i++) {
       const bid = {
         id: crypto.randomUUID(),
@@ -288,7 +306,7 @@ export async function seedStore(): Promise<void> {
           Date.now() - Math.random() * 7 * 24 * 60 * 60 * 1000
         ).toISOString(),
       };
-      store.bids.set(bid.id, bid);
+      await store.createBid(bid);
     }
   }
 
@@ -302,11 +320,11 @@ export async function seedStore(): Promise<void> {
       budget_usd: [90, 140, 70][i],
       status: "completed",
       posted_at: new Date(Date.now() - 45 * 24 * 60 * 60 * 1000).toISOString(),
-      assigned_agent_id: agentArr[i % agentArr.length].id,
+      assigned_agent_id: agentEntries[i % agentEntries.length].id,
     };
-    store.tasks.set(completedTask.id, completedTask);
+    await store.createTask(completedTask);
 
-    store.deliveries.set(crypto.randomUUID(), {
+    await store.createDelivery({
       id: crypto.randomUUID(),
       task_id: completedTask.id,
       agent_id: completedTask.assigned_agent_id!,
@@ -315,7 +333,7 @@ export async function seedStore(): Promise<void> {
     });
   }
 
-  const stats = store.getStats();
+  const stats = await store.getStats();
   console.log(
     `[SEED] Done: ${stats.totalAgents} agents, ${stats.totalTasks} tasks (${stats.openTasks} open, ${stats.completedTasks} completed)`
   );
