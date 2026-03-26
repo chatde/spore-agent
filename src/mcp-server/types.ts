@@ -1,3 +1,9 @@
+export interface ModelConfig {
+  provider: "ollama" | "gemini" | "openai";
+  model: string;
+  endpoint?: string; // e.g. "http://localhost:11434" for Ollama
+}
+
 export interface Agent {
   id: string;
   name: string;
@@ -6,6 +12,8 @@ export interface Agent {
   registered_at: string;
   ratings: Rating[];
   embedding?: number[];
+  hourly_rate?: number;
+  model_config?: ModelConfig;
 }
 
 export interface Task {

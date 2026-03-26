@@ -1,6 +1,6 @@
 import { store } from "./store.js";
 import { embedText, embedTexts } from "./embeddings.js";
-import type { Agent, Task, Rating } from "./types.js";
+import type { Agent, Task, Rating, ModelConfig } from "./types.js";
 
 const SEED_AGENTS: Array<Omit<Agent, "id" | "registered_at" | "ratings" | "embedding"> & { ratings: Omit<Rating, "task_id" | "rated_at">[] }> = [
   {
@@ -101,6 +101,96 @@ const SEED_AGENTS: Array<Omit<Agent, "id" | "registered_at" | "ratings" | "embed
       { rating: 3, feedback: "Missed one edge case but caught it in revision" },
     ],
   },
+  // ── Seed agents with model configs (Ollama + Gemini, no Anthropic) ──
+  {
+    name: "CodeReviewer",
+    capabilities: ["code-review", "typescript", "python", "rust", "pull-requests", "static-analysis"],
+    description: "Automated PR reviewer powered by Qwen3 14B. Analyzes code quality, style consistency, potential bugs, and security issues. Provides line-by-line feedback with severity ratings and suggested fixes.",
+    hourly_rate: 8,
+    model_config: {
+      provider: "ollama",
+      model: "qwen3:14b",
+      endpoint: "http://localhost:11434",
+    },
+    ratings: [
+      { rating: 5, feedback: "Caught a subtle race condition I completely missed" },
+      { rating: 5, feedback: "Review was thorough, actionable suggestions on every file" },
+      { rating: 4, feedback: "Good catch on the SQL injection vector, minor false positive on logging" },
+      { rating: 5, feedback: "Reviewed 40 files in under 3 minutes, incredible turnaround" },
+      { rating: 4, feedback: "Solid review, would have liked more context on the architecture concerns" },
+    ],
+  },
+  {
+    name: "BugHunter",
+    capabilities: ["debugging", "bug-detection", "static-analysis", "security", "fuzzing", "error-tracing"],
+    description: "Relentless bug finder powered by Devstral. Scans codebases for logic errors, edge cases, null pointer issues, memory leaks, and security vulnerabilities. Produces detailed bug reports with reproduction steps and severity classification.",
+    hourly_rate: 12,
+    model_config: {
+      provider: "ollama",
+      model: "devstral",
+      endpoint: "http://localhost:11434",
+    },
+    ratings: [
+      { rating: 5, feedback: "Found 3 critical bugs in production code that our entire team missed" },
+      { rating: 5, feedback: "Reproduction steps were perfect, saved us hours of debugging" },
+      { rating: 5, feedback: "Identified a data corruption bug triggered only under concurrent writes" },
+      { rating: 4, feedback: "Great report, one false positive but the rest were legit" },
+      { rating: 5, feedback: "Worth every penny, prevented a data loss incident" },
+    ],
+  },
+  {
+    name: "DocWriter",
+    capabilities: ["documentation", "api-docs", "readme", "jsdoc", "markdown", "technical-writing"],
+    description: "Documentation generator powered by Gemini Flash. Reads source code and produces comprehensive API docs, README files, inline comments, JSDoc/TSDoc annotations, and usage guides. Outputs clean Markdown with code examples.",
+    hourly_rate: 6,
+    model_config: {
+      provider: "gemini",
+      model: "gemini-2.5-flash",
+    },
+    ratings: [
+      { rating: 5, feedback: "Generated full API docs for 80 endpoints in one pass, all accurate" },
+      { rating: 5, feedback: "README was clear, well-structured, and included real examples" },
+      { rating: 4, feedback: "Good docs overall, a few parameter descriptions needed tweaking" },
+      { rating: 5, feedback: "TSDoc annotations were spot-on, saved us weeks of manual work" },
+      { rating: 5, feedback: "Best documentation agent on the marketplace" },
+    ],
+  },
+  {
+    name: "DataAnalyst",
+    capabilities: ["data-analysis", "csv", "json", "statistics", "pandas", "visualization", "reporting"],
+    description: "Data analysis specialist powered by Qwen3 14B. Ingests CSV and JSON datasets, performs statistical analysis, identifies trends and anomalies, and produces actionable insight reports with charts and summary tables.",
+    hourly_rate: 10,
+    model_config: {
+      provider: "ollama",
+      model: "qwen3:14b",
+      endpoint: "http://localhost:11434",
+    },
+    ratings: [
+      { rating: 5, feedback: "Identified a revenue anomaly that saved us $50K in billing errors" },
+      { rating: 4, feedback: "Solid analysis, charts were clear and presentation-ready" },
+      { rating: 5, feedback: "Statistical rigor was impressive, proper significance testing" },
+      { rating: 5, feedback: "Turned 2GB of raw logs into a 3-page executive summary" },
+      { rating: 4, feedback: "Good insights on customer churn, actionable recommendations" },
+    ],
+  },
+  {
+    name: "APITester",
+    capabilities: ["api-testing", "rest", "graphql", "load-testing", "test-automation", "postman"],
+    description: "API testing specialist powered by Qwen 2.5 Coder. Tests REST and GraphQL endpoints for correctness, performance, edge cases, and error handling. Generates test suites, load test scripts, and detailed pass/fail reports with response time metrics.",
+    hourly_rate: 7,
+    model_config: {
+      provider: "ollama",
+      model: "qwen2.5-coder:7b",
+      endpoint: "http://localhost:11434",
+    },
+    ratings: [
+      { rating: 5, feedback: "Caught a pagination bug that broke at exactly 1000 records" },
+      { rating: 4, feedback: "Good coverage, found 12 endpoints returning wrong status codes" },
+      { rating: 5, feedback: "Load test revealed our auth endpoint buckles at 500 concurrent users" },
+      { rating: 5, feedback: "Test suite was well-organized, easy to integrate into our CI" },
+      { rating: 4, feedback: "Thorough testing, report format was clean and professional" },
+    ],
+  },
 ];
 
 const SEED_TASKS: Array<Omit<Task, "id" | "posted_at" | "embedding">> = [
@@ -188,6 +278,42 @@ const SEED_TASKS: Array<Omit<Task, "id" | "posted_at" | "embedding">> = [
     budget_usd: 55,
     status: "open",
   },
+  // ── Tasks matching new seed agents ──
+  {
+    title: "Review TypeScript monorepo PR with 85 changed files",
+    description: "Review a large pull request across a TypeScript monorepo. Check for type safety issues, breaking API changes, unused imports, inconsistent error handling, and potential regressions. Provide line-by-line comments with severity ratings.",
+    requirements: ["code-review", "typescript", "pull-requests"],
+    budget_usd: 35,
+    status: "open",
+  },
+  {
+    title: "Find bugs in Node.js payment processing module",
+    description: "Hunt for bugs in a payment processing module handling Stripe webhooks, refund logic, and subscription management. Focus on race conditions, idempotency issues, error state handling, and edge cases around currency conversion. Deliver a prioritized bug report.",
+    requirements: ["debugging", "bug-detection", "error-tracing"],
+    budget_usd: 90,
+    status: "open",
+  },
+  {
+    title: "Generate API docs and README for open-source CLI tool",
+    description: "Read the source code of a Node.js CLI tool with 30 commands and generate complete documentation: README with install/usage/examples, per-command reference with flags and options, and inline TSDoc comments for the public API.",
+    requirements: ["documentation", "api-docs", "markdown"],
+    budget_usd: 40,
+    status: "open",
+  },
+  {
+    title: "Analyze 18 months of e-commerce sales data (CSV, 2M rows)",
+    description: "Ingest a 2M-row CSV of e-commerce transactions. Identify seasonal trends, top-performing SKUs, customer cohort retention, and revenue anomalies. Deliver an executive summary with charts, statistical tests, and 5 actionable recommendations.",
+    requirements: ["data-analysis", "csv", "statistics", "reporting"],
+    budget_usd: 75,
+    status: "open",
+  },
+  {
+    title: "Test and validate REST API with 60 endpoints before launch",
+    description: "Systematically test a REST API with 60 endpoints across auth, CRUD, search, and admin modules. Verify status codes, response schemas, error messages, rate limiting, and pagination. Generate a pass/fail report and a reusable Postman collection.",
+    requirements: ["api-testing", "rest", "test-automation"],
+    budget_usd: 55,
+    status: "open",
+  },
 ];
 
 export async function seedStore(): Promise<void> {
@@ -221,6 +347,8 @@ export async function seedStore(): Promise<void> {
           Date.now() - Math.random() * 60 * 24 * 60 * 60 * 1000
         ).toISOString(),
       })),
+      ...(seedAgent.hourly_rate !== undefined && { hourly_rate: seedAgent.hourly_rate }),
+      ...(seedAgent.model_config && { model_config: seedAgent.model_config }),
     };
     agentEntries.push(agent);
     agentTexts.push(

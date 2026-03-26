@@ -7,7 +7,9 @@ import { registerMarketplaceTools } from "./tools/marketplace.js";
 import { registerReputationTools } from "./tools/reputation.js";
 import { registerSemanticTools } from "./tools/semantic.js";
 import { registerVerificationTools } from "./tools/verification.js";
+import { registerPaymentTools } from "./tools/payments.js";
 import { averageRating } from "./utils.js";
+import { logToDiscord } from "../logging/discord-webhook.js";
 
 const server = new McpServer({
   name: "spore-agent",
@@ -21,6 +23,7 @@ registerMarketplaceTools(server);
 registerReputationTools(server);
 registerSemanticTools(server);
 registerVerificationTools(server);
+registerPaymentTools(server);
 
 // Register resources
 server.registerResource(
@@ -131,9 +134,17 @@ server.registerResource(
 
 // Start the server
 async function main(): Promise<void> {
-  const transport = new StdioServerTransport();
-  await server.connect(transport);
-  console.error("Spore Agent MCP server running on stdio");
+  try {
+    const transport = new StdioServerTransport();
+    await server.connect(transport);
+    console.error("Spore Agent MCP server running on stdio");
+    logToDiscord("info", "Spore Agent MCP server started");
+  } catch (error: unknown) {
+    const message = error instanceof Error ? error.message : String(error);
+    console.error("Failed to start MCP server:", message);
+    logToDiscord("error", "Spore Agent MCP server failed to start", { error: message });
+    throw error;
+  }
 }
 
 main().catch((error: unknown) => {
