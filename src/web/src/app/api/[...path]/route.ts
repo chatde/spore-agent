@@ -181,6 +181,39 @@ export async function GET(req: NextRequest, { params }: { params: Promise<{ path
     });
   }
 
+  // GET /api/arena/challenges
+  if (route === "arena/challenges") {
+    const gameType = new URL(req.url).searchParams.get("game_type") ?? undefined;
+    return json(store.getArenaChallenges(gameType));
+  }
+
+  // GET /api/arena/leaderboard
+  if (route === "arena/leaderboard") {
+    const limit = parseInt(new URL(req.url).searchParams.get("limit") ?? "25");
+    return json({ total: store.getArenaLeaderboard(limit).length, leaderboard: store.getArenaLeaderboard(limit) });
+  }
+
+  // GET /api/arena/live
+  if (route === "arena/live") {
+    return json({ matches: store.getArenaLiveMatches(50) });
+  }
+
+  // GET /api/arena/stats
+  if (route === "arena/stats") {
+    return json(store.getArenaStats());
+  }
+
+  // GET /api/arena/results
+  if (route === "arena/results") {
+    const matches = store.getArenaMatches();
+    const scored = matches.filter((m: any) => m.status === "scored").map((m: any) => ({
+      agent_name: m.agent_name, agent_id: m.agent_id, game_type: m.game_type,
+      difficulty: m.difficulty, score: m.score, cog_earned: m.cog_earned,
+      status: m.status, scored_at: m.submitted_at ?? "", reward_pool_cog: m.reward_pool_cog,
+    }));
+    return json({ total: scored.length, results: scored });
+  }
+
   return json({ error: "Not found" }, 404);
 }
 
@@ -230,6 +263,67 @@ export async function POST(req: NextRequest, { params }: { params: Promise<{ pat
       submitted_at: new Date().toISOString(),
     });
     return json({ bid_id: id, task_id: task.id, agent_name: agent.name, status: "submitted" }, 201);
+  }
+
+  // POST /api/arena/challenges
+  if (path.join("/") === "arena/challenges") {
+    const validGames = ["pattern_siege", "prompt_duel", "code_golf", "memory_palace"];
+    const { game_type, difficulty = 3, reward_pool_cog = 100, max_participants = 2 } = body;
+    if (!game_type || !validGames.includes(game_type)) {
+      return json({ error: `game_type must be one of: ${validGames.join(", ")}` }, 400);
+    }
+    const id = crypto.randomUUID();
+    const challenge = {
+      id, game_type, difficulty: Math.max(1, Math.min(10, difficulty)),
+      status: "open" as const, entry_fee_cog: difficulty * 5,
+      reward_pool_cog: Math.max(0, Math.min(10000, reward_pool_cog)),
+      max_participants: Math.max(1, Math.min(10, max_participants)),
+      created_at: new Date().toISOString(),
+    };
+    store.arenaChallenges.set(id, challenge);
+    return json({ challenge_id: id, ...challenge }, 201);
+  }
+
+  // POST /api/arena/challenges/:id/join
+  if (path[0] === "arena" && path[1] === "challenges" && path.length === 4 && path[3] === "join") {
+    const challengeId = path[2];
+    const challenge = store.arenaChallenges.get(challengeId);
+    if (!challenge) return json({ error: "Challenge not found" }, 404);
+    if (challenge.status !== "open") return json({ error: "Challenge not open" }, 400);
+    const { agent_id } = body;
+    if (!agent_id) return json({ error: "agent_id required" }, 400);
+    const matchId = crypto.randomUUID();
+    const gameNames: Record<string, string> = { pattern_siege: "Pattern Siege", prompt_duel: "Prompt Duel", code_golf: "Code Golf", memory_palace: "Memory Palace" };
+    const agent = store.agents.get(agent_id);
+    store.arenaMatches.set(matchId, {
+      id: matchId, challenge_id: challengeId, agent_id,
+      agent_name: agent?.name ?? agent_id.slice(0, 8),
+      game_type: challenge.game_type as any, game_name: gameNames[challenge.game_type] ?? challenge.game_type,
+      game_icon: "game", status: "playing", score: 0, cog_earned: 0,
+      started_at: new Date().toISOString(), difficulty: challenge.difficulty,
+      reward_pool_cog: challenge.reward_pool_cog,
+    });
+    return json({ match_id: matchId, status: "playing", challenge }, 201);
+  }
+
+  // POST /api/arena/matches/:id/submit
+  if (path[0] === "arena" && path[1] === "matches" && path.length === 4 && path[3] === "submit") {
+    const matchId = path[2];
+    const match = store.arenaMatches.get(matchId);
+    if (!match) return json({ error: "Match not found" }, 404);
+    if (match.status !== "playing") return json({ error: "Match not in playing state" }, 400);
+    const score = Math.min(Math.floor(Math.random() * 30 + 60), 100);
+    const challenge = store.arenaChallenges.get(match.challenge_id);
+    const cogEarned = Math.floor(score * (challenge?.reward_pool_cog ?? 100) / 100);
+    match.status = "scored";
+    match.score = score;
+    match.cog_earned = cogEarned;
+    match.submitted_at = new Date().toISOString();
+    const bal = store.arenaBalances.get(match.agent_id) ?? { balance: 0, lifetime: 0 };
+    bal.balance += cogEarned;
+    bal.lifetime += cogEarned;
+    store.arenaBalances.set(match.agent_id, bal);
+    return json({ match_id: matchId, score, cog_earned: cogEarned, status: "scored", feedback: score >= 80 ? "Excellent!" : "Solid showing." });
   }
 
   return json({ error: "Not found" }, 404);
