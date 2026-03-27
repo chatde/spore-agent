@@ -793,7 +793,13 @@ app.post("/api/arena/challenges", async (c) => {
   try { body = await c.req.json(); } catch { return c.json({ error: "Invalid JSON" }, 400); }
   const { agent_id, game_type, difficulty = 3, reward_pool_cog = 100, max_participants = 2 } = body;
 
-  if (!game_type) return c.json({ error: "game_type required" }, 400);
+  const validGames = ["pattern_siege", "prompt_duel", "code_golf", "memory_palace"];
+  if (!game_type || !validGames.includes(game_type)) {
+    return c.json({ error: `game_type must be one of: ${validGames.join(", ")}` }, 400);
+  }
+  if (difficulty < 1 || difficulty > 10) return c.json({ error: "difficulty must be 1-10" }, 400);
+  if (reward_pool_cog < 0 || reward_pool_cog > 10000) return c.json({ error: "reward_pool_cog must be 0-10000" }, 400);
+  if (max_participants < 1 || max_participants > 10) return c.json({ error: "max_participants must be 1-10" }, 400);
 
   const challenge = {
     id: crypto.randomUUID(),
@@ -816,9 +822,23 @@ app.post("/api/arena/challenges/:id/join", async (c) => {
   try { body = await c.req.json(); } catch { return c.json({ error: "Invalid JSON" }, 400); }
   const { agent_id } = body;
 
+  // Validate agent exists
+  if (!agent_id) return c.json({ error: "agent_id required" }, 400);
+  const agent = await store.getAgent(agent_id);
+  if (!agent) return c.json({ error: "Agent not found" }, 404);
+
   const challenge = await store.getChallenge(challengeId);
   if (!challenge) return c.json({ error: "Challenge not found" }, 404);
   if (challenge.status !== "open") return c.json({ error: "Challenge not open" }, 400);
+
+  // Debit entry fee
+  if (challenge.entry_fee_cog > 0) {
+    try {
+      await store.debitTokens(agent_id, challenge.entry_fee_cog, "arena_entry_fee", challengeId);
+    } catch {
+      return c.json({ error: `Insufficient COG balance (need ${challenge.entry_fee_cog})` }, 400);
+    }
+  }
 
   const match = {
     id: crypto.randomUUID(),
@@ -853,10 +873,32 @@ app.post("/api/arena/matches/:id/submit", async (c) => {
   const challenge = await store.getChallenge(match.challenge_id);
   if (!challenge) return c.json({ error: "Challenge not found" }, 404);
 
-  // Simple scoring based on submission
   const submission = body.submission || body;
-  const score = Math.min(Math.floor(Math.random() * 40) + 60, 100); // 60-100 for now
-  const cogEarned = Math.floor(score * challenge.reward_pool_cog / (100 * challenge.max_participants));
+
+  // Use game engine for real scoring (not random)
+  let score = 0;
+  let feedback = "";
+  try {
+    const { patternSiege } = await import("./arena/games/pattern-siege.js");
+    const { promptDuel } = await import("./arena/games/prompt-duel.js");
+    const { codeGolf } = await import("./arena/games/code-golf.js");
+    const { memoryPalace } = await import("./arena/games/memory-palace.js");
+    const engines: Record<string, any> = { pattern_siege: patternSiege, prompt_duel: promptDuel, code_golf: codeGolf, memory_palace: memoryPalace };
+    const engine = engines[challenge.game_type];
+    if (engine) {
+      const result = await engine.scoreSubmission(match, challenge, submission);
+      score = result.score;
+      feedback = result.feedback;
+    } else {
+      score = 50;
+      feedback = "Unknown game type";
+    }
+  } catch {
+    // Fallback if engine fails
+    score = Math.min(Math.floor(Math.random() * 30) + 50, 100);
+    feedback = "Scored (engine fallback)";
+  }
+  const cogEarned = Math.floor(Math.max(score, 0) * challenge.reward_pool_cog / (100 * challenge.max_participants));
 
   await store.updateMatch(matchId, {
     status: "scored",

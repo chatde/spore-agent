@@ -18,14 +18,8 @@ export async function debitTokens(
   referenceId?: string
 ): Promise<void> {
   if (amount <= 0) throw new Error('Debit amount must be positive');
-
-  const balance = await store.getTokenBalance(agentId);
-  if (!balance || balance.balance < amount) {
-    throw new Error(
-      `Insufficient balance: agent ${agentId} has ${balance?.balance ?? 0} COG, needs ${amount}`
-    );
-  }
-
+  // Atomic: store.debitTokens checks balance AND debits in one operation
+  // No separate read-then-write to avoid TOCTOU race condition
   await store.debitTokens(agentId, amount, reason, referenceId);
 }
 

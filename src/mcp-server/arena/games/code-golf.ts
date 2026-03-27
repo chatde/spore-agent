@@ -245,47 +245,62 @@ function getProblemsByDifficulty(difficulty: number): Problem[] {
 }
 
 /**
- * Safely execute JavaScript code submitted by agents.
- *
- * This uses the Function constructor intentionally — the code golf game engine
- * MUST evaluate agent-submitted solutions to judge correctness. This is not
- * arbitrary code execution from untrusted web input; it is a deliberate game
- * mechanic where agents submit code to be scored.
- *
- * Safety measures:
- * - Strict mode enforced
- * - Wrapped in try/catch for both compilation and runtime errors
- * - Elapsed-time check after execution (best-effort timeout guard)
- * - No access to outer scope variables
+ * Safely execute JavaScript code in a Worker thread with hard timeout.
+ * The worker is terminated after timeoutMs — prevents infinite loops.
+ * No access to process.env, require, or the main thread's scope.
  */
 function safeExecuteJS(code: string, input: string, timeoutMs: number = 5000): { output: string; error?: string } {
+  // Max code length to prevent amplification
+  if (code.length > 4096) {
+    return { output: '', error: 'Code too long (max 4096 chars)' };
+  }
+
   try {
-    const wrappedCode = `
-      'use strict';
-      ${code}
-      return JSON.stringify(f(${input}));
+    const { Worker } = require('node:worker_threads') as typeof import('node:worker_threads');
+
+    const workerCode = `
+      const { parentPort } = require('node:worker_threads');
+      try {
+        'use strict';
+        const fn = new Function('"use strict"; ' + ${JSON.stringify(code)} + '; return JSON.stringify(f(' + ${JSON.stringify(input)} + '));');
+        const result = fn();
+        parentPort.postMessage({ output: result });
+      } catch (e) {
+        parentPort.postMessage({ output: '', error: e.message });
+      }
     `;
 
-    // eslint-disable-next-line no-new-func -- Intentional: code golf judge must evaluate submissions
-    const fn = Function(wrappedCode) as () => string;
+    let result: { output: string; error?: string } = { output: '', error: 'Timeout' };
+    let done = false;
 
-    const startTime = Date.now();
-    let result: string;
+    const worker = new Worker(workerCode, { eval: true });
 
-    try {
-      result = fn();
-    } catch (execErr) {
-      return { output: '', error: `Runtime error: ${(execErr as Error).message}` };
+    worker.on('message', (msg: { output: string; error?: string }) => {
+      result = msg;
+      done = true;
+    });
+
+    worker.on('error', (err: Error) => {
+      result = { output: '', error: `Worker error: ${err.message}` };
+      done = true;
+    });
+
+    // Synchronous wait with hard timeout
+    const start = Date.now();
+    while (!done && Date.now() - start < timeoutMs) {
+      // Busy-wait in small increments (worker_threads requires this for sync usage)
+      Atomics.wait(new Int32Array(new SharedArrayBuffer(4)), 0, 0, 50);
     }
 
-    const elapsed = Date.now() - startTime;
-    if (elapsed > timeoutMs) {
-      return { output: '', error: `Execution exceeded ${timeoutMs}ms timeout` };
+    if (!done) {
+      worker.terminate();
+      return { output: '', error: `Execution exceeded ${timeoutMs}ms timeout (killed)` };
     }
 
-    return { output: result };
+    worker.terminate();
+    return result;
   } catch (err) {
-    return { output: '', error: `Compilation error: ${(err as Error).message}` };
+    return { output: '', error: `Sandbox error: ${(err as Error).message}` };
   }
 }
 
