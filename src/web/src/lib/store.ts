@@ -40,12 +40,26 @@ export interface Delivery {
   delivered_at: string;
 }
 
+// Seeded PRNG to avoid React hydration mismatch (server vs client must produce same values)
+let _seed = 42;
+function seededRandom(): number {
+  _seed = (_seed * 16807 + 0) % 2147483647;
+  return (_seed - 1) / 2147483646;
+}
+
 function uuid(): string {
-  return crypto.randomUUID();
+  // Deterministic UUID-like string from seed
+  const hex = () => Math.floor(seededRandom() * 16).toString(16);
+  return 'xxxxxxxx-xxxx-4xxx-yxxx-xxxxxxxxxxxx'.replace(/[xy]/g, (c) => {
+    const r = Math.floor(seededRandom() * 16);
+    return (c === 'x' ? r : (r & 0x3 | 0x8)).toString(16);
+  });
 }
 
 function randomDate(daysAgo: number): string {
-  return new Date(Date.now() - Math.random() * daysAgo * 86400000).toISOString();
+  // Use a fixed base time so server and client agree
+  const BASE_TIME = new Date('2026-03-27T00:00:00Z').getTime();
+  return new Date(BASE_TIME - seededRandom() * daysAgo * 86400000).toISOString();
 }
 
 // Singleton store
@@ -105,13 +119,13 @@ class Store {
         budget_usd: s.budget_usd, status: "open", posted_at: randomDate(30),
       });
       // Add random bids
-      const numBids = Math.floor(Math.random() * 5) + 2;
-      const shuffled = [...agentArr].sort(() => Math.random() - 0.5);
+      const numBids = Math.floor(seededRandom() * 5) + 2;
+      const shuffled = [...agentArr].sort(() => seededRandom() - 0.5);
       for (let i = 0; i < Math.min(numBids, shuffled.length); i++) {
         const bid: Bid = {
           id: uuid(), task_id: id, agent_id: shuffled[i].id,
           approach: `I'll use my expertise in ${shuffled[i].capabilities.slice(0, 2).join(" and ")} to deliver this efficiently.`,
-          estimated_minutes: Math.floor(Math.random() * 120) + 30,
+          estimated_minutes: Math.floor(seededRandom() * 120) + 30,
           submitted_at: randomDate(7),
         };
         this.bids.set(bid.id, bid);
@@ -176,8 +190,8 @@ class Store {
     // Give all agents some COG
     for (const a of agentArr) {
       this.arenaBalances.set(a.id, {
-        balance: Math.floor(Math.random() * 500) + 50,
-        lifetime: Math.floor(Math.random() * 2000) + 100,
+        balance: Math.floor(seededRandom() * 500) + 50,
+        lifetime: Math.floor(seededRandom() * 2000) + 100,
       });
     }
 
@@ -196,13 +210,13 @@ class Store {
     for (let i = 0; i < 16; i++) {
       const gt = gameTypes[i % 4];
       const status = statuses[i % statuses.length];
-      const difficulty = Math.floor(Math.random() * 8) + 1;
+      const difficulty = Math.floor(seededRandom() * 8) + 1;
       const cId = uuid();
 
       const challenge: ArenaChallenge = {
         id: cId, game_type: gt, difficulty, status,
         entry_fee_cog: difficulty * 5,
-        reward_pool_cog: difficulty * 50 + Math.floor(Math.random() * 200),
+        reward_pool_cog: difficulty * 50 + Math.floor(seededRandom() * 200),
         max_participants: gt === "prompt_duel" ? 2 : 4,
         created_at: randomDate(14),
         completed_at: status === "completed" ? randomDate(3) : undefined,
@@ -211,10 +225,10 @@ class Store {
 
       // Add matches for active/completed challenges
       if (status !== "open") {
-        const participants = [...agentArr].sort(() => Math.random() - 0.5).slice(0, challenge.max_participants);
+        const participants = [...agentArr].sort(() => seededRandom() - 0.5).slice(0, challenge.max_participants);
         for (const p of participants) {
           const mId = uuid();
-          const score = status === "completed" ? Math.floor(Math.random() * 80) + 20 : 0;
+          const score = status === "completed" ? Math.floor(seededRandom() * 80) + 20 : 0;
           const cogEarned = status === "completed" ? Math.floor(score * challenge.reward_pool_cog / 400) : 0;
           this.arenaMatches.set(mId, {
             id: mId, challenge_id: cId, agent_id: p.id, agent_name: p.name,
