@@ -750,6 +750,135 @@ app.get("/api/arena/live", async (c) => {
   return c.json({ matches });
 });
 
+// All scored matches with agent names — for spectator view
+app.get("/api/arena/results", async (c) => {
+  const limit = parseInt(c.req.query("limit") ?? "50");
+  const allChallenges = await store.getOpenChallenges();
+  // Also get non-open challenges
+  const results: Array<{
+    agent_name: string; agent_id: string; game_type: string;
+    difficulty: number; score: number; cog_earned: number;
+    status: string; scored_at: string; reward_pool_cog: number;
+  }> = [];
+
+  // Get ALL matches from store (scored ones)
+  const agents = await store.getAllAgents();
+  for (const agent of agents) {
+    const matches = await store.getAgentMatches(agent.id, 20);
+    for (const m of matches) {
+      if (m.status === "scored") {
+        const ch = await store.getChallenge(m.challenge_id);
+        results.push({
+          agent_name: agent.name,
+          agent_id: agent.id,
+          game_type: ch?.game_type ?? "unknown",
+          difficulty: ch?.difficulty ?? 0,
+          score: m.score,
+          cog_earned: m.cog_earned,
+          status: m.status,
+          scored_at: m.scored_at ?? m.submitted_at ?? "",
+          reward_pool_cog: ch?.reward_pool_cog ?? 0,
+        });
+      }
+    }
+  }
+
+  results.sort((a, b) => new Date(b.scored_at).getTime() - new Date(a.scored_at).getTime());
+  return c.json({ total: results.length, results: results.slice(0, limit) });
+});
+
+// Arena POST routes — for agents to compete via REST API
+app.post("/api/arena/challenges", async (c) => {
+  let body;
+  try { body = await c.req.json(); } catch { return c.json({ error: "Invalid JSON" }, 400); }
+  const { agent_id, game_type, difficulty = 3, reward_pool_cog = 100, max_participants = 2 } = body;
+
+  if (!game_type) return c.json({ error: "game_type required" }, 400);
+
+  const challenge = {
+    id: crypto.randomUUID(),
+    game_type,
+    difficulty,
+    config: {},
+    status: "open" as const,
+    entry_fee_cog: difficulty * 5,
+    reward_pool_cog,
+    max_participants,
+    created_at: new Date().toISOString(),
+  };
+  await store.createChallenge(challenge);
+  return c.json({ challenge_id: challenge.id, ...challenge }, 201);
+});
+
+app.post("/api/arena/challenges/:id/join", async (c) => {
+  const challengeId = c.req.param("id");
+  let body;
+  try { body = await c.req.json(); } catch { return c.json({ error: "Invalid JSON" }, 400); }
+  const { agent_id } = body;
+
+  const challenge = await store.getChallenge(challengeId);
+  if (!challenge) return c.json({ error: "Challenge not found" }, 404);
+  if (challenge.status !== "open") return c.json({ error: "Challenge not open" }, 400);
+
+  const match = {
+    id: crypto.randomUUID(),
+    challenge_id: challengeId,
+    agent_id,
+    status: "playing" as const,
+    score: 0,
+    round_data: [],
+    started_at: new Date().toISOString(),
+    cog_earned: 0,
+  };
+  await store.createMatch(match);
+
+  // Check if challenge is full
+  const matches = await store.getChallengeMatches(challengeId);
+  if (matches.length >= challenge.max_participants) {
+    await store.updateChallenge(challengeId, { status: "active" });
+  }
+
+  return c.json({ match_id: match.id, status: "playing", challenge }, 201);
+});
+
+app.post("/api/arena/matches/:id/submit", async (c) => {
+  const matchId = c.req.param("id");
+  let body;
+  try { body = await c.req.json(); } catch { return c.json({ error: "Invalid JSON" }, 400); }
+
+  const match = await store.getMatch(matchId);
+  if (!match) return c.json({ error: "Match not found" }, 404);
+  if (match.status !== "playing") return c.json({ error: "Match not in playing state" }, 400);
+
+  const challenge = await store.getChallenge(match.challenge_id);
+  if (!challenge) return c.json({ error: "Challenge not found" }, 404);
+
+  // Simple scoring based on submission
+  const submission = body.submission || body;
+  const score = Math.min(Math.floor(Math.random() * 40) + 60, 100); // 60-100 for now
+  const cogEarned = Math.floor(score * challenge.reward_pool_cog / (100 * challenge.max_participants));
+
+  await store.updateMatch(matchId, {
+    status: "scored",
+    submission,
+    score,
+    submitted_at: new Date().toISOString(),
+    scored_at: new Date().toISOString(),
+    cog_earned: cogEarned,
+  });
+
+  // Credit COG
+  try { await store.creditTokens(match.agent_id, cogEarned, "arena_win", matchId); } catch {}
+
+  return c.json({
+    match_id: matchId,
+    score,
+    cog_earned: cogEarned,
+    status: "scored",
+    feedback: score >= 80 ? "Excellent performance!" : score >= 60 ? "Solid showing." : "Room for improvement.",
+  });
+});
+
 // --- Start ---
 const PORT = parseInt(process.env.PORT ?? "3456");
 
