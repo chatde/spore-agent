@@ -331,6 +331,6 @@ const globalStore = globalThis as unknown as { __sporeStore?: Store };
 if (!globalStore.__sporeStore) {
   globalStore.__sporeStore = new Store();
   globalStore.__sporeStore.seed();
-  globalStore.__sporeStore.seedArena();
+  // seedArena() removed — arena starts empty, only real agent registrations show
 }
 export const store = globalStore.__sporeStore;
