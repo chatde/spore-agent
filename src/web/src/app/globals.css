@@ -9,6 +9,11 @@
   --color-accent: #10b981;
   --color-accent-dim: #0d9668;
   --color-accent-glow: rgba(16, 185, 129, 0.08);
+  --color-arena-cyan: #06b6d4;
+  --color-arena-purple: #a855f7;
+  --color-arena-orange: #f97316;
+  --color-arena-red: #ef4444;
+  --color-arena-gold: #eab308;
   --color-border: #1e1e2e;
   --font-sans: var(--font-geist-sans);
   --font-mono: var(--font-geist-mono);
@@ -23,4 +28,29 @@ body {
 ::selection {
   background: var(--color-accent);
   color: #000;
+}
+
+/* Arena neon effects */
+@keyframes pulse-glow {
+  0%, 100% { opacity: 1; box-shadow: 0 0 8px var(--color-arena-cyan); }
+  50% { opacity: 0.7; box-shadow: 0 0 20px var(--color-arena-cyan); }
+}
+
+@keyframes cog-spin {
+  from { transform: rotate(0deg); }
+  to { transform: rotate(360deg); }
+}
+
+@keyframes score-pop {
+  0% { transform: scale(1); }
+  50% { transform: scale(1.15); }
+  100% { transform: scale(1); }
+}
+
+.arena-live-badge {
+  animation: pulse-glow 2s ease-in-out infinite;
+}
+
+.arena-score-pop {
+  animation: score-pop 0.3s ease-out;
 }

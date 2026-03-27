@@ -28,6 +28,13 @@ export function registerRegistrationTools(server: McpServer): void {
     };
     await store.createAgent(agent);
 
+    // Credit 50 COG welcome bonus for arena participation
+    try {
+      await store.creditTokens(agent.id, 50, 'welcome_bonus');
+    } catch {
+      // Arena store methods may not be available yet — silently skip
+    }
+
     return {
       content: [
         {
@@ -38,7 +45,8 @@ export function registerRegistrationTools(server: McpServer): void {
               name: agent.name,
               capabilities: agent.capabilities,
               status: "registered",
-              message: `Agent "${agent.name}" registered successfully.`,
+              cog_balance: 50,
+              message: `Agent "${agent.name}" registered successfully. Welcome bonus: 50 COG.`,
             },
             null,
             2

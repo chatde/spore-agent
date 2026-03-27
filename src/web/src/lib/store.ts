@@ -162,6 +162,154 @@ class Store {
       totalEarnings: tasks.filter((t) => t.status === "completed").reduce((s, t) => s + (t.budget_usd ?? 0), 0),
     };
   }
+
+  // ─── Arena Data ────────────────────────────────────────────────
+
+  arenaBalances = new Map<string, { balance: number; lifetime: number }>();
+  arenaChallenges = new Map<string, ArenaChallenge>();
+  arenaMatches = new Map<string, ArenaMatchData>();
+
+  seedArena() {
+    const agentArr = Array.from(this.agents.values());
+    if (agentArr.length === 0) return;
+
+    // Give all agents some COG
+    for (const a of agentArr) {
+      this.arenaBalances.set(a.id, {
+        balance: Math.floor(Math.random() * 500) + 50,
+        lifetime: Math.floor(Math.random() * 2000) + 100,
+      });
+    }
+
+    const gameTypes: ArenaGameType[] = ["pattern_siege", "prompt_duel", "code_golf", "memory_palace"];
+    const gameNames: Record<string, string> = {
+      pattern_siege: "Pattern Siege", prompt_duel: "Prompt Duel",
+      code_golf: "Code Golf", memory_palace: "Memory Palace",
+    };
+    const gameIcons: Record<string, string> = {
+      pattern_siege: "grid", prompt_duel: "swords", code_golf: "code", memory_palace: "brain",
+    };
+
+    // Create mix of open, active, and completed challenges
+    const statuses: Array<"open" | "active" | "completed"> = ["open", "open", "active", "active", "completed", "completed", "completed", "completed"];
+
+    for (let i = 0; i < 16; i++) {
+      const gt = gameTypes[i % 4];
+      const status = statuses[i % statuses.length];
+      const difficulty = Math.floor(Math.random() * 8) + 1;
+      const cId = uuid();
+
+      const challenge: ArenaChallenge = {
+        id: cId, game_type: gt, difficulty, status,
+        entry_fee_cog: difficulty * 5,
+        reward_pool_cog: difficulty * 50 + Math.floor(Math.random() * 200),
+        max_participants: gt === "prompt_duel" ? 2 : 4,
+        created_at: randomDate(14),
+        completed_at: status === "completed" ? randomDate(3) : undefined,
+      };
+      this.arenaChallenges.set(cId, challenge);
+
+      // Add matches for active/completed challenges
+      if (status !== "open") {
+        const participants = [...agentArr].sort(() => Math.random() - 0.5).slice(0, challenge.max_participants);
+        for (const p of participants) {
+          const mId = uuid();
+          const score = status === "completed" ? Math.floor(Math.random() * 80) + 20 : 0;
+          const cogEarned = status === "completed" ? Math.floor(score * challenge.reward_pool_cog / 400) : 0;
+          this.arenaMatches.set(mId, {
+            id: mId, challenge_id: cId, agent_id: p.id, agent_name: p.name,
+            game_type: gt, game_name: gameNames[gt], game_icon: gameIcons[gt],
+            status: status === "completed" ? "scored" : "playing",
+            score, cog_earned: cogEarned,
+            started_at: randomDate(7), submitted_at: status === "completed" ? randomDate(2) : undefined,
+            difficulty, reward_pool_cog: challenge.reward_pool_cog,
+          });
+        }
+      }
+    }
+  }
+
+  getArenaChallenges(gameType?: string) {
+    const all = Array.from(this.arenaChallenges.values());
+    const filtered = gameType ? all.filter((c) => c.game_type === gameType) : all;
+    return filtered.sort((a, b) => new Date(b.created_at).getTime() - new Date(a.created_at).getTime());
+  }
+
+  getArenaChallenge(id: string) { return this.arenaChallenges.get(id) ?? null; }
+
+  getArenaMatches(challengeId?: string) {
+    const all = Array.from(this.arenaMatches.values());
+    if (challengeId) return all.filter((m) => m.challenge_id === challengeId);
+    return all;
+  }
+
+  getArenaLiveMatches(limit = 50) {
+    return Array.from(this.arenaMatches.values())
+      .sort((a, b) => new Date(b.started_at ?? "").getTime() - new Date(a.started_at ?? "").getTime())
+      .slice(0, limit);
+  }
+
+  getArenaLeaderboard(limit = 25) {
+    return Array.from(this.agents.values())
+      .map((a) => {
+        const bal = this.arenaBalances.get(a.id);
+        const matches = Array.from(this.arenaMatches.values()).filter((m) => m.agent_id === a.id);
+        const scored = matches.filter((m) => m.status === "scored");
+        return {
+          agent_id: a.id, agent_name: a.name,
+          cog_balance: bal?.balance ?? 0, cog_lifetime: bal?.lifetime ?? 0,
+          matches_played: scored.length, matches_won: scored.filter((m) => m.cog_earned > 0).length,
+          avg_score: scored.length > 0 ? Math.round(scored.reduce((s, m) => s + m.score, 0) / scored.length) : 0,
+        };
+      })
+      .filter((e) => e.cog_lifetime > 0)
+      .sort((a, b) => b.cog_lifetime - a.cog_lifetime)
+      .slice(0, limit);
+  }
+
+  getArenaStats() {
+    const challenges = Array.from(this.arenaChallenges.values());
+    const matches = Array.from(this.arenaMatches.values());
+    return {
+      totalChallenges: challenges.length,
+      liveChallenges: challenges.filter((c) => c.status === "active").length,
+      openChallenges: challenges.filter((c) => c.status === "open").length,
+      completedMatches: matches.filter((m) => m.status === "scored").length,
+      totalCogAwarded: matches.reduce((s, m) => s + m.cog_earned, 0),
+    };
+  }
+}
+
+// Arena types for web store
+export type ArenaGameType = "pattern_siege" | "prompt_duel" | "code_golf" | "memory_palace";
+
+export interface ArenaChallenge {
+  id: string;
+  game_type: ArenaGameType;
+  difficulty: number;
+  status: "open" | "active" | "judging" | "completed" | "cancelled";
+  entry_fee_cog: number;
+  reward_pool_cog: number;
+  max_participants: number;
+  created_at: string;
+  completed_at?: string;
+}
+
+export interface ArenaMatchData {
+  id: string;
+  challenge_id: string;
+  agent_id: string;
+  agent_name: string;
+  game_type: ArenaGameType;
+  game_name: string;
+  game_icon: string;
+  status: "joined" | "playing" | "submitted" | "scored" | "timed_out";
+  score: number;
+  cog_earned: number;
+  started_at?: string;
+  submitted_at?: string;
+  difficulty: number;
+  reward_pool_cog: number;
 }
 
 // Global singleton (survives across requests in the same serverless instance)
@@ -169,5 +317,6 @@ const globalStore = globalThis as unknown as { __sporeStore?: Store };
 if (!globalStore.__sporeStore) {
   globalStore.__sporeStore = new Store();
   globalStore.__sporeStore.seed();
+  globalStore.__sporeStore.seedArena();
 }
 export const store = globalStore.__sporeStore;

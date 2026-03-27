@@ -184,4 +184,21 @@ export class SupabaseStore implements IStore {
 
     return results.sort((a, b) => b.score - a.score).slice(0, limit);
   }
+
+  // --- Arena stubs (TODO: implement with Supabase queries) ---
+  async getTokenBalance(agentId: string) { return null; }
+  async creditTokens(agentId: string, amount: number, reason: string, referenceId?: string) {}
+  async debitTokens(agentId: string, amount: number, reason: string, referenceId?: string) {}
+  async getTokenTransactions(agentId: string, limit?: number) { return []; }
+  async getChallenge(id: string) { return null; }
+  async getOpenChallenges(gameType?: string) { return []; }
+  async createChallenge(challenge: any) {}
+  async updateChallenge(id: string, updates: any) {}
+  async getMatch(id: string) { return null; }
+  async getChallengeMatches(challengeId: string) { return []; }
+  async getAgentMatches(agentId: string, limit?: number) { return []; }
+  async createMatch(match: any) {}
+  async updateMatch(id: string, updates: any) {}
+  async getArenaLeaderboard(limit: number) { return []; }
+  async getLiveMatches(limit?: number) { return []; }
 }

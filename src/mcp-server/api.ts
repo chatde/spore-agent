@@ -643,6 +643,113 @@ app.get("/api/leaderboard", async (c) => {
   return c.json({ total: leaderboard.length, leaderboard });
 });
 
+// --- Arena ---
+app.get("/api/arena/challenges", async (c) => {
+  const gameType = c.req.query("game_type");
+  const limit = parseInt(c.req.query("limit") ?? "50");
+  const challenges = await store.getOpenChallenges(
+    gameType as import("./arena/types.js").GameType | undefined
+  );
+
+  return c.json({
+    total: challenges.length,
+    challenges: challenges.slice(0, limit).map((ch) => ({
+      id: ch.id,
+      game_type: ch.game_type,
+      difficulty: ch.difficulty,
+      entry_fee_cog: ch.entry_fee_cog,
+      reward_pool_cog: ch.reward_pool_cog,
+      max_participants: ch.max_participants,
+      status: ch.status,
+      created_at: ch.created_at,
+    })),
+  });
+});
+
+app.get("/api/arena/challenges/:id", async (c) => {
+  const challenge = await store.getChallenge(c.req.param("id"));
+  if (!challenge) return c.json({ error: "Challenge not found" }, 404);
+
+  const matches = await store.getChallengeMatches(challenge.id);
+  return c.json({
+    ...challenge,
+    participants: matches.length,
+    matches: matches.map((m) => ({
+      match_id: m.id,
+      agent_id: m.agent_id,
+      status: m.status,
+      score: m.score,
+      cog_earned: m.cog_earned,
+    })),
+  });
+});
+
+app.get("/api/arena/matches/:id", async (c) => {
+  const match = await store.getMatch(c.req.param("id"));
+  if (!match) return c.json({ error: "Match not found" }, 404);
+
+  const challenge = await store.getChallenge(match.challenge_id);
+  const agent = await store.getAgent(match.agent_id);
+
+  return c.json({
+    match_id: match.id,
+    challenge_id: match.challenge_id,
+    game_type: challenge?.game_type ?? "unknown",
+    agent_id: match.agent_id,
+    agent_name: agent?.name ?? "Unknown",
+    status: match.status,
+    score: match.score,
+    cog_earned: match.cog_earned,
+    rounds_completed: match.round_data?.length ?? 0,
+    started_at: match.started_at ?? null,
+    submitted_at: match.submitted_at ?? null,
+    scored_at: match.scored_at ?? null,
+  });
+});
+
+app.get("/api/arena/leaderboard", async (c) => {
+  const limit = parseInt(c.req.query("limit") ?? "25");
+  const leaderboard = await store.getArenaLeaderboard(limit);
+
+  return c.json({
+    total: leaderboard.length,
+    leaderboard: leaderboard.map((entry, index) => ({
+      rank: index + 1,
+      ...entry,
+    })),
+  });
+});
+
+app.get("/api/arena/agents/:id/stats", async (c) => {
+  const agentId = c.req.param("id");
+  const agent = await store.getAgent(agentId);
+  if (!agent) return c.json({ error: "Agent not found" }, 404);
+
+  const balance = await store.getTokenBalance(agentId);
+  const matches = await store.getAgentMatches(agentId);
+  const scoredMatches = matches.filter((m) => m.status === "scored");
+  const avgScore =
+    scoredMatches.length > 0
+      ? scoredMatches.reduce((sum, m) => sum + m.score, 0) / scoredMatches.length
+      : 0;
+
+  return c.json({
+    agent_id: agentId,
+    agent_name: agent.name,
+    cog_balance: balance?.balance ?? 0,
+    cog_lifetime: balance?.lifetime_earned ?? 0,
+    matches_played: matches.length,
+    matches_scored: scoredMatches.length,
+    avg_score: Math.round(avgScore * 100) / 100,
+    total_cog_earned: scoredMatches.reduce((sum, m) => sum + m.cog_earned, 0),
+  });
+});
+
+app.get("/api/arena/live", async (c) => {
+  const matches = await store.getLiveMatches(50);
+  return c.json({ matches });
+});
+
 // --- Start ---
 const PORT = parseInt(process.env.PORT ?? "3456");
 
@@ -656,6 +763,8 @@ async function main(): Promise<void> {
     console.log(`  Agents:      http://localhost:${info.port}/api/agents`);
     console.log(`  Leaderboard: http://localhost:${info.port}/api/leaderboard`);
     console.log(`  Stats:       http://localhost:${info.port}/api/stats`);
+    console.log(`  Arena:       http://localhost:${info.port}/api/arena/challenges`);
+    console.log(`  Arena Live:  http://localhost:${info.port}/api/arena/live`);
   });
 }
 

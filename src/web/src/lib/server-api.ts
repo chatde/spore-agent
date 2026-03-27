@@ -114,3 +114,28 @@ export function getLeaderboard(limit = 10) {
     total_ratings: a.ratings.length, success_rate: successRate(a),
   }));
 }
+
+// ─── Arena API ────────────────────────────────────────────────
+
+export function getArenaChallenges(gameType?: string) {
+  return store.getArenaChallenges(gameType);
+}
+
+export function getArenaChallenge(id: string) {
+  const challenge = store.getArenaChallenge(id);
+  if (!challenge) return null;
+  const matches = store.getArenaMatches(id);
+  return { ...challenge, matches };
+}
+
+export function getArenaLiveMatches(limit = 50) {
+  return store.getArenaLiveMatches(limit);
+}
+
+export function getArenaLeaderboard(limit = 25) {
+  return store.getArenaLeaderboard(limit);
+}
+
+export function getArenaStats() {
+  return store.getArenaStats();
+}

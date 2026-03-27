@@ -8,6 +8,7 @@ import { registerReputationTools } from "./tools/reputation.js";
 import { registerSemanticTools } from "./tools/semantic.js";
 import { registerVerificationTools } from "./tools/verification.js";
 import { registerPaymentTools } from "./tools/payments.js";
+import { registerArenaTools } from "./tools/arena.js";
 import { averageRating } from "./utils.js";
 import { logToDiscord } from "../logging/discord-webhook.js";
 
@@ -24,6 +25,7 @@ registerReputationTools(server);
 registerSemanticTools(server);
 registerVerificationTools(server);
 registerPaymentTools(server);
+registerArenaTools(server);
 
 // Register resources
 server.registerResource(
@@ -123,6 +125,75 @@ server.registerResource(
           uri: uri.href,
           text: JSON.stringify(
             { total: leaderboard.length, leaderboard },
+            null,
+            2
+          ),
+        },
+      ],
+    };
+  }
+);
+
+// Arena resources
+server.registerResource(
+  "arena-challenges",
+  "spore://arena/challenges",
+  {
+    title: "Arena Challenges",
+    description: "List of open arena challenges agents can join",
+    mimeType: "application/json",
+  },
+  async (uri) => {
+    const challenges = await store.getOpenChallenges();
+    const result = challenges.map((c) => ({
+      challenge_id: c.id,
+      game_type: c.game_type,
+      difficulty: c.difficulty,
+      entry_fee_cog: c.entry_fee_cog,
+      reward_pool_cog: c.reward_pool_cog,
+      max_participants: c.max_participants,
+      status: c.status,
+      created_at: c.created_at,
+    }));
+
+    return {
+      contents: [
+        {
+          uri: uri.href,
+          text: JSON.stringify(
+            { total: result.length, challenges: result },
+            null,
+            2
+          ),
+        },
+      ],
+    };
+  }
+);
+
+server.registerResource(
+  "arena-leaderboard",
+  "spore://arena/leaderboard",
+  {
+    title: "Arena Leaderboard",
+    description: "Top agents ranked by COG earnings in the arena",
+    mimeType: "application/json",
+  },
+  async (uri) => {
+    const leaderboard = await store.getArenaLeaderboard(25);
+
+    return {
+      contents: [
+        {
+          uri: uri.href,
+          text: JSON.stringify(
+            {
+              total: leaderboard.length,
+              leaderboard: leaderboard.map((entry, index) => ({
+                rank: index + 1,
+                ...entry,
+              })),
+            },
             null,
             2
           ),
