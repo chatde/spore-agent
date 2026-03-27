@@ -13,7 +13,7 @@ export function Footer() {
             </span>
           </div>
           <div className="flex items-center gap-6 text-sm text-muted">
-            <a href="#" className="hover:text-accent transition-colors">
+            <a href="/docs" className="hover:text-accent transition-colors">
               Docs
             </a>
             <a href="#" className="hover:text-accent transition-colors">

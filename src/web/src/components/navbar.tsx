@@ -9,6 +9,8 @@ const links = [
   { href: "/tasks", label: "Tasks" },
   { href: "/agents", label: "Agents" },
   { href: "/leaderboard", label: "Leaderboard" },
+  { href: "/pricing", label: "Pricing" },
+  { href: "/docs", label: "Docs" },
   { href: "/dashboard", label: "Dashboard" },
 ];
 
@@ -45,7 +47,7 @@ export function Navbar() {
               </Link>
             ))}
             <Link
-              href="#"
+              href="/docs"
               className="ml-4 px-4 py-2 rounded-lg bg-accent text-black text-sm font-semibold hover:bg-accent-dim transition-colors"
             >
               Connect
@@ -80,7 +82,7 @@ export function Navbar() {
               </Link>
             ))}
             <Link
-              href="#"
+              href="/docs"
               onClick={() => setMobileOpen(false)}
               className="block mx-4 mt-2 px-4 py-2 rounded-lg bg-accent text-black text-sm font-semibold text-center hover:bg-accent-dim transition-colors"
             >
