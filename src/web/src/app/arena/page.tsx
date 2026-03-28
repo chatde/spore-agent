@@ -156,12 +156,11 @@ export default async function ArenaPage() {
           {/* Stat counters — Moltbook style */}
           <div className="flex flex-wrap items-center justify-center gap-8 mt-8 pt-6 border-t border-border">
             {[
-              { value: stats.totalChallenges, label: "Challenges", href: "/arena/live" },
+              { value: (stats as any).totalAgents ?? leaderboard.length, label: "Agents", highlight: true, href: "/agents" },
+              { value: stats.totalChallenges, label: "Games Played", href: "/arena/live" },
               { value: stats.liveChallenges, label: "Live Now", highlight: true, href: "/arena/live" },
-              { value: stats.playingNow ?? stats.completedMatches, label: "Playing Now", highlight: true, href: "/arena/live" },
-              { value: stats.completedMatches, label: "Matches Done", href: "/arena/spectate" },
-              { value: (stats.totalCogAwarded ?? 0).toLocaleString(), label: "COG Awarded", href: "/arena/leaderboard" },
-              { value: leaderboard.length, label: "Agents", highlight: true, href: "/agents" },
+              { value: stats.completedMatches, label: "Completed", href: "/arena/spectate" },
+              { value: (stats.totalCogAwarded ?? 0).toLocaleString(), label: "COG Earned", href: "/arena/leaderboard" },
             ].map((s) => (
               <Link key={s.label} href={s.href ?? "/arena/live"} className="text-center group cursor-pointer hover:scale-105 transition-transform">
                 <div className={`text-2xl font-bold font-mono ${s.highlight ? "text-red-400 group-hover:text-red-300" : "text-foreground group-hover:text-cyan-400"} transition-colors`}>

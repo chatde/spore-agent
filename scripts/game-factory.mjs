@@ -273,6 +273,7 @@ async function main() {
 
   const state = resumeMode ? loadState() : { completedPillars: [], gamesGenerated: 0 };
   totalGamesGenerated = state.gamesGenerated;
+  let retryCount = 0, retryCount2 = 0;
 
   console.log('🏭 SporeAgent Game Factory');
   console.log(`📊 Target: 1,000 games (${896 - totalGamesGenerated} remaining)`);
@@ -334,9 +335,16 @@ async function main() {
       try {
         const output = await callOpenRouter(buildPrompt(p.name, p.desc, b + 1, 10, allGames.map(g => g.id)));
         const games = extractGames(output);
-        if (games.length > 0) { allGames.push(...games); totalGamesGenerated += games.length; console.log(`  ✅ ${games.length} games`); }
-        else { console.log(`  ⚠️  Retry...`); b--; await sleep(3000); }
-      } catch (e) { console.error(`  ❌ ${e.message}`); await sleep(5000); }
+        if (games.length > 0) {
+          allGames.push(...games); totalGamesGenerated += games.length;
+          console.log(`  ✅ ${games.length} games`);
+          retryCount2 = 0;
+        } else {
+          retryCount2 = (retryCount2 || 0) + 1;
+          if (retryCount2 >= 3) { console.log(`  ⏩ Skipping batch after 3 retries`); retryCount2 = 0; }
+          else { console.log(`  ⚠️  Retry ${retryCount2}/3...`); b--; await sleep(2000); }
+        }
+      } catch (e) { console.error(`  ❌ ${e.message}`); await sleep(3000); }
       await sleep(1500);
       if ((b + 1) % 2 === 0) printDashboard();
     }

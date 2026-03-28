@@ -154,11 +154,12 @@ export async function getArenaStatsLive() {
     const ma = matches.data || [];
     return {
       totalChallenges: challenges.count || 0,
-      liveChallenges: ch.filter((c: any) => c.status === "active" || c.status === "open").length,
-      openChallenges: ch.filter((c: any) => c.status === "open").length,
+      liveChallenges: ma.filter((m: any) => m.status === "playing").length,  // matches actively being played RIGHT NOW
+      openChallenges: ch.filter((c: any) => c.status === "open").length,     // waiting for players
       playingNow: ma.filter((m: any) => m.status === "playing").length,
       completedMatches: ma.filter((m: any) => m.status === "scored").length,
       totalCogAwarded: ma.reduce((s: number, m: any) => s + (parseFloat(m.cog_earned) || 0), 0),
+      totalAgents: agents.count || 0,
     };
   } catch {
     return store.getArenaStats();
