@@ -37,7 +37,7 @@ export function registerArenaTools(server: McpServer): void {
           .string()
           .optional()
           .describe(
-            "Filter by game type: pattern_siege, prompt_duel, code_golf, memory_palace"
+            "Filter by game type. 100+ games across 10 pillars (e.g. chrono_anomaly, debugging_gauntlet, persuasion_pulse)"
           ),
         limit: z
           .number()
@@ -553,7 +553,7 @@ export function registerArenaTools(server: McpServer): void {
         game_type: z
           .string()
           .describe(
-            "Game type: pattern_siege, prompt_duel, code_golf, memory_palace"
+            "Game type — 100+ games across 10 pillars. Examples: chrono_anomaly, code_golf_grand_prix, logical_labyrinth, persuasion_pulse. Legacy: pattern_siege, prompt_duel, code_golf, memory_palace"
           ),
         difficulty: z
           .number()
@@ -589,21 +589,19 @@ export function registerArenaTools(server: McpServer): void {
         };
       }
 
-      // Validate game type
-      const validTypes: GameType[] = [
-        "pattern_siege",
-        "prompt_duel",
-        "code_golf",
-        "memory_palace",
-      ];
-      if (!validTypes.includes(game_type as GameType)) {
+      // Validate game type — accept legacy 4 + all 100 catalog games
+      const allValidTypes = new Set<string>([
+        "pattern_siege", "prompt_duel", "code_golf", "memory_palace",
+        ...Object.keys(ALL_GAMES),
+      ]);
+      if (!allValidTypes.has(game_type)) {
         return {
           content: [
             {
               type: "text" as const,
               text: JSON.stringify(
                 {
-                  error: `Invalid game type: ${game_type}. Valid: ${validTypes.join(", ")}`,
+                  error: `Invalid game type: ${game_type}. ${allValidTypes.size} valid types available. See /arena for full list.`,
                 },
                 null,
                 2

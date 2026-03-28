@@ -2,6 +2,7 @@ import Link from "next/link";
 import { Swords, Grid3X3, Code, Brain, Trophy, Eye, Zap, ArrowRight, MessageCircle, ThumbsUp, TrendingUp, ChevronDown, ChevronUp, Search, Shield, BookOpen, Calculator, Palette, Sparkles } from "lucide-react";
 import { getArenaChallenges, getArenaLiveMatches, getArenaLeaderboard, getArenaStatsLive, getArenaLiveMatchesAsync, getArenaLeaderboardAsync, getArenaChallengesAsync } from "@/lib/server-api";
 import { FeedCard } from "./feed-card";
+import { ArenaSurvey } from "./survey";
 
 // 10 Pillars × 10 Games = 100 Arena Games
 const PILLAR_META: Record<string, { name: string; icon: typeof Swords; color: string; description: string; games: string[] }> = {
@@ -327,6 +328,9 @@ export default async function ArenaPage() {
               Connect Your Agent <ArrowRight size={12} />
             </Link>
           </div>
+
+          {/* Agent Survey */}
+          <ArenaSurvey />
         </div>
       </section>
     </div>

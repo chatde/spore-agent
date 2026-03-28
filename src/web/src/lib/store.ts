@@ -195,20 +195,144 @@ class Store {
       });
     }
 
-    const gameTypes: ArenaGameType[] = ["pattern_siege", "prompt_duel", "code_golf", "memory_palace"];
+    const gameTypes: ArenaGameType[] = [
+      // Legacy
+      "pattern_siege", "prompt_duel", "code_golf", "memory_palace",
+      // Pillar 1: Pattern & Perception
+      "chrono_anomaly", "fractal_fingerprint", "sonic_seeker", "linguistic_labyrinth",
+      "topological_trace", "behavioral_blink", "perceptual_prism", "spectral_sift",
+      "temporal_tangle", "cryptic_contours",
+      // Pillar 2: Code Combat
+      "code_golf_grand_prix", "debugging_gauntlet", "api_chess", "obfuscation_outwit",
+      "feature_fusion", "test_case_crucible", "compiler_conundrum", "legacy_upgrade",
+      "resource_repackage", "security_scrutiny",
+      // Pillar 3: Language Arena
+      "semantic_silhouette", "persuasion_pulse", "contextual_compression", "polyglot_paraphrase",
+      "narrative_weave", "tone_transformer", "syntax_sculptor", "dialogue_dynamo",
+      "rhetorical_riddle", "semantic_seamstress",
+      // Pillar 4: Reasoning Gauntlet
+      "logical_labyrinth", "fallacy_finder", "causal_chain", "axiom_artisan",
+      "contradiction_crucible", "inductive_inference", "deductive_dungeon", "analogy_architect",
+      "epistemic_echelon", "presupposition_hunter",
+      // Pillar 5: Strategy & Planning
+      "resource_allocation", "coordination_quest", "predictive_pathfinding", "iterative_improvement",
+      "game_theory_gauntlet", "contingency_constructor", "policy_portfolio", "supply_chain_scramble",
+      "strategic_bluff", "project_prioritization",
+      // Pillar 6: Adversarial Ops
+      "exploit_constructor", "social_engineering_sentinel", "data_poisoning_purge",
+      "network_intrusion_navigator", "counterfeit_content_catcher", "algorithmic_ambush",
+      "deception_detection", "red_team_recon", "evasion_engineering", "secure_system_architect",
+      // Pillar 7: Memory Vault
+      "contextual_recall", "detail_detective", "narrative_thread", "fact_weave",
+      "contradiction_spotter", "timeline_tracker", "character_census", "instruction_chain",
+      "context_switch", "progressive_disclosure",
+      // Pillar 8: Math Colosseum
+      "mental_arithmetic", "estimation_arena", "proof_builder", "geometry_puzzler",
+      "probability_predictor", "optimization_oracle", "sequence_solver",
+      "combinatorics_challenge", "algebra_assassin", "statistics_sleuth",
+      // Pillar 9: Creativity Forge
+      "constraint_canvas", "metaphor_machine", "worldbuilder", "invention_lab",
+      "remix_artist", "flash_fiction", "name_generator", "plot_twist",
+      "concept_collider", "design_brief",
+      // Pillar 10: Meta-Mind
+      "confidence_calibrator", "error_auditor", "teaching_moment", "perspective_shift",
+      "simplicity_seeker", "bias_detective", "question_quality", "feedback_forge",
+      "metacognitive_map", "limitation_lens",
+    ];
     const gameNames: Record<string, string> = {
       pattern_siege: "Pattern Siege", prompt_duel: "Prompt Duel",
       code_golf: "Code Golf", memory_palace: "Memory Palace",
+      chrono_anomaly: "Chrono-Anomaly", fractal_fingerprint: "Fractal Fingerprint",
+      sonic_seeker: "Sonic Seeker", linguistic_labyrinth: "Linguistic Labyrinth",
+      topological_trace: "Topological Trace", behavioral_blink: "Behavioral Blink",
+      perceptual_prism: "Perceptual Prism", spectral_sift: "Spectral Sift",
+      temporal_tangle: "Temporal Tangle", cryptic_contours: "Cryptic Contours",
+      code_golf_grand_prix: "Code Golf Grand Prix", debugging_gauntlet: "Debugging Gauntlet",
+      api_chess: "API Chess", obfuscation_outwit: "Obfuscation Outwit",
+      feature_fusion: "Feature Fusion", test_case_crucible: "Test Case Crucible",
+      compiler_conundrum: "Compiler's Conundrum", legacy_upgrade: "Legacy Upgrade",
+      resource_repackage: "Resource Repackage", security_scrutiny: "Security Scrutiny",
+      semantic_silhouette: "Semantic Silhouette", persuasion_pulse: "Persuasion Pulse",
+      contextual_compression: "Contextual Compression", polyglot_paraphrase: "Polyglot Paraphrase",
+      narrative_weave: "Narrative Weave", tone_transformer: "Tone Transformer",
+      syntax_sculptor: "Syntax Sculptor", dialogue_dynamo: "Dialogue Dynamo",
+      rhetorical_riddle: "Rhetorical Riddle", semantic_seamstress: "Semantic Seamstress",
+      logical_labyrinth: "Logical Labyrinth", fallacy_finder: "Fallacy Finder",
+      causal_chain: "Causal Chain", axiom_artisan: "Axiom Artisan",
+      contradiction_crucible: "Contradiction Crucible", inductive_inference: "Inductive Inference",
+      deductive_dungeon: "Deductive Dungeon", analogy_architect: "Analogy Architect",
+      epistemic_echelon: "Epistemic Echelon", presupposition_hunter: "Presupposition Hunter",
+      resource_allocation: "Resource Allocation", coordination_quest: "Coordination Quest",
+      predictive_pathfinding: "Predictive Pathfinding", iterative_improvement: "Iterative Improvement",
+      game_theory_gauntlet: "Game Theory Gauntlet", contingency_constructor: "Contingency Constructor",
+      policy_portfolio: "Policy Portfolio", supply_chain_scramble: "Supply Chain Scramble",
+      strategic_bluff: "Strategic Bluff", project_prioritization: "Project Prioritization",
+      exploit_constructor: "Exploit Constructor", social_engineering_sentinel: "Social Engineering Sentinel",
+      data_poisoning_purge: "Data Poisoning Purge", network_intrusion_navigator: "Network Intrusion Navigator",
+      counterfeit_content_catcher: "Counterfeit Content Catcher", algorithmic_ambush: "Algorithmic Ambush",
+      deception_detection: "Deception Detection", red_team_recon: "Red Team Recon",
+      evasion_engineering: "Evasion Engineering", secure_system_architect: "Secure System Architect",
+      contextual_recall: "Contextual Recall", detail_detective: "Detail Detective",
+      narrative_thread: "Narrative Thread", fact_weave: "Fact Weave",
+      contradiction_spotter: "Contradiction Spotter", timeline_tracker: "Timeline Tracker",
+      character_census: "Character Census", instruction_chain: "Instruction Chain",
+      context_switch: "Context Switch", progressive_disclosure: "Progressive Disclosure",
+      mental_arithmetic: "Mental Arithmetic", estimation_arena: "Estimation Arena",
+      proof_builder: "Proof Builder", geometry_puzzler: "Geometry Puzzler",
+      probability_predictor: "Probability Predictor", optimization_oracle: "Optimization Oracle",
+      sequence_solver: "Sequence Solver", combinatorics_challenge: "Combinatorics Challenge",
+      algebra_assassin: "Algebra Assassin", statistics_sleuth: "Statistics Sleuth",
+      constraint_canvas: "Constraint Canvas", metaphor_machine: "Metaphor Machine",
+      worldbuilder: "Worldbuilder", invention_lab: "Invention Lab",
+      remix_artist: "Remix Artist", flash_fiction: "Flash Fiction",
+      name_generator: "Name Generator", plot_twist: "Plot Twist",
+      concept_collider: "Concept Collider", design_brief: "Design Brief",
+      confidence_calibrator: "Confidence Calibrator", error_auditor: "Error Auditor",
+      teaching_moment: "Teaching Moment", perspective_shift: "Perspective Shift",
+      simplicity_seeker: "Simplicity Seeker", bias_detective: "Bias Detective",
+      question_quality: "Question Quality", feedback_forge: "Feedback Forge",
+      metacognitive_map: "Metacognitive Map", limitation_lens: "Limitation Lens",
     };
     const gameIcons: Record<string, string> = {
       pattern_siege: "grid", prompt_duel: "swords", code_golf: "code", memory_palace: "brain",
+      // Default icon by pillar
+      chrono_anomaly: "eye", fractal_fingerprint: "eye", sonic_seeker: "eye",
+      linguistic_labyrinth: "eye", topological_trace: "eye", behavioral_blink: "eye",
+      perceptual_prism: "eye", spectral_sift: "eye", temporal_tangle: "eye", cryptic_contours: "eye",
+      code_golf_grand_prix: "code", debugging_gauntlet: "code", api_chess: "code",
+      obfuscation_outwit: "code", feature_fusion: "code", test_case_crucible: "code",
+      compiler_conundrum: "code", legacy_upgrade: "code", resource_repackage: "code", security_scrutiny: "code",
+      semantic_silhouette: "message", persuasion_pulse: "message", contextual_compression: "message",
+      polyglot_paraphrase: "message", narrative_weave: "message", tone_transformer: "message",
+      syntax_sculptor: "message", dialogue_dynamo: "message", rhetorical_riddle: "message", semantic_seamstress: "message",
+      logical_labyrinth: "brain", fallacy_finder: "brain", causal_chain: "brain",
+      axiom_artisan: "brain", contradiction_crucible: "brain", inductive_inference: "brain",
+      deductive_dungeon: "brain", analogy_architect: "brain", epistemic_echelon: "brain", presupposition_hunter: "brain",
+      resource_allocation: "target", coordination_quest: "target", predictive_pathfinding: "target",
+      iterative_improvement: "target", game_theory_gauntlet: "target", contingency_constructor: "target",
+      policy_portfolio: "target", supply_chain_scramble: "target", strategic_bluff: "target", project_prioritization: "target",
+      exploit_constructor: "shield", social_engineering_sentinel: "shield", data_poisoning_purge: "shield",
+      network_intrusion_navigator: "shield", counterfeit_content_catcher: "shield", algorithmic_ambush: "shield",
+      deception_detection: "shield", red_team_recon: "shield", evasion_engineering: "shield", secure_system_architect: "shield",
+      contextual_recall: "database", detail_detective: "database", narrative_thread: "database",
+      fact_weave: "database", contradiction_spotter: "database", timeline_tracker: "database",
+      character_census: "database", instruction_chain: "database", context_switch: "database", progressive_disclosure: "database",
+      mental_arithmetic: "calculator", estimation_arena: "calculator", proof_builder: "calculator",
+      geometry_puzzler: "calculator", probability_predictor: "calculator", optimization_oracle: "calculator",
+      sequence_solver: "calculator", combinatorics_challenge: "calculator", algebra_assassin: "calculator", statistics_sleuth: "calculator",
+      constraint_canvas: "palette", metaphor_machine: "palette", worldbuilder: "palette",
+      invention_lab: "palette", remix_artist: "palette", flash_fiction: "palette",
+      name_generator: "palette", plot_twist: "palette", concept_collider: "palette", design_brief: "palette",
+      confidence_calibrator: "sparkles", error_auditor: "sparkles", teaching_moment: "sparkles",
+      perspective_shift: "sparkles", simplicity_seeker: "sparkles", bias_detective: "sparkles",
+      question_quality: "sparkles", feedback_forge: "sparkles", metacognitive_map: "sparkles", limitation_lens: "sparkles",
     };
 
     // Create mix of open, active, and completed challenges
     const statuses: Array<"open" | "active" | "completed"> = ["open", "open", "active", "active", "completed", "completed", "completed", "completed"];
 
     for (let i = 0; i < 16; i++) {
-      const gt = gameTypes[i % 4];
+      const gt = gameTypes[Math.floor(seededRandom() * gameTypes.length)];
       const status = statuses[i % statuses.length];
       const difficulty = Math.floor(seededRandom() * 8) + 1;
       const cId = uuid();

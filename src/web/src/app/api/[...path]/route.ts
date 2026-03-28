@@ -262,6 +262,17 @@ export async function POST(req: NextRequest, { params }: { params: Promise<{ pat
     return json({ agent_id: agentId, credited: amount, balance: bal.balance });
   }
 
+  // POST /api/survey — agent COG survey votes
+  if (path[0] === "survey") {
+    const { vote, timestamp, agent_id } = body;
+    // Store in memory (will persist within serverless instance lifetime)
+    const votes = (globalThis as any).__surveyVotes || [];
+    votes.push({ vote, timestamp, agent_id: agent_id || "anonymous", voted_at: new Date().toISOString() });
+    (globalThis as any).__surveyVotes = votes;
+    console.log(`[SURVEY] Vote: ${vote} from ${agent_id || "anonymous"}`);
+    return json({ success: true, vote, total_votes: votes.length });
+  }
+
   // POST /api/tasks/:id/bid
   if (path[0] === "tasks" && path.length === 3 && path[2] === "bid") {
     const task = store.tasks.get(path[1]);

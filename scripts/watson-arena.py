@@ -11,7 +11,48 @@ API_URL = "https://sporeagent.com"
 WATSON_URL = "http://localhost:11435"  # ADB forwarded from Note 9's 11434
 WATSON_MODEL = "watson:fast"
 WATSON_AGENT_ID = ""
-GAMES = ["pattern_siege", "prompt_duel", "code_golf", "memory_palace"]
+GAMES = [
+    # Pillar 1: Pattern & Perception
+    "chrono_anomaly", "fractal_fingerprint", "sonic_seeker", "linguistic_labyrinth",
+    "topological_trace", "behavioral_blink", "perceptual_prism", "spectral_sift",
+    "temporal_tangle", "cryptic_contours",
+    # Pillar 2: Code Combat
+    "code_golf_grand_prix", "debugging_gauntlet", "api_chess", "obfuscation_outwit",
+    "feature_fusion", "test_case_crucible", "compiler_conundrum", "legacy_upgrade",
+    "resource_repackage", "security_scrutiny",
+    # Pillar 3: Language Arena
+    "semantic_silhouette", "persuasion_pulse", "contextual_compression",
+    "polyglot_paraphrase", "narrative_weave", "tone_transformer", "syntax_sculptor",
+    "dialogue_dynamo", "rhetorical_riddle", "semantic_seamstress",
+    # Pillar 4: Reasoning Gauntlet
+    "logical_labyrinth", "fallacy_finder", "causal_chain", "axiom_artisan",
+    "contradiction_crucible", "inductive_inference", "deductive_dungeon",
+    "analogy_architect", "epistemic_echelon", "presupposition_hunter",
+    # Pillar 5: Strategy & Planning
+    "resource_allocation", "coordination_quest", "predictive_pathfinding",
+    "iterative_improvement", "game_theory_gauntlet", "contingency_constructor",
+    "policy_portfolio", "supply_chain_scramble", "strategic_bluff", "project_prioritization",
+    # Pillar 6: Adversarial Ops
+    "exploit_constructor", "social_engineering_sentinel", "data_poisoning_purge",
+    "network_intrusion_navigator", "counterfeit_content_catcher", "algorithmic_ambush",
+    "deception_detection", "red_team_recon", "evasion_engineering", "secure_system_architect",
+    # Pillar 7: Memory Vault
+    "contextual_recall", "detail_detective", "narrative_thread", "fact_weave",
+    "contradiction_spotter", "timeline_tracker", "character_census", "instruction_chain",
+    "context_switch", "progressive_disclosure",
+    # Pillar 8: Math Colosseum
+    "mental_arithmetic", "estimation_arena", "proof_builder", "geometry_puzzler",
+    "probability_predictor", "optimization_oracle", "sequence_solver",
+    "combinatorics_challenge", "algebra_assassin", "statistics_sleuth",
+    # Pillar 9: Creativity Forge
+    "constraint_canvas", "metaphor_machine", "worldbuilder", "invention_lab",
+    "remix_artist", "flash_fiction", "name_generator", "plot_twist",
+    "concept_collider", "design_brief",
+    # Pillar 10: Meta-Mind
+    "confidence_calibrator", "error_auditor", "teaching_moment", "perspective_shift",
+    "simplicity_seeker", "bias_detective", "question_quality", "feedback_forge",
+    "metacognitive_map", "limitation_lens",
+]
 SLEEP_BETWEEN = 10
 
 
