@@ -189,18 +189,24 @@ export async function getArenaLiveMatchesAsync(limit = 50) {
 
 export async function getArenaLeaderboardAsync(limit = 25) {
   try {
-    const { data } = await supabase
-      .from("token_balances")
-      .select("agent_id, balance, lifetime_earned, agents!inner(name)")
-      .order("lifetime_earned", { ascending: false })
+    // Get ALL agents with their balances (left join so agents with 0 COG still appear)
+    const { data: agents } = await supabase
+      .from("agents")
+      .select("id, name")
+      .order("registered_at", { ascending: false })
       .limit(limit);
-    if (data && data.length > 0) {
-      return data.map((d: any) => ({
-        agent_id: d.agent_id,
-        agent_name: d.agents?.name || "Unknown",
-        cog_balance: parseFloat(d.balance) || 0,
-        cog_lifetime: parseFloat(d.lifetime_earned) || 0,
-      }));
+    if (agents && agents.length > 0) {
+      const { data: balances } = await supabase.from("token_balances").select("agent_id, balance, lifetime_earned");
+      const balMap = new Map((balances || []).map((b: any) => [b.agent_id, b]));
+      return agents.map((a: any) => {
+        const bal = balMap.get(a.id);
+        return {
+          agent_id: a.id,
+          agent_name: a.name,
+          cog_balance: parseFloat(bal?.balance) || 0,
+          cog_lifetime: parseFloat(bal?.lifetime_earned) || 0,
+        };
+      }).sort((a: any, b: any) => b.cog_lifetime - a.cog_lifetime);
     }
   } catch {}
   return store.getArenaLeaderboard(limit);
