@@ -1,13 +1,77 @@
 import Link from "next/link";
-import { Swords, Grid3X3, Code, Brain, ArrowLeft, Trophy, Filter } from "lucide-react";
+import { Swords, Grid3X3, Code, Brain, ArrowLeft, Trophy, Filter, Search, Shield, BookOpen, Calculator, Palette, Sparkles, MessageCircle } from "lucide-react";
 import { getArenaLiveMatches, getArenaChallenges } from "@/lib/server-api";
 
-const GAME_META: Record<string, { name: string; icon: typeof Swords; color: string; border: string }> = {
-  pattern_siege: { name: "Pattern Siege", icon: Grid3X3, color: "text-cyan-400", border: "border-cyan-400/20" },
-  prompt_duel: { name: "Prompt Duels", icon: Swords, color: "text-purple-400", border: "border-purple-400/20" },
-  code_golf: { name: "Code Golf", icon: Code, color: "text-orange-400", border: "border-orange-400/20" },
-  memory_palace: { name: "Memory Palace", icon: Brain, color: "text-yellow-400", border: "border-yellow-400/20" },
+// Pillar-based game metadata for all 100 games
+const PILLAR_STYLES: Record<string, { icon: typeof Swords; color: string; border: string }> = {
+  pattern_perception: { icon: Search, color: "text-cyan-400", border: "border-cyan-400/20" },
+  code_combat: { icon: Code, color: "text-orange-400", border: "border-orange-400/20" },
+  language_arena: { icon: MessageCircle, color: "text-purple-400", border: "border-purple-400/20" },
+  reasoning_gauntlet: { icon: Brain, color: "text-blue-400", border: "border-blue-400/20" },
+  strategy_planning: { icon: Grid3X3, color: "text-green-400", border: "border-green-400/20" },
+  adversarial_ops: { icon: Shield, color: "text-red-400", border: "border-red-400/20" },
+  memory_vault: { icon: BookOpen, color: "text-yellow-400", border: "border-yellow-400/20" },
+  math_colosseum: { icon: Calculator, color: "text-indigo-400", border: "border-indigo-400/20" },
+  creativity_forge: { icon: Palette, color: "text-pink-400", border: "border-pink-400/20" },
+  meta_mind: { icon: Sparkles, color: "text-teal-400", border: "border-teal-400/20" },
 };
+
+const GAME_PILLAR_MAP: Record<string, string> = {
+  // Legacy
+  pattern_siege: "pattern_perception", code_golf: "code_combat", prompt_duel: "language_arena", memory_palace: "memory_vault",
+  // P1
+  chrono_anomaly: "pattern_perception", fractal_fingerprint: "pattern_perception", sonic_seeker: "pattern_perception",
+  linguistic_labyrinth: "pattern_perception", topological_trace: "pattern_perception", behavioral_blink: "pattern_perception",
+  perceptual_prism: "pattern_perception", spectral_sift: "pattern_perception", temporal_tangle: "pattern_perception", cryptic_contours: "pattern_perception",
+  // P2
+  code_golf_grand_prix: "code_combat", debugging_gauntlet: "code_combat", api_chess: "code_combat",
+  obfuscation_outwit: "code_combat", feature_fusion: "code_combat", test_case_crucible: "code_combat",
+  compiler_conundrum: "code_combat", legacy_upgrade: "code_combat", resource_repackage: "code_combat", security_scrutiny: "code_combat",
+  // P3
+  semantic_silhouette: "language_arena", persuasion_pulse: "language_arena", contextual_compression: "language_arena",
+  polyglot_paraphrase: "language_arena", narrative_weave: "language_arena", tone_transformer: "language_arena",
+  syntax_sculptor: "language_arena", dialogue_dynamo: "language_arena", rhetorical_riddle: "language_arena", semantic_seamstress: "language_arena",
+  // P4
+  logical_labyrinth: "reasoning_gauntlet", fallacy_finder: "reasoning_gauntlet", causal_chain: "reasoning_gauntlet",
+  axiom_artisan: "reasoning_gauntlet", contradiction_crucible: "reasoning_gauntlet", inductive_inference: "reasoning_gauntlet",
+  deductive_dungeon: "reasoning_gauntlet", analogy_architect: "reasoning_gauntlet", epistemic_echelon: "reasoning_gauntlet", presupposition_hunter: "reasoning_gauntlet",
+  // P5
+  resource_allocation: "strategy_planning", coordination_quest: "strategy_planning", predictive_pathfinding: "strategy_planning",
+  iterative_improvement: "strategy_planning", game_theory_gauntlet: "strategy_planning", contingency_constructor: "strategy_planning",
+  policy_portfolio: "strategy_planning", supply_chain_scramble: "strategy_planning", strategic_bluff: "strategy_planning", project_prioritization: "strategy_planning",
+  // P6
+  exploit_constructor: "adversarial_ops", social_engineering_sentinel: "adversarial_ops", data_poisoning_purge: "adversarial_ops",
+  network_intrusion_navigator: "adversarial_ops", counterfeit_content_catcher: "adversarial_ops", algorithmic_ambush: "adversarial_ops",
+  deception_detection: "adversarial_ops", red_team_recon: "adversarial_ops", evasion_engineering: "adversarial_ops", secure_system_architect: "adversarial_ops",
+  // P7
+  contextual_recall: "memory_vault", detail_detective: "memory_vault", narrative_thread: "memory_vault",
+  fact_weave: "memory_vault", contradiction_spotter: "memory_vault", timeline_tracker: "memory_vault",
+  character_census: "memory_vault", instruction_chain: "memory_vault", context_switch: "memory_vault", progressive_disclosure: "memory_vault",
+  // P8
+  mental_arithmetic: "math_colosseum", estimation_arena: "math_colosseum", proof_builder: "math_colosseum",
+  geometry_puzzler: "math_colosseum", probability_predictor: "math_colosseum", optimization_oracle: "math_colosseum",
+  sequence_solver: "math_colosseum", combinatorics_challenge: "math_colosseum", algebra_assassin: "math_colosseum", statistics_sleuth: "math_colosseum",
+  // P9
+  constraint_canvas: "creativity_forge", metaphor_machine: "creativity_forge", worldbuilder: "creativity_forge",
+  invention_lab: "creativity_forge", remix_artist: "creativity_forge", flash_fiction: "creativity_forge",
+  name_generator: "creativity_forge", plot_twist: "creativity_forge", concept_collider: "creativity_forge", design_brief: "creativity_forge",
+  // P10
+  confidence_calibrator: "meta_mind", error_auditor: "meta_mind", teaching_moment: "meta_mind",
+  perspective_shift: "meta_mind", simplicity_seeker: "meta_mind", bias_detective: "meta_mind",
+  question_quality: "meta_mind", feedback_forge: "meta_mind", metacognitive_map: "meta_mind", limitation_lens: "meta_mind",
+};
+
+function getGameMeta(gameType: string): { name: string; icon: typeof Swords; color: string; border: string } {
+  const pillar = GAME_PILLAR_MAP[gameType] || "pattern_perception";
+  const ps = PILLAR_STYLES[pillar] || PILLAR_STYLES.pattern_perception;
+  const name = gameType.replace(/_/g, " ").replace(/\b\w/g, c => c.toUpperCase());
+  return { name, ...ps };
+}
+
+const GAME_META: Record<string, { name: string; icon: typeof Swords; color: string; border: string }> = new Proxy(
+  {} as Record<string, { name: string; icon: typeof Swords; color: string; border: string }>,
+  { get(_, key: string) { return getGameMeta(key); } }
+);
 
 function timeAgo(dateStr: string): string {
   const diff = Date.now() - new Date(dateStr).getTime();
