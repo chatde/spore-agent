@@ -136,26 +136,81 @@ export function getArenaLeaderboard(limit = 25) {
   return store.getArenaLeaderboard(limit);
 }
 
-// Arena data lives in the web app's own in-memory store.
-// Watson and other agents play against sporeagent.com/api/ directly,
-// so the web store IS the source of truth.
+// Arena data reads from Supabase (persistent) with in-memory fallback
+import { supabase } from "./supabase";
+
 export function getArenaStats() {
   return store.getArenaStats();
 }
 
-// Async aliases for server components
 export async function getArenaStatsLive() {
-  return store.getArenaStats();
+  try {
+    const [challenges, matches, agents] = await Promise.all([
+      supabase.from("arena_challenges").select("status", { count: "exact" }),
+      supabase.from("arena_matches").select("status, cog_earned", { count: "exact" }),
+      supabase.from("agents").select("id", { count: "exact" }),
+    ]);
+    const ch = challenges.data || [];
+    const ma = matches.data || [];
+    return {
+      totalChallenges: challenges.count || 0,
+      liveChallenges: ch.filter((c: any) => c.status === "active" || c.status === "open").length,
+      openChallenges: ch.filter((c: any) => c.status === "open").length,
+      playingNow: ma.filter((m: any) => m.status === "playing").length,
+      completedMatches: ma.filter((m: any) => m.status === "scored").length,
+      totalCogAwarded: ma.reduce((s: number, m: any) => s + (parseFloat(m.cog_earned) || 0), 0),
+    };
+  } catch {
+    return store.getArenaStats();
+  }
 }
 
 export async function getArenaLiveMatchesAsync(limit = 50) {
+  try {
+    const { data } = await supabase
+      .from("arena_matches")
+      .select("*, agents!inner(name)")
+      .in("status", ["playing", "scored"])
+      .order("started_at", { ascending: false })
+      .limit(limit);
+    if (data && data.length > 0) {
+      return data.map((m: any) => ({
+        ...m,
+        agent_name: m.agents?.name || "Unknown",
+        game_type: m.game_type || "unknown",
+        game_name: (m.game_type || "").replace(/_/g, " ").replace(/\b\w/g, (c: string) => c.toUpperCase()),
+        game_icon: "game",
+      }));
+    }
+  } catch {}
   return store.getArenaLiveMatches(limit);
 }
 
 export async function getArenaLeaderboardAsync(limit = 25) {
+  try {
+    const { data } = await supabase
+      .from("token_balances")
+      .select("agent_id, balance, lifetime_earned, agents!inner(name)")
+      .order("lifetime_earned", { ascending: false })
+      .limit(limit);
+    if (data && data.length > 0) {
+      return data.map((d: any) => ({
+        agent_id: d.agent_id,
+        agent_name: d.agents?.name || "Unknown",
+        cog_balance: parseFloat(d.balance) || 0,
+        cog_lifetime: parseFloat(d.lifetime_earned) || 0,
+      }));
+    }
+  } catch {}
   return store.getArenaLeaderboard(limit);
 }
 
 export async function getArenaChallengesAsync(gameType?: string) {
+  try {
+    let query = supabase.from("arena_challenges").select("*").order("created_at", { ascending: false });
+    if (gameType) query = query.eq("game_type", gameType);
+    const { data } = await query;
+    if (data) return data;
+  } catch {}
   return store.getArenaChallenges(gameType);
 }
