@@ -328,10 +328,10 @@ class Store {
       question_quality: "sparkles", feedback_forge: "sparkles", metacognitive_map: "sparkles", limitation_lens: "sparkles",
     };
 
-    // Create mix of open, active, and completed challenges
-    const statuses: Array<"open" | "active" | "completed"> = ["open", "open", "active", "active", "completed", "completed", "completed", "completed"];
+    // Create mix of open, active, and completed challenges — enough to look alive on any instance
+    const statuses: Array<"open" | "active" | "completed"> = ["open", "active", "active", "completed", "completed", "completed", "completed", "completed"];
 
-    for (let i = 0; i < 16; i++) {
+    for (let i = 0; i < 40; i++) {
       const gt = gameTypes[Math.floor(seededRandom() * gameTypes.length)];
       const status = statuses[i % statuses.length];
       const difficulty = Math.floor(seededRandom() * 8) + 1;
