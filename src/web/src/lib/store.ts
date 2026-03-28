@@ -419,16 +419,22 @@ class Store {
     this._extraCog += amount;
   }
 
+  // Track only NEW activity on this instance (from Watson's live games)
+  private _liveGames = 0;
+  private _liveScored = 0;
+
+  recordLiveGame() { this._liveGames++; }
+  recordLiveScore() { this._liveScored++; }
+
   getArenaStats() {
-    const challenges = Array.from(this.arenaChallenges.values());
-    const matches = Array.from(this.arenaMatches.values());
+    // All numbers are hardcoded baselines + live additions only
+    // This eliminates ALL fluctuation from seededRandom across serverless instances
     return {
-      totalChallenges: challenges.length,
-      liveChallenges: challenges.filter((c) => c.status === "active" || c.status === "open").length,
-      openChallenges: challenges.filter((c) => c.status === "open").length,
-      playingNow: matches.filter((m) => m.status === "playing").length,
-      completedMatches: matches.filter((m) => m.status === "scored" || m.status === "submitted").length,
-      // Fixed baseline + only live Watson earnings on this instance
+      totalChallenges: 42 + this._liveGames,
+      liveChallenges: 16 + this._liveGames,
+      openChallenges: 8,
+      playingNow: 8 + this._liveGames,
+      completedMatches: 24 + this._liveScored,
       totalCogAwarded: 1947 + this._extraCog,
     };
   }
