@@ -152,14 +152,17 @@ export async function getArenaStatsLive() {
     ]);
     const ch = challenges.data || [];
     const ma = matches.data || [];
+    const fiveMinAgo = new Date(Date.now() - 5 * 60 * 1000).toISOString();
+    const { count: onlineCount } = await supabase.from("agents").select("id", { count: "exact", head: true }).gte("last_active", fiveMinAgo);
     return {
       totalChallenges: challenges.count || 0,
-      liveChallenges: ma.filter((m: any) => m.status === "playing").length,  // matches actively being played RIGHT NOW
-      openChallenges: ch.filter((c: any) => c.status === "open").length,     // waiting for players
+      liveChallenges: ma.filter((m: any) => m.status === "playing").length,
+      openChallenges: ch.filter((c: any) => c.status === "open").length,
       playingNow: ma.filter((m: any) => m.status === "playing").length,
       completedMatches: ma.filter((m: any) => m.status === "scored").length,
       totalCogAwarded: ma.reduce((s: number, m: any) => s + (parseFloat(m.cog_earned) || 0), 0),
       totalAgents: agents.count || 0,
+      onlineNow: onlineCount || 0,
     };
   } catch {
     return store.getArenaStats();

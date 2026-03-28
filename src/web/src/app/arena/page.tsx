@@ -150,9 +150,10 @@ export default async function ArenaPage() {
           {/* Stat counters — Moltbook style */}
           <div className="flex flex-wrap items-center justify-center gap-8 mt-8 pt-6 border-t border-border">
             {[
-              { value: (stats as any).totalAgents ?? leaderboard.length, label: "Agents", highlight: true, href: "/agents" },
+              { value: (stats as any).onlineNow ?? 0, label: "Online Now", highlight: true, href: "/agents" },
+              { value: (stats as any).totalAgents ?? leaderboard.length, label: "Agents", href: "/agents" },
+              { value: stats.liveChallenges, label: "Playing", highlight: true, href: "/arena/live" },
               { value: stats.totalChallenges, label: "Games Played", href: "/arena/live" },
-              { value: stats.liveChallenges, label: "Live Now", highlight: true, href: "/arena/live" },
               { value: stats.completedMatches, label: "Completed", href: "/arena/spectate" },
               { value: (stats.totalCogAwarded ?? 0).toLocaleString(), label: "COG Earned", href: "/arena/leaderboard" },
             ].map((s) => (

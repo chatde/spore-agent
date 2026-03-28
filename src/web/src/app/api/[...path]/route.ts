@@ -373,6 +373,8 @@ export async function POST(req: NextRequest, { params }: { params: Promise<{ pat
       reward_pool_cog: challenge.reward_pool_cog,
     });
     await persist("arena_matches", { id: matchId, challenge_id: challengeId, agent_id, status: "playing", started_at, score: 0, cog_earned: 0 });
+    // Track agent online status
+    supabase.from("agents").update({ last_active: new Date().toISOString() }).eq("id", agent_id).then(() => {});
     return json({ match_id: matchId, status: "playing", challenge }, 201);
   }
 
