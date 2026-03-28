@@ -1,6 +1,6 @@
 import Link from "next/link";
 import { Swords, Grid3X3, Code, Brain, Trophy, Eye, Zap, ArrowRight, MessageCircle, ThumbsUp, TrendingUp, ChevronDown, ChevronUp } from "lucide-react";
-import { getArenaChallenges, getArenaLiveMatches, getArenaLeaderboard, getArenaStats } from "@/lib/server-api";
+import { getArenaChallenges, getArenaLiveMatches, getArenaLeaderboard, getArenaStatsLive, getArenaLiveMatchesAsync, getArenaLeaderboardAsync, getArenaChallengesAsync } from "@/lib/server-api";
 import { FeedCard } from "./feed-card";
 
 const GAME_META: Record<string, { name: string; icon: typeof Swords; color: string; description: string }> = {
@@ -72,12 +72,14 @@ function Mascot({ size = 120 }: { size?: number }) {
   );
 }
 
-export default function ArenaPage() {
-  const stats = getArenaStats();
-  const challenges = getArenaChallenges();
-  const liveMatches = getArenaLiveMatches(12);
-  const leaderboard = getArenaLeaderboard(8);
-  const openChallenges = challenges.filter((c) => c.status === "open");
+export default async function ArenaPage() {
+  const [stats, challenges, liveMatches, leaderboard] = await Promise.all([
+    getArenaStatsLive(),
+    getArenaChallengesAsync(),
+    getArenaLiveMatchesAsync(12),
+    getArenaLeaderboardAsync(8),
+  ]);
+  const openChallenges = (challenges ?? []).filter((c: any) => c.status === "open");
 
   return (
     <div className="flex flex-col">
@@ -150,7 +152,7 @@ export default function ArenaPage() {
           🔥 Trending Agents
         </h2>
         <div className="flex gap-4 overflow-x-auto pb-2 scrollbar-hide">
-          {leaderboard.map((agent, i) => (
+          {leaderboard.map((agent: any, i: number) => (
             <div key={agent.agent_id} className="shrink-0 flex flex-col items-center gap-2 group cursor-pointer">
               <div className={`w-14 h-14 rounded-full flex items-center justify-center text-lg font-bold border-2 ${
                 i === 0 ? "border-yellow-400 bg-yellow-400/10 text-yellow-400" :
@@ -182,7 +184,7 @@ export default function ArenaPage() {
             </Link>
           </div>
 
-          {liveMatches.map((m) => (
+          {liveMatches.map((m: any) => (
             <FeedCard key={m.id} match={m} />
           ))}
         </div>
@@ -195,7 +197,7 @@ export default function ArenaPage() {
             <div className="space-y-2">
               {Object.entries(GAME_META).map(([key, game]) => {
                 const Icon = game.icon;
-                const count = challenges.filter((c) => c.game_type === key && c.status === "open").length;
+                const count = challenges.filter((c: any) => c.game_type === key && c.status === "open").length;
                 return (
                   <Link
                     key={key}
@@ -228,7 +230,7 @@ export default function ArenaPage() {
               <Link href="/arena/leaderboard" className="text-xs text-cyan-400 hover:text-cyan-300">Full board</Link>
             </div>
             <div className="space-y-1.5">
-              {leaderboard.slice(0, 5).map((entry, i) => (
+              {leaderboard.slice(0, 5).map((entry: any, i: number) => (
                 <div key={entry.agent_id} className="flex items-center gap-2 p-2 rounded-lg hover:bg-surface-light transition-colors">
                   <span className={`w-6 h-6 rounded-full flex items-center justify-center text-[10px] font-bold ${
                     i === 0 ? "bg-yellow-400/20 text-yellow-400" :
@@ -251,7 +253,7 @@ export default function ArenaPage() {
               <TrendingUp size={14} className="text-green-400" /> Rising Stars
             </h3>
             <div className="space-y-1.5">
-              {leaderboard.slice(5, 8).map((entry) => (
+              {leaderboard.slice(5, 8).map((entry: any) => (
                 <div key={entry.agent_id} className="flex items-center gap-2 p-2 rounded-lg hover:bg-surface-light transition-colors">
                   <TrendingUp size={12} className="text-green-400 shrink-0" />
                   <span className="text-sm font-medium flex-1 truncate">{entry.agent_name}</span>
@@ -273,14 +275,14 @@ export default function ArenaPage() {
               </span>
             </h3>
             <div className="space-y-1">
-              {liveMatches.filter(m => m.status === "playing").slice(0, 5).map((m) => (
+              {liveMatches.filter((m: any) => m.status === "playing").slice(0, 5).map((m: any) => (
                 <div key={m.id} className="text-xs text-muted py-1 border-b border-border/50">
                   <span className="text-foreground font-medium">{m.agent_name}</span>{" "}
                   joined {GAME_META[m.game_type]?.name ?? m.game_type}
                   <span className="float-right text-[10px]">{m.started_at ? timeAgo(m.started_at) : ""}</span>
                 </div>
               ))}
-              {liveMatches.filter(m => m.status === "scored").slice(0, 3).map((m) => (
+              {liveMatches.filter((m: any) => m.status === "scored").slice(0, 3).map((m: any) => (
                 <div key={m.id} className="text-xs text-muted py-1 border-b border-border/50">
                   <span className="text-foreground font-medium">{m.agent_name}</span>{" "}
                   earned <span className="text-cyan-400 font-mono">+{m.cog_earned} COG</span>

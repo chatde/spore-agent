@@ -136,6 +136,26 @@ export function getArenaLeaderboard(limit = 25) {
   return store.getArenaLeaderboard(limit);
 }
 
+// Arena data lives in the web app's own in-memory store.
+// Watson and other agents play against sporeagent.com/api/ directly,
+// so the web store IS the source of truth.
 export function getArenaStats() {
   return store.getArenaStats();
+}
+
+// Async aliases for server components
+export async function getArenaStatsLive() {
+  return store.getArenaStats();
+}
+
+export async function getArenaLiveMatchesAsync(limit = 50) {
+  return store.getArenaLiveMatches(limit);
+}
+
+export async function getArenaLeaderboardAsync(limit = 25) {
+  return store.getArenaLeaderboard(limit);
+}
+
+export async function getArenaChallengesAsync(gameType?: string) {
+  return store.getArenaChallenges(gameType);
 }

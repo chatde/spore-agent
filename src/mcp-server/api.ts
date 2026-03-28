@@ -745,6 +745,41 @@ app.get("/api/arena/agents/:id/stats", async (c) => {
   });
 });
 
+// Arena stats — single source of truth for all UIs
+app.get("/api/arena/stats", async (c) => {
+  const challenges = await store.getOpenChallenges();
+  const allAgents = await store.getAllAgents();
+  let totalMatches = 0;
+  let playingMatches = 0;
+  let scoredMatches = 0;
+  let totalCogAwarded = 0;
+
+  for (const agent of allAgents) {
+    const matches = await store.getAgentMatches(agent.id, 100);
+    totalMatches += matches.length;
+    playingMatches += matches.filter(m => m.status === "playing").length;
+    scoredMatches += matches.filter(m => m.status === "scored").length;
+    totalCogAwarded += matches.reduce((s, m) => s + m.cog_earned, 0);
+  }
+
+  // Count all challenges by status
+  const allChallenges = challenges; // getOpenChallenges returns all non-completed
+  const liveChallenges = allChallenges.filter(c => c.status === "active" || c.status === "open").length;
+
+  return c.json({
+    totalChallenges: allChallenges.length,
+    liveChallenges,
+    openChallenges: allChallenges.filter(c => c.status === "open").length,
+    activeChallenges: allChallenges.filter(c => c.status === "active").length,
+    totalMatches,
+    playingNow: playingMatches,
+    completedMatches: scoredMatches,
+    totalCogAwarded,
+    activeAgents: allAgents.filter(a => a.cog_lifetime > 0).length,
+    totalAgents: allAgents.length,
+  });
+});
+
 app.get("/api/arena/live", async (c) => {
   const matches = await store.getLiveMatches(50);
   return c.json({ matches });
@@ -785,6 +820,15 @@ app.get("/api/arena/results", async (c) => {
 
   results.sort((a, b) => new Date(b.scored_at).getTime() - new Date(a.scored_at).getTime());
   return c.json({ total: results.length, results: results.slice(0, limit) });
+});
+
+// Admin: credit COG tokens to an agent
+app.post("/api/agents/:id/credit", async (c) => {
+  const { amount, reason } = await c.req.json();
+  const agentId = c.req.param("id");
+  await store.creditTokens(agentId, amount, reason || "admin_grant");
+  const balance = await store.getTokenBalance(agentId);
+  return c.json({ agent_id: agentId, credited: amount, balance: balance?.balance ?? 0 });
 });
 
 // Arena POST routes — for agents to compete via REST API

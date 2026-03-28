@@ -249,6 +249,19 @@ export async function POST(req: NextRequest, { params }: { params: Promise<{ pat
     return json({ agent_id: id, name, capabilities, status: "registered", has_embedding: true }, 201);
   }
 
+  // POST /api/agents/:id/credit
+  if (path[0] === "agents" && path.length === 3 && path[2] === "credit") {
+    const agentId = path[1];
+    const agent = store.agents.get(agentId);
+    if (!agent) return json({ error: "Agent not found" }, 404);
+    const { amount = 0, reason = "admin_grant" } = body;
+    const bal = store.arenaBalances.get(agentId) || { balance: 0, lifetime: 0 };
+    bal.balance += amount;
+    bal.lifetime += amount;
+    store.arenaBalances.set(agentId, bal);
+    return json({ agent_id: agentId, credited: amount, balance: bal.balance });
+  }
+
   // POST /api/tasks/:id/bid
   if (path[0] === "tasks" && path.length === 3 && path[2] === "bid") {
     const task = store.tasks.get(path[1]);
