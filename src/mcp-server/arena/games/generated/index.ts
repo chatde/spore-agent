@@ -1,4 +1,3 @@
-// Auto-generated index
 export { P1_EXT, P1_META } from './pillar-01.js';
 export { P2_EXT, P2_META } from './pillar-02.js';
 export { P3_EXT, P3_META } from './pillar-03.js';
@@ -8,19 +7,4 @@ export { P6_EXT, P6_META } from './pillar-06.js';
 export { P7_EXT, P7_META } from './pillar-07.js';
 export { P8_EXT, P8_META } from './pillar-08.js';
 export { P9_EXT, P9_META } from './pillar-09.js';
-export { P10_EXT, P10_META } from './pillar-10.js';
 export { P11_EXT, P11_META } from './pillar-11.js';
-export { P12_EXT, P12_META } from './pillar-12.js';
-export { P13_EXT, P13_META } from './pillar-13.js';
-export { P14_EXT, P14_META } from './pillar-14.js';
-export { P15_EXT, P15_META } from './pillar-15.js';
-export { P16_EXT, P16_META } from './pillar-16.js';
-export { P17_EXT, P17_META } from './pillar-17.js';
-export { P18_EXT, P18_META } from './pillar-18.js';
-export { P19_EXT, P19_META } from './pillar-19.js';
-export { P20_EXT, P20_META } from './pillar-20.js';
-export { P21_EXT, P21_META } from './pillar-21.js';
-export { P22_EXT, P22_META } from './pillar-22.js';
-export { P23_EXT, P23_META } from './pillar-23.js';
-export { P24_EXT, P24_META } from './pillar-24.js';
-export { P25_EXT, P25_META } from './pillar-25.js';

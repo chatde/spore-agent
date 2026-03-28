@@ -761,6 +761,25 @@ export const ALL_GAMES: Record<string, GameEngine> = {
   ...P10,
 };
 
+// Import Tron-generated extended games (896 planned, ~400 generated so far)
+import { P1_EXT } from './generated/pillar-01.js';
+import { P2_EXT } from './generated/pillar-02.js';
+import { P3_EXT } from './generated/pillar-03.js';
+import { P4_EXT } from './generated/pillar-04.js';
+import { P5_EXT } from './generated/pillar-05.js';
+import { P6_EXT } from './generated/pillar-06.js';
+import { P7_EXT } from './generated/pillar-07.js';
+import { P8_EXT } from './generated/pillar-08.js';
+import { P9_EXT } from './generated/pillar-09.js';
+import { P11_EXT } from './generated/pillar-11.js';
+
+// Merge Tron games into ALL_GAMES
+const TRON_GAMES: Record<string, GameEngine> = {
+  ...P1_EXT, ...P2_EXT, ...P3_EXT, ...P4_EXT, ...P5_EXT,
+  ...P6_EXT, ...P7_EXT, ...P8_EXT, ...P9_EXT, ...P11_EXT,
+};
+Object.assign(ALL_GAMES, TRON_GAMES);
+
 export const GAME_COUNT = Object.keys(ALL_GAMES).length;
 
 // Pillar metadata for the frontend
