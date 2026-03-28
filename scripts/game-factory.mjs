@@ -22,16 +22,20 @@ const STATE_FILE = join(ROOT, 'scripts/.game-factory-state.json');
 
 // ─── Model Roulette ────────────────────────────────────────
 const MODELS = [
-  // Working free models
-  'meta-llama/llama-4-maverick:free',
-  'google/gemini-2.5-flash-preview-05-20',
-  // Cheap paid models (rotate to avoid limits)
-  'meta-llama/llama-4-scout',
-  'qwen/qwen3-30b-a3b',
-  'deepseek/deepseek-chat-v3-0324',
-  'mistralai/mistral-small-3.2-24b-instruct',
-  'google/gemini-2.0-flash-001',
-  'meta-llama/llama-3.3-70b-instruct',
+  // Reliable cheap models (round-robin)
+  'deepseek/deepseek-v3.2',                     // $0.0004/1k — best value
+  'qwen/qwen3.5-9b',                            // $0.0001/1k — ultra cheap
+  'mistralai/mistral-small-2603',                // $0.0006/1k
+  'meta-llama/llama-4-scout',                   // $0.00015/1k
+  'qwen/qwen3-coder-next',                      // $0.0008/1k — code-optimized
+  'qwen/qwen3.5-35b-a3b',                       // $0.0013/1k
+  // Free models (may rate limit faster)
+  'nvidia/nemotron-3-super-120b-a12b:free',
+  'stepfun/step-3.5-flash:free',
+  'minimax/minimax-m2.5:free',
+  'z-ai/glm-4.5-air:free',
+  'arcee-ai/trinity-large-preview:free',
+  'nvidia/nemotron-nano-9b-v2:free',
 ];
 
 let modelIndex = 0;
@@ -63,8 +67,11 @@ async function callOpenRouter(prompt, retries = 3) {
   for (let attempt = 0; attempt < retries; attempt++) {
     const model = nextModel();
     try {
+      const controller = new AbortController();
+      const timeout = setTimeout(() => controller.abort(), 30000); // 30s timeout
       const res = await fetch('https://openrouter.ai/api/v1/chat/completions', {
         method: 'POST',
+        signal: controller.signal,
         headers: {
           'Content-Type': 'application/json',
           'Authorization': `Bearer ${API_KEY}`,
@@ -78,6 +85,7 @@ async function callOpenRouter(prompt, retries = 3) {
           temperature: 0.9,
         }),
       });
+      clearTimeout(timeout);
 
       if (!res.ok) {
         if (res.status === 429) {
@@ -149,7 +157,7 @@ RULES:
 - Include format comment: // format: solo | duel_1v1 | team_2v2 | battle_royale
 - Make each game test a DIFFERENT skill
 
-OUTPUT — raw TypeScript only, NO markdown fences, NO explanation:
+CRITICAL: Output ONLY raw TypeScript code. NO markdown fences (no \`\`\`). NO explanations. NO comments except format tags. Start directly with the first game_id:
 
 game_id: textGame({
   // format: solo

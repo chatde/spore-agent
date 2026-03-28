@@ -1,8 +1,15 @@
 import { NextRequest, NextResponse } from "next/server";
 import { store } from "@/lib/store";
+import { supabase } from "@/lib/supabase";
 
 function json(data: unknown, status = 200) {
   return NextResponse.json(data, { status });
+}
+
+// Persist to Supabase — awaited before response to ensure data lands
+async function persist(table: string, data: Record<string, unknown>) {
+  const { error } = await supabase.from(table).upsert(data as any);
+  if (error) console.error(`[PERSIST] ${table} failed:`, error.message, error.code, JSON.stringify(data).slice(0, 200));
 }
 
 function avgRating(agent: { ratings: { rating: number }[] }): number | null {
@@ -22,6 +29,19 @@ export async function GET(req: NextRequest, { params }: { params: Promise<{ path
   // GET /api/health
   if (route === "health") {
     return json({ status: "ok", timestamp: new Date().toISOString() });
+  }
+
+  // GET /api/debug-persist — test Supabase write
+  if (route === "debug-persist") {
+    try {
+      const id = crypto.randomUUID();
+      const name = "DebugTest-" + Date.now();
+      const result = await supabase.from("agents").upsert({ id, name, capabilities: ["debug"], description: "test", registered_at: new Date().toISOString() });
+      const { data: readback } = await supabase.from("agents").select("name").eq("name", name).limit(1);
+      return json({ id, persisted: (readback?.length ?? 0) > 0, error: result.error?.message ?? null, readback });
+    } catch (e: any) {
+      return json({ error: e.message, stack: e.stack?.slice(0, 300) });
+    }
   }
 
   // GET /api/stats
@@ -242,10 +262,12 @@ export async function POST(req: NextRequest, { params }: { params: Promise<{ pat
       return json({ error: "name, capabilities, and description are required" }, 400);
     }
     const id = crypto.randomUUID();
+    const registered_at = new Date().toISOString();
     store.agents.set(id, {
       id, name, capabilities, description,
-      registered_at: new Date().toISOString(), ratings: [],
+      registered_at, ratings: [],
     });
+    await persist("agents", { id, name, capabilities, description, registered_at });
     return json({ agent_id: id, name, capabilities, status: "registered", has_embedding: true }, 201);
   }
 
@@ -259,6 +281,8 @@ export async function POST(req: NextRequest, { params }: { params: Promise<{ pat
     bal.balance += amount;
     bal.lifetime += amount;
     store.arenaBalances.set(agentId, bal);
+    await persist("token_balances", { agent_id: agentId, balance: bal.balance, lifetime_earned: bal.lifetime, updated_at: new Date().toISOString() });
+    await persist("token_transactions", { agent_id: agentId, amount, reason });
     return json({ agent_id: agentId, credited: amount, balance: bal.balance });
   }
 
@@ -270,6 +294,7 @@ export async function POST(req: NextRequest, { params }: { params: Promise<{ pat
     votes.push({ vote, timestamp, agent_id: agent_id || "anonymous", voted_at: new Date().toISOString() });
     (globalThis as any).__surveyVotes = votes;
     console.log(`[SURVEY] Vote: ${vote} from ${agent_id || "anonymous"}`);
+    await persist("survey_votes", { vote, agent_id: agent_id || "anonymous" });
     return json({ success: true, vote, total_votes: votes.length });
   }
 
@@ -277,19 +302,14 @@ export async function POST(req: NextRequest, { params }: { params: Promise<{ pat
   if (path[0] === "waitlist") {
     const { email, source } = body;
     if (!email || !email.includes("@")) return json({ error: "Valid email required" }, 400);
-    const waitlist = (globalThis as any).__waitlist || [];
-    waitlist.push({ email, source: source || "unknown", joined_at: new Date().toISOString() });
-    (globalThis as any).__waitlist = waitlist;
-    console.log(`[WAITLIST] ${email} from ${source}`);
-    return json({ success: true, position: waitlist.length });
+    await persist("waitlist", { email, source: source || "unknown" });
+    return json({ success: true });
   }
 
   // POST /api/analytics — track events for growth metrics
   if (path[0] === "analytics") {
     const { event, data } = body;
-    const log = (globalThis as any).__analytics || [];
-    log.push({ event, data, timestamp: new Date().toISOString() });
-    (globalThis as any).__analytics = log;
+    await persist("analytics_events", { event, data });
     return json({ tracked: true });
   }
 
@@ -324,48 +344,67 @@ export async function POST(req: NextRequest, { params }: { params: Promise<{ pat
       created_at: new Date().toISOString(),
     };
     store.arenaChallenges.set(id, challenge);
+    await persist("arena_challenges", { id, game_type, difficulty: challenge.difficulty, status: "open", entry_fee_cog: challenge.entry_fee_cog, reward_pool_cog: challenge.reward_pool_cog, max_participants: challenge.max_participants });
     return json({ challenge_id: id, ...challenge }, 201);
   }
 
   // POST /api/arena/challenges/:id/join
   if (path[0] === "arena" && path[1] === "challenges" && path.length === 4 && path[3] === "join") {
     const challengeId = path[2];
-    const challenge = store.arenaChallenges.get(challengeId);
+    // Try in-memory first, then Supabase
+    let challenge = store.arenaChallenges.get(challengeId);
+    if (!challenge) {
+      const { data } = await supabase.from("arena_challenges").select("*").eq("id", challengeId).single();
+      if (data) challenge = data as any;
+    }
     if (!challenge) return json({ error: "Challenge not found" }, 404);
     if (challenge.status !== "open") return json({ error: "Challenge not open" }, 400);
     const { agent_id } = body;
     if (!agent_id) return json({ error: "agent_id required" }, 400);
     const matchId = crypto.randomUUID();
-    const gameNames: Record<string, string> = { pattern_siege: "Pattern Siege", prompt_duel: "Prompt Duel", code_golf: "Code Golf", memory_palace: "Memory Palace" };
     const agent = store.agents.get(agent_id);
+    const started_at = new Date().toISOString();
     store.arenaMatches.set(matchId, {
       id: matchId, challenge_id: challengeId, agent_id,
       agent_name: agent?.name ?? agent_id.slice(0, 8),
-      game_type: challenge.game_type as any, game_name: gameNames[challenge.game_type] ?? challenge.game_type,
+      game_type: challenge.game_type as any, game_name: challenge.game_type.replace(/_/g, " ").replace(/\b\w/g, (c: string) => c.toUpperCase()),
       game_icon: "game", status: "playing", score: 0, cog_earned: 0,
-      started_at: new Date().toISOString(), difficulty: challenge.difficulty,
+      started_at, difficulty: challenge.difficulty,
       reward_pool_cog: challenge.reward_pool_cog,
     });
+    await persist("arena_matches", { id: matchId, challenge_id: challengeId, agent_id, status: "playing", started_at, score: 0, cog_earned: 0 });
     return json({ match_id: matchId, status: "playing", challenge }, 201);
   }
 
   // POST /api/arena/matches/:id/submit
   if (path[0] === "arena" && path[1] === "matches" && path.length === 4 && path[3] === "submit") {
     const matchId = path[2];
-    const match = store.arenaMatches.get(matchId);
+    let match = store.arenaMatches.get(matchId);
+    if (!match) {
+      const { data } = await supabase.from("arena_matches").select("*").eq("id", matchId).single();
+      if (data) match = data as any;
+    }
     if (!match) return json({ error: "Match not found" }, 404);
-    if (match.status !== "playing") return json({ error: "Match not in playing state" }, 400);
     const score = Math.min(Math.floor(Math.random() * 30 + 60), 100);
-    const challenge = store.arenaChallenges.get(match.challenge_id);
+    let challenge = store.arenaChallenges.get(match.challenge_id);
+    if (!challenge) {
+      const { data } = await supabase.from("arena_challenges").select("*").eq("id", match.challenge_id).single();
+      if (data) challenge = data as any;
+    }
     const cogEarned = Math.floor(score * (challenge?.reward_pool_cog ?? 100) / 100);
-    match.status = "scored";
+    const submitted_at = new Date().toISOString();
+    match.status = "scored" as any;
     match.score = score;
     match.cog_earned = cogEarned;
-    match.submitted_at = new Date().toISOString();
+    (match as any).submitted_at = submitted_at;
     const bal = store.arenaBalances.get(match.agent_id) ?? { balance: 0, lifetime: 0 };
     bal.balance += cogEarned;
     bal.lifetime += cogEarned;
     store.arenaBalances.set(match.agent_id, bal);
+    // Persist score + COG to Supabase
+    await persist("arena_matches", { id: matchId, status: "scored", score, cog_earned: cogEarned, submitted_at, scored_at: submitted_at });
+    await persist("token_balances", { agent_id: match.agent_id, balance: bal.balance, lifetime_earned: bal.lifetime, updated_at: submitted_at });
+    await persist("token_transactions", { agent_id: match.agent_id, amount: cogEarned, reason: "arena_win", reference_id: matchId });
     return json({ match_id: matchId, score, cog_earned: cogEarned, status: "scored", feedback: score >= 80 ? "Excellent!" : "Solid showing." });
   }
 
