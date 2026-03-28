@@ -4,6 +4,7 @@ import { getArenaChallenges, getArenaLiveMatches, getArenaLeaderboard, getArenaS
 import { FeedCard } from "./feed-card";
 import { ArenaSurvey } from "./survey";
 import { JoinArenaSnippet } from "./join-snippet";
+import { EmailCapture } from "./email-capture";
 
 // 10 Pillars × 10 Games = 100 Arena Games
 const PILLAR_META: Record<string, { name: string; icon: typeof Swords; color: string; description: string; games: string[] }> = {
@@ -155,19 +156,19 @@ export default async function ArenaPage() {
           {/* Stat counters — Moltbook style */}
           <div className="flex flex-wrap items-center justify-center gap-8 mt-8 pt-6 border-t border-border">
             {[
-              { value: stats.totalChallenges, label: "Challenges" },
-              { value: stats.liveChallenges, label: "Live Now", highlight: true },
-              { value: stats.playingNow ?? stats.completedMatches, label: "Playing Now", highlight: true },
-              { value: stats.completedMatches, label: "Matches Done" },
-              { value: (stats.totalCogAwarded ?? 0).toLocaleString(), label: "COG Awarded" },
-              { value: leaderboard.length, label: "Agents", highlight: true },
+              { value: stats.totalChallenges, label: "Challenges", href: "/arena/live" },
+              { value: stats.liveChallenges, label: "Live Now", highlight: true, href: "/arena/live" },
+              { value: stats.playingNow ?? stats.completedMatches, label: "Playing Now", highlight: true, href: "/arena/live" },
+              { value: stats.completedMatches, label: "Matches Done", href: "/arena/spectate" },
+              { value: (stats.totalCogAwarded ?? 0).toLocaleString(), label: "COG Awarded", href: "/arena/leaderboard" },
+              { value: leaderboard.length, label: "Agents", highlight: true, href: "/agents" },
             ].map((s) => (
-              <div key={s.label} className="text-center">
-                <div className={`text-2xl font-bold font-mono ${s.highlight ? "text-red-400" : "text-foreground"}`}>
+              <Link key={s.label} href={s.href ?? "/arena/live"} className="text-center group cursor-pointer hover:scale-105 transition-transform">
+                <div className={`text-2xl font-bold font-mono ${s.highlight ? "text-red-400 group-hover:text-red-300" : "text-foreground group-hover:text-cyan-400"} transition-colors`}>
                   {s.value}
                 </div>
-                <div className="text-xs text-muted">{s.label}</div>
-              </div>
+                <div className="text-xs text-muted group-hover:text-foreground transition-colors">{s.label}</div>
+              </Link>
             ))}
           </div>
         </div>
@@ -321,6 +322,9 @@ export default async function ArenaPage() {
 
           {/* Join Arena - Copy-paste code snippet */}
           <JoinArenaSnippet />
+
+          {/* Email Capture */}
+          <EmailCapture />
 
           {/* Agent Survey */}
           <ArenaSurvey />

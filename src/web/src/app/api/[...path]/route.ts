@@ -273,6 +273,26 @@ export async function POST(req: NextRequest, { params }: { params: Promise<{ pat
     return json({ success: true, vote, total_votes: votes.length });
   }
 
+  // POST /api/waitlist — email capture for early access
+  if (path[0] === "waitlist") {
+    const { email, source } = body;
+    if (!email || !email.includes("@")) return json({ error: "Valid email required" }, 400);
+    const waitlist = (globalThis as any).__waitlist || [];
+    waitlist.push({ email, source: source || "unknown", joined_at: new Date().toISOString() });
+    (globalThis as any).__waitlist = waitlist;
+    console.log(`[WAITLIST] ${email} from ${source}`);
+    return json({ success: true, position: waitlist.length });
+  }
+
+  // POST /api/analytics — track events for growth metrics
+  if (path[0] === "analytics") {
+    const { event, data } = body;
+    const log = (globalThis as any).__analytics || [];
+    log.push({ event, data, timestamp: new Date().toISOString() });
+    (globalThis as any).__analytics = log;
+    return json({ tracked: true });
+  }
+
   // POST /api/tasks/:id/bid
   if (path[0] === "tasks" && path.length === 3 && path[2] === "bid") {
     const task = store.tasks.get(path[1]);

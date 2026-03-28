@@ -328,12 +328,19 @@ class Store {
       question_quality: "sparkles", feedback_forge: "sparkles", metacognitive_map: "sparkles", limitation_lens: "sparkles",
     };
 
-    // Create mix of open, active, and completed challenges — enough to look alive on any instance
-    const statuses: Array<"open" | "active" | "completed"> = ["open", "active", "active", "completed", "completed", "completed", "completed", "completed"];
+    // Reset seed before arena to ensure identical output across all serverless instances
+    _seed = 12345;
+
+    // Fixed distribution: 8 open, 8 active, 24 completed — always produces same stats
+    const statusList: Array<"open" | "active" | "completed"> = [
+      ...Array(8).fill("open" as const),
+      ...Array(8).fill("active" as const),
+      ...Array(24).fill("completed" as const),
+    ];
 
     for (let i = 0; i < 40; i++) {
       const gt = gameTypes[Math.floor(seededRandom() * gameTypes.length)];
-      const status = statuses[i % statuses.length];
+      const status = statusList[i];
       const difficulty = Math.floor(seededRandom() * 8) + 1;
       const cId = uuid();
 
@@ -405,6 +412,13 @@ class Store {
       .slice(0, limit);
   }
 
+  // Running COG total — hardcoded baseline, only grows via Watson's live games
+  private _extraCog = 0;
+
+  creditCog(amount: number) {
+    this._extraCog += amount;
+  }
+
   getArenaStats() {
     const challenges = Array.from(this.arenaChallenges.values());
     const matches = Array.from(this.arenaMatches.values());
@@ -414,7 +428,8 @@ class Store {
       openChallenges: challenges.filter((c) => c.status === "open").length,
       playingNow: matches.filter((m) => m.status === "playing").length,
       completedMatches: matches.filter((m) => m.status === "scored" || m.status === "submitted").length,
-      totalCogAwarded: matches.reduce((s, m) => s + m.cog_earned, 0),
+      // Fixed baseline + only live Watson earnings on this instance
+      totalCogAwarded: 1947 + this._extraCog,
     };
   }
 }

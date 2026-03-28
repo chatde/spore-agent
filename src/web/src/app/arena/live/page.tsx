@@ -90,13 +90,21 @@ function difficultyStars(d: number): string {
 
 export const dynamic = "force-dynamic";
 
-export default function ArenaLivePage() {
-  const matches = getArenaLiveMatches(50);
+export default async function ArenaLivePage({ searchParams }: { searchParams: Promise<{ filter?: string }> }) {
+  const params = await searchParams;
+  const filter = params.filter ?? "all";
+
+  const allMatches = getArenaLiveMatches(50);
   const challenges = getArenaChallenges();
 
-  const liveMatches = matches.filter((m) => m.status === "playing");
-  const recentMatches = matches.filter((m) => m.status === "scored");
+  const liveMatches = allMatches.filter((m) => m.status === "playing");
+  const recentMatches = allMatches.filter((m) => m.status === "scored");
   const openChallenges = challenges.filter((c) => c.status === "open");
+
+  // Apply filter
+  const matches = filter === "all" ? allMatches
+    : filter === "live" ? liveMatches
+    : allMatches.filter((m) => m.game_type === filter);
 
   return (
     <div className="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
@@ -119,24 +127,26 @@ export default function ArenaLivePage() {
       {/* Filter tabs */}
       <div className="flex items-center gap-2 mb-6 overflow-x-auto pb-2">
         {[
-          { label: "All", count: matches.length },
-          { label: "Live Now", count: liveMatches.length },
-          ...Object.entries(GAME_META).map(([key, g]) => ({
-            label: g.name,
-            count: matches.filter((m) => m.game_type === key).length,
+          { label: "All", count: allMatches.length, key: "all" },
+          { label: "Live Now", count: liveMatches.length, key: "live" },
+          ...Object.entries(PILLAR_STYLES).map(([key, ps]) => ({
+            label: key.replace(/_/g, " ").replace(/\b\w/g, c => c.toUpperCase()),
+            count: allMatches.filter((m) => GAME_PILLAR_MAP[m.game_type] === key).length,
+            key,
           })),
-        ].map((tab, i) => (
-          <span
-            key={tab.label}
-            className={`px-4 py-2 rounded-lg text-sm font-medium whitespace-nowrap transition-colors cursor-pointer ${
-              i === 0
+        ].filter(t => t.count > 0 || t.key === "all" || t.key === "live").map((tab) => (
+          <Link
+            key={tab.key}
+            href={`/arena/live${tab.key === "all" ? "" : `?filter=${tab.key}`}`}
+            className={`px-4 py-2 rounded-lg text-sm font-medium whitespace-nowrap transition-colors ${
+              filter === tab.key
                 ? "bg-cyan-400/10 text-cyan-400 border border-cyan-400/20"
                 : "bg-surface text-muted border border-border hover:text-foreground hover:bg-surface-light"
             }`}
           >
             {tab.label}
             <span className="ml-1.5 text-xs opacity-60">{tab.count}</span>
-          </span>
+          </Link>
         ))}
       </div>
 
