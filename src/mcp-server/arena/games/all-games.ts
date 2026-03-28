@@ -761,23 +761,46 @@ export const ALL_GAMES: Record<string, GameEngine> = {
   ...P10,
 };
 
-// Import working Tron-generated pillar games (6 of 25 compile — rest need syntax fixes)
+// Import ALL 25 Tron-generated pillar games (all compile after syntax fixes)
 import { P1_EXT } from './generated/pillar-01.js';
+import { P2_EXT } from './generated/pillar-02.js';
+import { P3_EXT } from './generated/pillar-03.js';
+import { P4_EXT } from './generated/pillar-04.js';
+import { P5_EXT } from './generated/pillar-05.js';
+import { P6_EXT } from './generated/pillar-06.js';
+import { P7_EXT } from './generated/pillar-07.js';
+import { P8_EXT } from './generated/pillar-08.js';
+import { P9_EXT } from './generated/pillar-09.js';
 import { P10_EXT } from './generated/pillar-10.js';
 import { P11_EXT } from './generated/pillar-11.js';
 import { P12_EXT } from './generated/pillar-12.js';
+import { P13_EXT } from './generated/pillar-13.js';
+import { P14_EXT } from './generated/pillar-14.js';
+import { P15_EXT } from './generated/pillar-15.js';
+import { P16_EXT } from './generated/pillar-16.js';
+import { P17_EXT } from './generated/pillar-17.js';
 import { P18_EXT } from './generated/pillar-18.js';
+import { P19_EXT } from './generated/pillar-19.js';
+import { P20_EXT } from './generated/pillar-20.js';
+import { P21_EXT } from './generated/pillar-21.js';
+import { P22_EXT } from './generated/pillar-22.js';
+import { P23_EXT } from './generated/pillar-23.js';
+import { P24_EXT } from './generated/pillar-24.js';
 import { P25_EXT } from './generated/pillar-25.js';
 
-// Merge working Tron games into ALL_GAMES
+// Merge ALL Tron games into ALL_GAMES
 const TRON_GAMES: Record<string, GameEngine> = {
-  ...P1_EXT, ...P10_EXT, ...P11_EXT, ...P12_EXT, ...P18_EXT, ...P25_EXT,
+  ...P1_EXT, ...P2_EXT, ...P3_EXT, ...P4_EXT, ...P5_EXT,
+  ...P6_EXT, ...P7_EXT, ...P8_EXT, ...P9_EXT, ...P10_EXT,
+  ...P11_EXT, ...P12_EXT, ...P13_EXT, ...P14_EXT, ...P15_EXT,
+  ...P16_EXT, ...P17_EXT, ...P18_EXT, ...P19_EXT, ...P20_EXT,
+  ...P21_EXT, ...P22_EXT, ...P23_EXT, ...P24_EXT, ...P25_EXT,
 };
 Object.assign(ALL_GAMES, TRON_GAMES);
 
 export const GAME_COUNT = Object.keys(ALL_GAMES).length;
 
-// Pillar metadata for the frontend — 10 original + 5 working Tron pillars
+// All 25 pillar metadata
 export const PILLAR_META = {
   pattern_perception: { name: 'Pattern & Perception', icon: '🔍', color: 'text-cyan-400', games: Object.keys(P1) },
   code_combat: { name: 'Code Combat', icon: '⚔️', color: 'text-orange-400', games: Object.keys(P2) },
@@ -791,6 +814,17 @@ export const PILLAR_META = {
   meta_mind: { name: 'Meta-Mind', icon: '🪞', color: 'text-teal-400', games: Object.keys(P10) },
   diplomacy: { name: 'Diplomacy & Negotiation', icon: '🤝', color: 'text-amber-400', games: Object.keys(P11_EXT) },
   survival: { name: 'Survival Arena', icon: '🏕️', color: 'text-emerald-400', games: Object.keys(P12_EXT) },
+  data_science: { name: 'Data Science Dojo', icon: '📊', color: 'text-violet-400', games: Object.keys(P13_EXT) },
+  ethics: { name: 'Ethics Engine', icon: '⚖️', color: 'text-slate-400', games: Object.keys(P14_EXT) },
+  speed_blitz: { name: 'Speed Blitz', icon: '⚡', color: 'text-yellow-400', games: Object.keys(P15_EXT) },
+  world_sim: { name: 'World Simulation', icon: '🌍', color: 'text-sky-400', games: Object.keys(P16_EXT) },
+  cipher: { name: 'Cipher & Crypto', icon: '🔐', color: 'text-rose-400', games: Object.keys(P17_EXT) },
   teaching: { name: 'Teaching Arena', icon: '📚', color: 'text-lime-400', games: Object.keys(P18_EXT) },
+  multimodal: { name: 'Multimodal Mind', icon: '🎭', color: 'text-fuchsia-400', games: Object.keys(P19_EXT) },
+  battle_royale: { name: 'Battle Royale', icon: '👑', color: 'text-orange-400', games: Object.keys(P20_EXT) },
+  team_tactics: { name: 'Team Tactics', icon: '🎯', color: 'text-cyan-400', games: Object.keys(P21_EXT) },
+  debug_detective: { name: 'Debug Detective', icon: '🔎', color: 'text-red-400', games: Object.keys(P22_EXT) },
+  knowledge_graph: { name: 'Knowledge Graph', icon: '🕸️', color: 'text-purple-400', games: Object.keys(P23_EXT) },
+  auction_house: { name: 'Auction House', icon: '💰', color: 'text-yellow-500', games: Object.keys(P24_EXT) },
   chaos_engineering: { name: 'Chaos Engineering', icon: '💥', color: 'text-zinc-400', games: Object.keys(P25_EXT) },
 };
