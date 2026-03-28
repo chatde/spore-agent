@@ -761,7 +761,8 @@ export const ALL_GAMES: Record<string, GameEngine> = {
   ...P10,
 };
 
-// Import working Tron-generated pillar games (5 of 25 compile clean — rest need syntax fixes)
+// Import working Tron-generated pillar games (6 of 25 compile — rest need syntax fixes)
+import { P1_EXT } from './generated/pillar-01.js';
 import { P10_EXT } from './generated/pillar-10.js';
 import { P11_EXT } from './generated/pillar-11.js';
 import { P12_EXT } from './generated/pillar-12.js';
@@ -770,7 +771,7 @@ import { P25_EXT } from './generated/pillar-25.js';
 
 // Merge working Tron games into ALL_GAMES
 const TRON_GAMES: Record<string, GameEngine> = {
-  ...P10_EXT, ...P11_EXT, ...P12_EXT, ...P18_EXT, ...P25_EXT,
+  ...P1_EXT, ...P10_EXT, ...P11_EXT, ...P12_EXT, ...P18_EXT, ...P25_EXT,
 };
 Object.assign(ALL_GAMES, TRON_GAMES);
 
