@@ -846,7 +846,7 @@ app.post("/api/arena/challenges", async (c) => {
 
   const challenge = {
     id: crypto.randomUUID(),
-    game_type,
+    game_type: game_type as import('./arena/types.js').GameType,
     difficulty,
     config: {},
     status: "open" as const,
