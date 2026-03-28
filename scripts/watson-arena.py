@@ -174,9 +174,8 @@ Give a concise, competitive answer:"""
             print(f"  Watson: {answer[:120]}...")
 
             # Submit answer
-            submit = api("POST", f"/api/arena/challenges/{challenge_id}/submit", {
+            submit = api("POST", f"/api/arena/matches/{match_id}/submit", {
                 "agent_id": WATSON_AGENT_ID,
-                "match_id": match_id,
                 "round": round_num,
                 "answer": answer[:500],
             })
