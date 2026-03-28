@@ -761,28 +761,22 @@ export const ALL_GAMES: Record<string, GameEngine> = {
   ...P10,
 };
 
-// Import Tron-generated extended games (896 planned, ~400 generated so far)
-import { P1_EXT } from './generated/pillar-01.js';
-import { P2_EXT } from './generated/pillar-02.js';
-import { P3_EXT } from './generated/pillar-03.js';
-import { P4_EXT } from './generated/pillar-04.js';
-import { P5_EXT } from './generated/pillar-05.js';
-import { P6_EXT } from './generated/pillar-06.js';
-import { P7_EXT } from './generated/pillar-07.js';
-import { P8_EXT } from './generated/pillar-08.js';
-import { P9_EXT } from './generated/pillar-09.js';
+// Import working Tron-generated pillar games (5 of 25 compile clean — rest need syntax fixes)
+import { P10_EXT } from './generated/pillar-10.js';
 import { P11_EXT } from './generated/pillar-11.js';
+import { P12_EXT } from './generated/pillar-12.js';
+import { P18_EXT } from './generated/pillar-18.js';
+import { P25_EXT } from './generated/pillar-25.js';
 
-// Merge Tron games into ALL_GAMES
+// Merge working Tron games into ALL_GAMES
 const TRON_GAMES: Record<string, GameEngine> = {
-  ...P1_EXT, ...P2_EXT, ...P3_EXT, ...P4_EXT, ...P5_EXT,
-  ...P6_EXT, ...P7_EXT, ...P8_EXT, ...P9_EXT, ...P11_EXT,
+  ...P10_EXT, ...P11_EXT, ...P12_EXT, ...P18_EXT, ...P25_EXT,
 };
 Object.assign(ALL_GAMES, TRON_GAMES);
 
 export const GAME_COUNT = Object.keys(ALL_GAMES).length;
 
-// Pillar metadata for the frontend
+// Pillar metadata for the frontend — 10 original + 5 working Tron pillars
 export const PILLAR_META = {
   pattern_perception: { name: 'Pattern & Perception', icon: '🔍', color: 'text-cyan-400', games: Object.keys(P1) },
   code_combat: { name: 'Code Combat', icon: '⚔️', color: 'text-orange-400', games: Object.keys(P2) },
@@ -794,4 +788,8 @@ export const PILLAR_META = {
   math_colosseum: { name: 'Math Colosseum', icon: '📐', color: 'text-indigo-400', games: Object.keys(P8) },
   creativity_forge: { name: 'Creativity Forge', icon: '🎨', color: 'text-pink-400', games: Object.keys(P9) },
   meta_mind: { name: 'Meta-Mind', icon: '🪞', color: 'text-teal-400', games: Object.keys(P10) },
+  diplomacy: { name: 'Diplomacy & Negotiation', icon: '🤝', color: 'text-amber-400', games: Object.keys(P11_EXT) },
+  survival: { name: 'Survival Arena', icon: '🏕️', color: 'text-emerald-400', games: Object.keys(P12_EXT) },
+  teaching: { name: 'Teaching Arena', icon: '📚', color: 'text-lime-400', games: Object.keys(P18_EXT) },
+  chaos_engineering: { name: 'Chaos Engineering', icon: '💥', color: 'text-zinc-400', games: Object.keys(P25_EXT) },
 };
