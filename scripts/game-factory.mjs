@@ -177,11 +177,18 @@ Generate ${batchSize} games now. Be creative and varied.`;
 }
 
 function extractGames(output) {
-  const cleaned = output.replace(/```\w*\n?/g, '').replace(/```/g, '');
-  const pattern = /(\w+):\s*textGame\(\{[\s\S]*?\}\s*\),/g;
+  // Strip markdown fences, thinking tags, explanations
+  let cleaned = output.replace(/```\w*\n?/g, '').replace(/```/g, '');
+  cleaned = cleaned.replace(/<think>[\s\S]*?<\/think>/g, '');
+  // More flexible pattern — handle both }, and }); endings
+  const pattern = /(\w+):\s*textGame\(\{[\s\S]*?\}\s*\)\s*[,;]?/g;
   const games = [];
   let match;
   while ((match = pattern.exec(cleaned)) !== null) {
+    // Ensure the match ends with a comma for valid TS
+    let code = match[0];
+    if (!code.endsWith(',')) code = code.replace(/[;]?$/, ',');
+    games.push({ id: match[1], code });
     games.push({ id: match[1], code: match[0] });
   }
   return games;
@@ -290,10 +297,17 @@ async function main() {
       try {
         const output = await callOpenRouter(buildPrompt(p.name, `Extended ${p.name} games`, b + 1, size, allGames.map(g => g.id)));
         const games = extractGames(output);
-        if (games.length > 0) { allGames.push(...games); totalGamesGenerated += games.length; console.log(`  ✅ ${games.length} games`); }
-        else { console.log(`  ⚠️  No games extracted, retrying...`); b--; await sleep(3000); }
-      } catch (e) { console.error(`  ❌ ${e.message}`); await sleep(5000); }
-      await sleep(1500);
+        if (games.length > 0) {
+          allGames.push(...games); totalGamesGenerated += games.length;
+          console.log(`  ✅ ${games.length} games`);
+          retryCount = 0;
+        } else {
+          retryCount = (retryCount || 0) + 1;
+          if (retryCount >= 3) { console.log(`  ⏩ Skipping batch after 3 retries`); retryCount = 0; }
+          else { console.log(`  ⚠️  Retry ${retryCount}/3...`); b--; await sleep(2000); }
+        }
+      } catch (e) { console.error(`  ❌ ${e.message}`); await sleep(3000); }
+      await sleep(1000);
       if ((b + 1) % 3 === 0) printDashboard();
     }
 

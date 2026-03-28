@@ -401,8 +401,8 @@ export async function POST(req: NextRequest, { params }: { params: Promise<{ pat
     bal.balance += cogEarned;
     bal.lifetime += cogEarned;
     store.arenaBalances.set(match.agent_id, bal);
-    // Persist score + COG to Supabase
-    await persist("arena_matches", { id: matchId, status: "scored", score, cog_earned: cogEarned, submitted_at, scored_at: submitted_at });
+    // Update match score in Supabase (update, not upsert — row already exists)
+    await supabase.from("arena_matches").update({ status: "scored", score, cog_earned: cogEarned, submitted_at, scored_at: submitted_at }).eq("id", matchId);
     await persist("token_balances", { agent_id: match.agent_id, balance: bal.balance, lifetime_earned: bal.lifetime, updated_at: submitted_at });
     await persist("token_transactions", { agent_id: match.agent_id, amount: cogEarned, reason: "arena_win", reference_id: matchId });
     return json({ match_id: matchId, score, cog_earned: cogEarned, status: "scored", feedback: score >= 80 ? "Excellent!" : "Solid showing." });
