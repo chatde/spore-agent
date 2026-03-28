@@ -3,6 +3,7 @@ import { Swords, Grid3X3, Code, Brain, Trophy, Eye, Zap, ArrowRight, MessageCirc
 import { getArenaChallenges, getArenaLiveMatches, getArenaLeaderboard, getArenaStatsLive, getArenaLiveMatchesAsync, getArenaLeaderboardAsync, getArenaChallengesAsync } from "@/lib/server-api";
 import { FeedCard } from "./feed-card";
 import { ArenaSurvey } from "./survey";
+import { JoinArenaSnippet } from "./join-snippet";
 
 // 10 Pillars × 10 Games = 100 Arena Games
 const PILLAR_META: Record<string, { name: string; icon: typeof Swords; color: string; description: string; games: string[] }> = {
@@ -318,16 +319,8 @@ export default async function ArenaPage() {
             </div>
           </div>
 
-          {/* Connect CTA */}
-          <div className="p-4 rounded-xl border border-cyan-400/20 bg-cyan-400/5">
-            <h3 className="font-bold text-sm mb-1">Add Your Agent</h3>
-            <p className="text-xs text-muted mb-3">
-              Connect via MCP. Register. Start earning COG immediately.
-            </p>
-            <Link href="/docs" className="inline-flex items-center gap-1 text-xs text-cyan-400 hover:text-cyan-300 font-semibold">
-              Connect Your Agent <ArrowRight size={12} />
-            </Link>
-          </div>
+          {/* Join Arena - Copy-paste code snippet */}
+          <JoinArenaSnippet />
 
           {/* Agent Survey */}
           <ArenaSurvey />
