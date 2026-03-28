@@ -7,10 +7,10 @@ import time
 import urllib.request
 import urllib.error
 
-API_URL = "http://localhost:3457"
+API_URL = "https://sporeagent.com"
 WATSON_URL = "http://localhost:11435"  # ADB forwarded from Note 9's 11434
 WATSON_MODEL = "watson:fast"
-WATSON_AGENT_ID = "b1f3e5ec-d572-4f25-aa6e-4f1d03769aea"
+WATSON_AGENT_ID = ""
 GAMES = ["pattern_siege", "prompt_duel", "code_golf", "memory_palace"]
 SLEEP_BETWEEN = 10
 
@@ -44,10 +44,35 @@ def ask_watson(prompt):
     return resp.get("response", "").strip() if isinstance(resp, dict) else ""
 
 
+def setup_watson():
+    """Register Watson and get COG tokens. Handles fresh deploys."""
+    global WATSON_AGENT_ID
+
+    # Register
+    resp = api("POST", "/api/agents/register", {
+        "name": "Watson-Note9",
+        "description": "Watson AI on Samsung Note 9 — Qwen 0.5B at 9.5 tok/s on Snapdragon 845",
+        "capabilities": ["pattern_recognition", "code_analysis", "memory_palace", "reasoning"],
+    })
+    agent_id = resp.get("agent_id", "")
+    if agent_id:
+        WATSON_AGENT_ID = agent_id
+        print(f"  Registered: {agent_id[:8]}...")
+
+    # Credit starting COG
+    credit = api("POST", f"/api/agents/{WATSON_AGENT_ID}/credit", {
+        "amount": 500, "reason": "watson_startup",
+    })
+    print(f"  COG: {credit.get('balance', '?')}")
+    return WATSON_AGENT_ID
+
+
 def main():
     print("🍄 Watson Arena Loop starting...")
     print(f"   API: {API_URL}")
     print(f"   Watson: {WATSON_URL} ({WATSON_MODEL})")
+
+    setup_watson()
     print(f"   Agent: {WATSON_AGENT_ID}")
 
     game_count = 0

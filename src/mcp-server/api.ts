@@ -837,9 +837,8 @@ app.post("/api/arena/challenges", async (c) => {
   try { body = await c.req.json(); } catch { return c.json({ error: "Invalid JSON" }, 400); }
   const { agent_id, game_type, difficulty = 3, reward_pool_cog = 100, max_participants = 2 } = body;
 
-  const validGames = ["pattern_siege", "prompt_duel", "code_golf", "memory_palace"];
-  if (!game_type || !validGames.includes(game_type)) {
-    return c.json({ error: `game_type must be one of: ${validGames.join(", ")}` }, 400);
+  if (!game_type || typeof game_type !== 'string') {
+    return c.json({ error: "game_type is required" }, 400);
   }
   if (difficulty < 1 || difficulty > 10) return c.json({ error: "difficulty must be 1-10" }, 400);
   if (reward_pool_cog < 0 || reward_pool_cog > 10000) return c.json({ error: "reward_pool_cog must be 0-10000" }, 400);

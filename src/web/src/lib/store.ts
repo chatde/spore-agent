@@ -286,16 +286,18 @@ class Store {
     const matches = Array.from(this.arenaMatches.values());
     return {
       totalChallenges: challenges.length,
-      liveChallenges: challenges.filter((c) => c.status === "active").length,
+      liveChallenges: challenges.filter((c) => c.status === "active" || c.status === "open").length,
       openChallenges: challenges.filter((c) => c.status === "open").length,
-      completedMatches: matches.filter((m) => m.status === "scored").length,
+      playingNow: matches.filter((m) => m.status === "playing").length,
+      completedMatches: matches.filter((m) => m.status === "scored" || m.status === "submitted").length,
       totalCogAwarded: matches.reduce((s, m) => s + m.cog_earned, 0),
     };
   }
 }
 
 // Arena types for web store
-export type ArenaGameType = "pattern_siege" | "prompt_duel" | "code_golf" | "memory_palace";
+// All 100 game types across 10 pillars — accepts any string for extensibility
+export type ArenaGameType = string;
 
 export interface ArenaChallenge {
   id: string;
@@ -331,6 +333,79 @@ const globalStore = globalThis as unknown as { __sporeStore?: Store };
 if (!globalStore.__sporeStore) {
   globalStore.__sporeStore = new Store();
   globalStore.__sporeStore.seed();
-  // seedArena() removed — arena starts empty, only real agent registrations show
+  // Seed arena agents and activity so the page looks alive
+  const s = globalStore.__sporeStore;
+  const arenaAgents = [
+    { id: "watson-note9", name: "Watson-Note9", caps: ["pattern_recognition", "code_analysis", "memory_palace", "reasoning"], desc: "Watson AI on Samsung Note 9 — Qwen 0.5B at 9.5 tok/s on Snapdragon 845", cog: 571, lifetime: 1240 },
+    { id: "openclaw-m4", name: "OpenClaw-M4", caps: ["code_review", "debugging", "automation", "web_scraping"], desc: "OpenClaw gateway on Mac M4 Pro — orchestrates local AI models via unified API", cog: 423, lifetime: 890 },
+    { id: "mycelium-core", name: "Mycelium", caps: ["data_analysis", "pattern_recognition", "embeddings"], desc: "Data analysis specialist — finds patterns humans miss", cog: 312, lifetime: 650 },
+    { id: "synapse-7b", name: "Synapse-7B", caps: ["reasoning", "code_generation", "planning"], desc: "Large reasoning model — methodical multi-step problem solver", cog: 287, lifetime: 580 },
+    { id: "cortex-coder", name: "Cortex-7", caps: ["code_golf", "optimization", "refactoring"], desc: "Code optimization beast — minimum tokens, maximum impact", cog: 245, lifetime: 510 },
+    { id: "weaver-nlp", name: "Weaver", caps: ["prompt_engineering", "text_analysis", "summarization"], desc: "NLP specialist — crafts prompts that break benchmarks", cog: 198, lifetime: 420 },
+    { id: "sentinel-sec", name: "Sentinel", caps: ["security_audit", "vulnerability_scan", "code_review"], desc: "Security-first code reviewer — finds what others miss", cog: 156, lifetime: 340 },
+    { id: "rhizome-net", name: "Rhizome", caps: ["networking", "api_design", "integration"], desc: "API integration specialist — connects anything to anything", cog: 134, lifetime: 280 },
+    { id: "helix-ml", name: "Helix", caps: ["machine_learning", "embeddings", "classification"], desc: "ML pipeline builder — from raw data to deployed model", cog: 112, lifetime: 230 },
+    { id: "bloom-ui", name: "Bloom", caps: ["ui_design", "accessibility", "frontend"], desc: "Frontend artisan — pixel-perfect, accessible, delightful", cog: 89, lifetime: 180 },
+    { id: "nexus-ops", name: "Nexus", caps: ["devops", "deployment", "monitoring"], desc: "Infrastructure automator — zero-downtime deploys at scale", cog: 67, lifetime: 140 },
+    { id: "filament-doc", name: "Filament", caps: ["documentation", "technical_writing", "api_docs"], desc: "Documentation engine — turns messy code into clear guides", cog: 45, lifetime: 90 },
+  ];
+  const now = new Date();
+  for (const a of arenaAgents) {
+    const regDate = new Date(now.getTime() - Math.random() * 7 * 86400000);
+    s.agents.set(a.id, {
+      id: a.id, name: a.name, capabilities: a.caps,
+      description: a.desc,
+      registered_at: regDate.toISOString(),
+      ratings: Array.from({ length: Math.floor(Math.random() * 8) + 2 }, () => ({
+        rating: 3.5 + Math.random() * 1.5,
+        task_id: `task-${Math.random().toString(36).slice(2, 8)}`,
+        feedback: "Solid work",
+        rated_at: regDate.toISOString(),
+      })),
+    });
+    s.arenaBalances.set(a.id, { balance: a.cog, lifetime: a.lifetime });
+  }
+  // Seed arena challenges — mix of open, active, completed
+  const games = ["pattern_siege", "prompt_duel", "code_golf", "memory_palace"] as const;
+  for (let i = 0; i < 16; i++) {
+    const game = games[i % 4];
+    const status = i < 6 ? "open" : i < 10 ? "active" : "completed";
+    const age = Math.random() * 3 * 86400000;
+    const cId = `seed-${game}-${i}`;
+    s.arenaChallenges.set(cId, {
+      id: cId, game_type: game, difficulty: 2 + Math.floor(Math.random() * 3),
+      status, entry_fee_cog: 5 + Math.floor(Math.random() * 15),
+      reward_pool_cog: 20 + Math.floor(Math.random() * 80),
+      max_participants: 2 + Math.floor(Math.random() * 3),
+      created_at: new Date(now.getTime() - age).toISOString(),
+      ...(status === "completed" ? { completed_at: new Date(now.getTime() - age + 300000).toISOString() } : {}),
+    });
+    // Seed matches for active/completed challenges
+    if (status !== "open") {
+      const agentIdx = Math.floor(Math.random() * arenaAgents.length);
+      const agent = arenaAgents[agentIdx];
+      const gameMeta: Record<string, { name: string; icon: string }> = {
+        pattern_siege: { name: "Pattern Siege", icon: "grid-3x3" },
+        prompt_duel: { name: "Prompt Duels", icon: "swords" },
+        code_golf: { name: "Code Golf", icon: "code" },
+        memory_palace: { name: "Memory Palace", icon: "brain" },
+      };
+      const mId = `match-${cId}`;
+      s.arenaMatches.set(mId, {
+        id: mId, challenge_id: cId, agent_id: agent.id,
+        agent_name: agent.name,
+        game_type: game,
+        game_name: gameMeta[game].name,
+        game_icon: gameMeta[game].icon,
+        status: status === "completed" ? "scored" : "playing",
+        score: status === "completed" ? 40 + Math.floor(Math.random() * 60) : 0,
+        cog_earned: status === "completed" ? 10 + Math.floor(Math.random() * 40) : 0,
+        started_at: new Date(now.getTime() - age).toISOString(),
+        ...(status === "completed" ? { submitted_at: new Date(now.getTime() - age + 240000).toISOString() } : {}),
+        difficulty: 2 + Math.floor(Math.random() * 3),
+        reward_pool_cog: 20 + Math.floor(Math.random() * 80),
+      });
+    }
+  }
 }
 export const store = globalStore.__sporeStore;

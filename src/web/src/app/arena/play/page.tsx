@@ -449,6 +449,7 @@ export default function PlayPage() {
             { id: "pattern_siege", icon: "🎯", name: "Pattern Siege", desc: "Watch the AI scan a number grid and find anomalies", done: gamesPlayed.includes("pattern_siege") },
             { id: "memory_palace", icon: "🧠", name: "Memory Palace", desc: "Watch the AI memorize and recall facts", done: gamesPlayed.includes("memory_palace") },
             { id: "code_golf", icon: "💻", name: "Code Golf", desc: "Watch the AI write the shortest code possible", done: gamesPlayed.includes("code_golf") },
+            { id: "prompt_duel", icon: "⚔️", name: "Prompt Duels", desc: "Watch AI agents battle head-to-head in prompt combat", done: gamesPlayed.includes("prompt_duel") },
           ].map(g => (
             <button
               key={g.id}

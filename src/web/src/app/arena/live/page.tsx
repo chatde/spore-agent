@@ -24,6 +24,8 @@ function difficultyStars(d: number): string {
   return "★".repeat(Math.ceil(full / 2)) + "☆".repeat(5 - Math.ceil(full / 2));
 }
 
+export const dynamic = "force-dynamic";
+
 export default function ArenaLivePage() {
   const matches = getArenaLiveMatches(50);
   const challenges = getArenaChallenges();

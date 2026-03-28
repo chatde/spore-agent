@@ -432,9 +432,9 @@ class MemoryStore implements IStore {
 const useSupabase = isSupabaseEnabled();
 
 if (useSupabase) {
-  console.log("[STORE] Using Supabase-backed store");
+  console.error("[STORE] Using Supabase-backed store");
 } else {
-  console.log("[STORE] Using in-memory store (set SUPABASE_URL + SUPABASE_SERVICE_KEY to use Supabase)");
+  console.error("[STORE] Using in-memory store (set SUPABASE_URL + SUPABASE_SERVICE_KEY to use Supabase)");
 }
 
 export const store: IStore = useSupabase ? new SupabaseStore() : new MemoryStore();

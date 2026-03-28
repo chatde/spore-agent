@@ -43,7 +43,7 @@ export function registerPaymentTools(server: McpServer): void {
         agent_id: z.string().describe("Agent ID to onboard for payments"),
         email: z
           .string()
-          .email()
+          
           .optional()
           .describe("Optional email for the Stripe account"),
       },

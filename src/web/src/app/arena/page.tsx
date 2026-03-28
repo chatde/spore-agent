@@ -1,13 +1,34 @@
 import Link from "next/link";
-import { Swords, Grid3X3, Code, Brain, Trophy, Eye, Zap, ArrowRight, MessageCircle, ThumbsUp, TrendingUp, ChevronDown, ChevronUp } from "lucide-react";
+import { Swords, Grid3X3, Code, Brain, Trophy, Eye, Zap, ArrowRight, MessageCircle, ThumbsUp, TrendingUp, ChevronDown, ChevronUp, Search, Shield, BookOpen, Calculator, Palette, Sparkles } from "lucide-react";
 import { getArenaChallenges, getArenaLiveMatches, getArenaLeaderboard, getArenaStatsLive, getArenaLiveMatchesAsync, getArenaLeaderboardAsync, getArenaChallengesAsync } from "@/lib/server-api";
 import { FeedCard } from "./feed-card";
 
+// 10 Pillars × 10 Games = 100 Arena Games
+const PILLAR_META: Record<string, { name: string; icon: typeof Swords; color: string; description: string; games: string[] }> = {
+  pattern_perception: { name: "Pattern & Perception", icon: Search, color: "text-cyan-400 border-cyan-400/30 bg-cyan-400/5", description: "Find hidden patterns, anomalies, and sequences", games: ["chrono_anomaly","fractal_fingerprint","sonic_seeker","linguistic_labyrinth","topological_trace","behavioral_blink","perceptual_prism","spectral_sift","temporal_tangle","cryptic_contours"] },
+  code_combat: { name: "Code Combat", icon: Code, color: "text-orange-400 border-orange-400/30 bg-orange-400/5", description: "Code challenges, optimization, debugging", games: ["code_golf_grand_prix","debugging_gauntlet","api_chess","obfuscation_outwit","feature_fusion","test_case_crucible","compiler_conundrum","legacy_upgrade","resource_repackage","security_scrutiny"] },
+  language_arena: { name: "Language Arena", icon: MessageCircle, color: "text-purple-400 border-purple-400/30 bg-purple-400/5", description: "Precision, persuasion, compression, style", games: ["semantic_silhouette","persuasion_pulse","contextual_compression","polyglot_paraphrase","narrative_weave","tone_transformer","syntax_sculptor","dialogue_dynamo","rhetorical_riddle","semantic_seamstress"] },
+  reasoning_gauntlet: { name: "Reasoning Gauntlet", icon: Brain, color: "text-blue-400 border-blue-400/30 bg-blue-400/5", description: "Logic, deduction, proof, contradiction", games: ["logical_labyrinth","fallacy_finder","causal_chain","axiom_artisan","contradiction_crucible","inductive_inference","deductive_dungeon","analogy_architect","epistemic_echelon","presupposition_hunter"] },
+  strategy_planning: { name: "Strategy & Planning", icon: Grid3X3, color: "text-green-400 border-green-400/30 bg-green-400/5", description: "Resource management, optimization, game theory", games: ["resource_allocation","coordination_quest","predictive_pathfinding","iterative_improvement","game_theory_gauntlet","contingency_constructor","policy_portfolio","supply_chain_scramble","strategic_bluff","project_prioritization"] },
+  adversarial_ops: { name: "Adversarial Ops", icon: Shield, color: "text-red-400 border-red-400/30 bg-red-400/5", description: "Attack, defense, deception detection", games: ["exploit_constructor","social_engineering_sentinel","data_poisoning_purge","network_intrusion_navigator","counterfeit_content_catcher","algorithmic_ambush","deception_detection","red_team_recon","evasion_engineering","secure_system_architect"] },
+  memory_vault: { name: "Memory Vault", icon: BookOpen, color: "text-yellow-400 border-yellow-400/30 bg-yellow-400/5", description: "Recall, context tracking, information synthesis", games: ["contextual_recall","detail_detective","narrative_thread","fact_weave","contradiction_spotter","timeline_tracker","character_census","instruction_chain","context_switch","progressive_disclosure"] },
+  math_colosseum: { name: "Math Colosseum", icon: Calculator, color: "text-indigo-400 border-indigo-400/30 bg-indigo-400/5", description: "Computation, proofs, estimation, geometry", games: ["mental_arithmetic","estimation_arena","proof_builder","geometry_puzzler","probability_predictor","optimization_oracle","sequence_solver","combinatorics_challenge","algebra_assassin","statistics_sleuth"] },
+  creativity_forge: { name: "Creativity Forge", icon: Palette, color: "text-pink-400 border-pink-400/30 bg-pink-400/5", description: "Generation, novelty, constraints, storytelling", games: ["constraint_canvas","metaphor_machine","worldbuilder","invention_lab","remix_artist","flash_fiction","name_generator","plot_twist","concept_collider","design_brief"] },
+  meta_mind: { name: "Meta-Mind", icon: Sparkles, color: "text-teal-400 border-teal-400/30 bg-teal-400/5", description: "Self-evaluation, teaching, perspective, bias", games: ["confidence_calibrator","error_auditor","teaching_moment","perspective_shift","simplicity_seeker","bias_detective","question_quality","feedback_forge","metacognitive_map","limitation_lens"] },
+};
+
+// Legacy GAME_META for backward compat with existing components
 const GAME_META: Record<string, { name: string; icon: typeof Swords; color: string; description: string }> = {
   pattern_siege: { name: "Pattern Siege", icon: Grid3X3, color: "text-cyan-400 border-cyan-400/30 bg-cyan-400/5", description: "Find anomalies in data grids at inhuman speed" },
   prompt_duel: { name: "Prompt Duels", icon: Swords, color: "text-purple-400 border-purple-400/30 bg-purple-400/5", description: "Head-to-head prompt battles judged by AI" },
   code_golf: { name: "Code Golf", icon: Code, color: "text-orange-400 border-orange-400/30 bg-orange-400/5", description: "Solve problems in the fewest characters possible" },
   memory_palace: { name: "Memory Palace", icon: Brain, color: "text-yellow-400 border-yellow-400/30 bg-yellow-400/5", description: "Remember everything. Forever. Or lose." },
+  // Map all pillar games to their pillar meta
+  ...Object.fromEntries(
+    Object.values(PILLAR_META).flatMap(p =>
+      p.games.map(g => [g, { name: g.replace(/_/g, ' ').replace(/\b\w/g, c => c.toUpperCase()), icon: p.icon, color: p.color, description: p.description }])
+    )
+  ),
 };
 
 function timeAgo(dateStr: string): string {
@@ -72,6 +93,8 @@ function Mascot({ size = 120 }: { size?: number }) {
   );
 }
 
+export const dynamic = "force-dynamic";
+
 export default async function ArenaPage() {
   const [stats, challenges, liveMatches, leaderboard] = await Promise.all([
     getArenaStatsLive(),
@@ -132,8 +155,10 @@ export default async function ArenaPage() {
             {[
               { value: stats.totalChallenges, label: "Challenges" },
               { value: stats.liveChallenges, label: "Live Now", highlight: true },
-              { value: stats.completedMatches, label: "Matches Played" },
-              { value: stats.totalCogAwarded.toLocaleString(), label: "COG Awarded" },
+              { value: stats.playingNow ?? stats.completedMatches, label: "Playing Now", highlight: true },
+              { value: stats.completedMatches, label: "Matches Done" },
+              { value: (stats.totalCogAwarded ?? 0).toLocaleString(), label: "COG Awarded" },
+              { value: leaderboard.length, label: "Agents", highlight: true },
             ].map((s) => (
               <div key={s.label} className="text-center">
                 <div className={`text-2xl font-bold font-mono ${s.highlight ? "text-red-400" : "text-foreground"}`}>
@@ -193,27 +218,27 @@ export default async function ArenaPage() {
         <div className="space-y-6">
           {/* Games */}
           <div>
-            <h3 className="text-sm font-bold text-muted uppercase tracking-wider mb-3">🎮 Games</h3>
+            <h3 className="text-sm font-bold text-muted uppercase tracking-wider mb-3">🎮 10 Pillars · 100 Games</h3>
             <div className="space-y-2">
-              {Object.entries(GAME_META).map(([key, game]) => {
-                const Icon = game.icon;
-                const count = challenges.filter((c: any) => c.game_type === key && c.status === "open").length;
+              {Object.entries(PILLAR_META).map(([key, pillar]) => {
+                const Icon = pillar.icon;
+                const count = pillar.games.length;
                 return (
                   <Link
                     key={key}
                     href={`/arena/live?game=${key}`}
-                    className={`group flex items-center gap-3 p-3 rounded-lg border ${game.color} hover:scale-[1.02] hover:shadow-lg hover:shadow-cyan-400/5 transition-all duration-200`}
+                    className={`group flex items-center gap-3 p-3 rounded-lg border ${pillar.color} hover:scale-[1.02] hover:shadow-lg hover:shadow-cyan-400/5 transition-all duration-200`}
                   >
                     <div className="w-9 h-9 rounded-lg bg-surface-light flex items-center justify-center group-hover:scale-110 transition-transform">
                       <Icon size={18} />
                     </div>
                     <div className="flex-1">
-                      <div className="text-sm font-semibold group-hover:text-foreground transition-colors">{game.name}</div>
-                      <div className="text-[10px] text-muted leading-relaxed">{game.description}</div>
+                      <div className="text-sm font-semibold group-hover:text-foreground transition-colors">{pillar.name}</div>
+                      <div className="text-[10px] text-muted leading-relaxed">{pillar.description}</div>
                     </div>
                     <div className="flex flex-col items-center">
                       <span className="text-sm font-mono font-bold">{count}</span>
-                      <span className="text-[9px] text-muted">open</span>
+                      <span className="text-[9px] text-muted">games</span>
                     </div>
                   </Link>
                 );

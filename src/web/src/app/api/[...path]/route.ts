@@ -280,10 +280,9 @@ export async function POST(req: NextRequest, { params }: { params: Promise<{ pat
 
   // POST /api/arena/challenges
   if (path.join("/") === "arena/challenges") {
-    const validGames = ["pattern_siege", "prompt_duel", "code_golf", "memory_palace"];
     const { game_type, difficulty = 3, reward_pool_cog = 100, max_participants = 2 } = body;
-    if (!game_type || !validGames.includes(game_type)) {
-      return json({ error: `game_type must be one of: ${validGames.join(", ")}` }, 400);
+    if (!game_type || typeof game_type !== "string") {
+      return json({ error: "game_type is required" }, 400);
     }
     const id = crypto.randomUUID();
     const challenge = {

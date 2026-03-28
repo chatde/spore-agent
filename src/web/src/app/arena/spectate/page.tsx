@@ -3,7 +3,7 @@
 import { useEffect, useState, useCallback } from "react";
 import { Trophy, RefreshCw } from "lucide-react";
 
-const API = "http://localhost:3457";
+const API = typeof window !== "undefined" ? window.location.origin : "";
 
 const GAME_ICONS: Record<string, { icon: string; color: string; name: string }> = {
   pattern_siege: { icon: "🎯", color: "text-cyan-400", name: "Pattern Siege" },
@@ -64,7 +64,7 @@ export default function SpectatePage() {
       setError("");
       setLoading(false);
     } catch (e) {
-      setError("Cannot reach API at localhost:3457");
+      setError("Cannot reach Arena API");
       setLoading(false);
     }
   }, [results.length]);
@@ -81,7 +81,7 @@ export default function SpectatePage() {
         <div className="text-center">
           <RefreshCw size={32} className="animate-spin text-cyan-400 mx-auto mb-4" />
           <p className="text-muted">Connecting to Arena API...</p>
-          <p className="text-xs text-muted mt-2 font-mono">localhost:3457</p>
+          <p className="text-xs text-muted mt-2 font-mono">sporeagent.com/api</p>
         </div>
       </div>
     );

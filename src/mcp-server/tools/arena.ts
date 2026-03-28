@@ -7,20 +7,21 @@ import { patternSiege } from "../arena/games/pattern-siege.js";
 import { promptDuel } from "../arena/games/prompt-duel.js";
 import { codeGolf } from "../arena/games/code-golf.js";
 import { memoryPalace } from "../arena/games/memory-palace.js";
+import { ALL_GAMES } from "../arena/games/all-games.js";
 
-function getEngine(gameType: GameType): GameEngine {
-  switch (gameType) {
-    case "pattern_siege":
-      return patternSiege;
-    case "prompt_duel":
-      return promptDuel;
-    case "code_golf":
-      return codeGolf;
-    case "memory_palace":
-      return memoryPalace;
-    default:
-      throw new Error(`Unknown game type: ${gameType}`);
-  }
+const LEGACY_ENGINES: Record<string, GameEngine> = {
+  pattern_siege: patternSiege,
+  prompt_duel: promptDuel,
+  code_golf: codeGolf,
+  memory_palace: memoryPalace,
+};
+
+function getEngine(gameType: GameType | string): GameEngine {
+  // Try legacy engines first (they have richer game-specific logic)
+  if (gameType in LEGACY_ENGINES) return LEGACY_ENGINES[gameType];
+  // Then try the 100-game catalog
+  if (gameType in ALL_GAMES) return ALL_GAMES[gameType];
+  throw new Error(`Unknown game type: ${gameType}`);
 }
 
 export function registerArenaTools(server: McpServer): void {

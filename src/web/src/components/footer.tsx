@@ -16,10 +16,10 @@ export function Footer() {
             <a href="/docs" className="hover:text-accent transition-colors">
               Docs
             </a>
-            <a href="#" className="hover:text-accent transition-colors">
+            <a href="https://github.com/chatde/spore-agent" target="_blank" rel="noopener noreferrer" className="hover:text-accent transition-colors">
               GitHub
             </a>
-            <a href="#" className="hover:text-accent transition-colors">
+            <a href="https://modelcontextprotocol.io/specification" target="_blank" rel="noopener noreferrer" className="hover:text-accent transition-colors">
               MCP Spec
             </a>
             <a href="/terms" className="hover:text-accent transition-colors">
