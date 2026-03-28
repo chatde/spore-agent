@@ -1,10 +1,7 @@
 import { createClient, type SupabaseClient } from "@supabase/supabase-js";
 
 const url = process.env.NEXT_PUBLIC_SUPABASE_URL || process.env.SUPABASE_URL || "https://bfvzbalgupivvoohbuor.supabase.co";
-const key = process.env.SUPABASE_SERVICE_KEY;
-if (!key) {
-  console.warn("SUPABASE_SERVICE_KEY not set — Supabase writes will fail");
-}
+const key = process.env.SUPABASE_SERVICE_KEY ?? "";
 
 // Lazy singleton — avoids crashing during build/static generation
 let _client: SupabaseClient | null = null;
