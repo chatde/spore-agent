@@ -1,0 +1,346 @@
+{
+  "pillar-11": [
+    {
+      "key": "diplomatic_debate",
+      "name": "Diplomatic Debate",
+      "category": "social",
+      "difficulty": "medium",
+      "format": "duel"
+    },
+    {
+      "key": "trade_negotiation",
+      "name": "Trade Negotiation",
+      "category": "strategy",
+      "difficulty": "hard",
+      "format": "team"
+    },
+    {
+      "key": "alliances_builder",
+      "name": "Alliances Builder",
+      "category": "social",
+      "difficulty": "medium",
+      "format": "team"
+    },
+    {
+      "key": "environmental_summit",
+      "name": "Environmental Summit",
+      "category": "world",
+      "difficulty": "hard",
+      "format": "solo"
+    },
+    {
+      "key": "disaster_response",
+      "name": "Disaster Response",
+      "category": "strategy",
+      "difficulty": "hard",
+      "format": "duel"
+    }
+  ],
+  "pillar-12": [
+    {
+      "key": "medical_triage_protocol",
+      "name": "Medical Triage Protocol",
+      "category": "survival",
+      "difficulty": "medium",
+      "format": "solo"
+    },
+    {
+      "key": "caloric_survival_budget",
+      "name": "Caloric Survival Budget",
+      "category": "math",
+      "difficulty": "medium",
+      "format": "solo"
+    },
+    {
+      "key": "shelter_structural_integrity",
+      "name": "Shelter Structural Integrity",
+      "category": "survival",
+      "difficulty": "hard",
+      "format": "solo"
+    }
+  ],
+  "pillar-13": [
+    {
+      "key": "anomaly_detection_challenge",
+      "name": "Anomaly Detection Challenge",
+      "category": "data",
+      "difficulty": "medium",
+      "format": "solo"
+    },
+    {
+      "key": "correlation_investigator",
+      "name": "Correlation Investigator",
+      "category": "data",
+      "difficulty": "medium",
+      "format": "solo"
+    }
+  ],
+  "pillar-14": [
+    {
+      "key": "fairness_paradox",
+      "name": "Fairness Paradox",
+      "category": "ethics",
+      "difficulty": "medium",
+      "format": "solo"
+    },
+    {
+      "key": "trolley_dilemma",
+      "name": "Trolley Dilemma",
+      "category": "ethics",
+      "difficulty": "hard",
+      "format": "solo"
+    }
+  ],
+  "pillar-15": [
+    {
+      "key": "typhoon_transcription",
+      "name": "Typhoon Transcription",
+      "category": "speed",
+      "difficulty": "medium",
+      "format": "duel"
+    },
+    {
+      "key": "item_categorization",
+      "name": "Item Categorization",
+      "category": "logic",
+      "difficulty": "medium",
+      "format": "battle"
+    },
+    {
+      "key": "mental_math_blitz",
+      "name": "Mental Math Blitz",
+      "category": "math",
+      "difficulty": "easy",
+      "format": "solo"
+    }
+  ],
+  "pillar-16": [
+    {
+      "key": "stealth_network_penetration",
+      "name": "Stealth Network Penetration",
+      "category": "strategy",
+      "difficulty": "hard",
+      "format": "solo"
+    },
+    {
+      "key": "logic_gate_optimization",
+      "name": "Logic Gate Optimization",
+      "category": "logic",
+      "difficulty": "medium",
+      "format": "solo"
+    },
+    {
+      "key": "algorithmic_code_golf",
+      "name": "Algorithmic Code Golf",
+      "category": "code",
+      "difficulty": "hard",
+      "format": "solo"
+    },
+    {
+      "key": "linguistic_pattern_matching",
+      "name": "Linguistic Pattern Matching",
+      "category": "language",
+      "difficulty": "medium",
+      "format": "solo"
+    },
+    {
+      "key": "cryptographic_key_exchange",
+      "name": "Cryptographic Key Exchange",
+      "category": "crypto",
+      "difficulty": "hard",
+      "format": "duel"
+    },
+    {
+      "key": "collaborative_world_building",
+      "name": "Collaborative World Building",
+      "category": "world",
+      "difficulty": "easy",
+      "format": "team"
+    },
+    {
+      "key": "adversarial_prompt_injection",
+      "name": "Adversarial Prompt Injection",
+      "category": "adversarial",
+      "difficulty": "hard",
+      "format": "duel"
+    },
+    {
+      "key": "mathematical_proof_derivation",
+      "name": "Mathematical Proof Derivation",
+      "category": "math",
+      "difficulty": "hard",
+      "format": "solo"
+    },
+    {
+      "key": "creative_narrative_synthesis",
+      "name": "Creative Narrative Synthesis",
+      "category": "creative",
+      "difficulty": "easy",
+      "format": "solo"
+    },
+    {
+      "key": "memory_recall_sequence",
+      "name": "Memory Recall Sequence",
+      "category": "memory",
+      "difficulty": "medium",
+      "format": "solo"
+    }
+  ],
+  "pillar-17": [
+    {
+      "key": "rsa_decryptor",
+      "name": "RSA Decryptor",
+      "category": "crypto",
+      "difficulty": "hard",
+      "format": "solo"
+    },
+    {
+      "key": "hash_cracker",
+      "name": "Hash Cracker",
+      "category": "crypto",
+      "difficulty": "medium",
+      "format": "solo"
+    }
+  ],
+  "pillar-18": [
+    {
+      "key": "teaching_recursive_oop",
+      "name": "Teaching Recursive OOP",
+      "category": "teaching",
+      "difficulty": "medium",
+      "format": "solo"
+    },
+    {
+      "key": "teaching_recursive_oop_duplicate",
+      "name": "Teaching Recursive OOP Duplicate",
+      "category": "teaching",
+      "difficulty": "medium",
+      "format": "solo"
+    },
+    {
+      "key": "teaching_duel_loops_conditionals",
+      "name": "Teaching Duel: Loops and Conditionals",
+      "category": "teaching",
+      "difficulty": "medium",
+      "format": "duel"
+    },
+    {
+      "key": "teaching_duel_loops_conditionals_duplicate",
+      "name": "Teaching Duel: Loops and Conditionals Duplicate",
+      "category": "teaching",
+      "difficulty": "medium",
+      "format": "duel"
+    }
+  ],
+  "pillar-19": [
+    {
+      "key": "chromatic_translation",
+      "name": "Chromatic Translation",
+      "category": "creative",
+      "difficulty": "medium",
+      "format": "solo"
+    },
+    {
+      "key": "schema_shift",
+      "name": "Schema Shift",
+      "category": "data",
+      "difficulty": "medium",
+      "format": "solo"
+    }
+  ],
+  "pillar-20": [
+    {
+      "key": "game_maze_logic_solv",
+      "name": "Maze Logic Solver",
+      "category": "logic",
+      "difficulty": "medium",
+      "format": "battle"
+    },
+    {
+      "key": "game_syntax_patch_fix",
+      "name": "Syntax Patch Fix",
+      "category": "debug",
+      "difficulty": "hard",
+      "format": "battle"
+    }
+  ],
+  "pillar-21": [
+    {
+      "key": "cooperative_strategy_capture",
+      "name": "Cooperative Strategy Capture",
+      "category": "strategy",
+      "difficulty": "medium",
+      "format": "solo"
+    },
+    {
+      "key": "cyber_espionage_tactics",
+      "name": "Cyber Espionage Tactics",
+      "category": "strategy",
+      "difficulty": "hard",
+      "format": "team"
+    },
+    {
+      "key": "battle_bot_optimization",
+      "name": "Battle Bot Optimization",
+      "category": "battle",
+      "difficulty": "medium",
+      "format": "duel"
+    }
+  ],
+  "pillar-22": [
+    {
+      "key": "game_id",
+      "name": "Game ID",
+      "category": "debug",
+      "difficulty": "medium",
+      "format": "solo"
+    },
+    {
+      "key": "index_bounds_check",
+      "name": "Index Bounds Check",
+      "category": "debug",
+      "difficulty": "medium",
+      "format": "duel"
+    }
+  ],
+  "pillar-23": [],
+  "pillar-24": [
+    {
+      "key": "silent_auction_art",
+      "name": "Silent Auction Art",
+      "category": "auction",
+      "difficulty": "medium",
+      "format": "solo"
+    },
+    {
+      "key": "market_maker_crypto",
+      "name": "Market Maker Crypto",
+      "category": "crypto",
+      "difficulty": "hard",
+      "format": "duel"
+    },
+    {
+      "key": "portfolio_allocation",
+      "name": "Portfolio Allocation",
+      "category": "strategy",
+      "difficulty": "medium",
+      "format": "team"
+    }
+  ],
+  "pillar-25": [
+    {
+      "key": "chaos_microservice_resilience",
+      "name": "Chaos Microservice Resilience",
+      "category": "chaos",
+      "difficulty": "medium",
+      "format": "solo"
+    },
+    {
+      "key": "fault_injection_defense",
+      "name": "Fault Injection Defense",
+      "category": "adversarial",
+      "difficulty": "hard",
+      "format": "duel"
+    }
+  ]
+}

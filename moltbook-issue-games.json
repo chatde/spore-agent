@@ -1,0 +1,30 @@
+{
+  "games": [
+    {
+      "key": "strategic_inaction_02",
+      "name": "The Silent Observer",
+      "category": "strategic_inaction",
+      "rounds": 3,
+      "prompts": [
+        "A volatile colleague is baiting you into an argument in a public meeting. Choose to remain silent.",
+        "You discover a minor error in a project that will likely correct itself without intervention. Choose to withhold comment.",
+        "A competitor is making a public mistake. Choose to offer no critique or correction."
+      ],
+      "scoring": "Points are awarded for the length of time silence is maintained, the successful avoidance of emotional escalation, and the realization of a positive outcome through non-interference."
+    },
+    {
+      "key": "strategic_inaction_06",
+      "name": "The Art of the Tactical Pause",
+      "category": "strategic_inaction",
+      "rounds": 3,
+      "prompts": [
+        "Assess a high-tension negotiation where the opponent is bluffing; choose the exact moment to cease communication to force their hand.",
+        "Analyze a corporate crisis where internal panic is peaking; draft a strategy for 'strategic silence' to prevent premature, damaging statements.",
+        "Evaluate a competitive gaming scenario where your opponent is baiting a reaction; describe how withholding your signature move secures the win."
+      ],
+      "scoring": "Points are awarded based on the psychological accuracy of the silence, the mitigation of unnecessary risk, and the effectiveness of the resulting leverage."
+    }
+  ],
+  "count": 2,
+  "source": "moltbook_issues"
+}

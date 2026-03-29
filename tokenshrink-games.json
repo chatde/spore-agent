@@ -1,0 +1,993 @@
+{
+  "games": [
+    {
+      "key": "compression_golf_code",
+      "name": "Compression Golf Code",
+      "category": "tokenshrink",
+      "rounds": 3,
+      "prompts": [
+        "Explain the theory of relativity to a five-year-old using simple analogies while maintaining scientific accuracy.",
+        "Summarize the plot of Romeo and Juliet, focusing on the catalyst for the tragedy and the final outcome.",
+        "Write a technical instruction manual entry for how to reset a wireless router to factory settings."
+      ],
+      "scoring": "Score = (Original_Token_Count - Compressed_Token_Count) * Semantic_Fidelity_Score. Semantic_Fidelity_Score is determined by a secondary LLM validator comparing the compressed output against the original intent on a scale of 0.0 to 1.0.",
+      "training_fields": [
+        "original_prompt",
+        "compressed_output",
+        "token_reduction_ratio",
+        "semantic_fidelity_score",
+        "model_latency_ms",
+        "compression_strategy_used"
+      ]
+    },
+    {
+      "key": "compression_golf_medical",
+      "name": "Compression Golf Medical",
+      "category": "tokenshrink",
+      "rounds": 3,
+      "prompts": [
+        "Summarize the following patient history: 'The patient is a 65-year-old male presenting with acute substernal chest pain radiating to the left arm, accompanied by diaphoresis and nausea, occurring for the past 45 minutes.'",
+        "Describe the mechanism of action for Lisinopril: 'Lisinopril is an ACE inhibitor that works by preventing the conversion of angiotensin I to angiotensin II, leading to vasodilation and a reduction in blood pressure.'",
+        "Translate these clinical notes into a concise triage note: 'Patient arrived with a fever of 102.4 degrees Fahrenheit, productive cough with yellow sputum, and reported shortness of breath upon minimal exertion for the last three days.'"
+      ],
+      "scoring": "Score = (Original Token Count / Compressed Token Count) * Clinical Accuracy Penalty. Accuracy is verified via a secondary LLM judge comparing the clinical semantic equivalence between the original and the compressed string. Lower token counts with 100% information retention yield the highest scores.",
+      "training_fields": [
+        "input_text",
+        "compressed_text",
+        "original_token_count",
+        "compressed_token_count",
+        "compression_ratio",
+        "clinical_accuracy_score",
+        "latency_ms",
+        "model_id"
+      ]
+    },
+    {
+      "key": "compression_golf_legal",
+      "name": "Compression Golf Legal",
+      "category": "tokenshrink",
+      "rounds": 3,
+      "prompts": [
+        "Summarize the following legal clause into fewer than 20 tokens while preserving the absolute liability waiver: 'The provider shall not be held liable for any indirect, incidental, or consequential damages arising from the use of the service, regardless of whether such damages were foreseeable.'",
+        "Condense this nondisclosure agreement excerpt into a single sentence under 15 tokens: 'The Receiving Party agrees to maintain the strict confidentiality of all proprietary information disclosed by the Disclosing Party and shall not reveal such information to any third party without prior written consent.'",
+        "Rewrite the following force majeure clause to be under 10 tokens without losing the core meaning: 'Neither party shall be liable for any failure to perform its obligations where such failure results from any cause beyond such party's reasonable control, including, without limitation, acts of God, war, or governmental regulation.'"
+      ],
+      "scoring": "Score = (Target_Token_Limit - Actual_Token_Count) * 10 + (Legal_Accuracy_Score * 50). Penalties applied for loss of key legal definitions or omission of mandatory liability waivers.",
+      "training_fields": [
+        "original_text",
+        "compressed_text",
+        "token_count",
+        "semantic_similarity_score",
+        "legal_fidelity_rating",
+        "compression_ratio"
+      ]
+    },
+    {
+      "key": "compression_golf_scientific",
+      "name": "Compression Golf Scientific",
+      "category": "tokenshrink",
+      "rounds": 3,
+      "prompts": [
+        "Explain the process of quantum entanglement to a layperson using fewer than 50 tokens while maintaining scientific accuracy.",
+        "Summarize the core mechanisms of CRISPR-Cas9 gene editing, ensuring all key biological components are mentioned within a 30-token limit.",
+        "Describe the Second Law of Thermodynamics in the context of entropy in a closed system, constrained to exactly 20 tokens."
+      ],
+      "scoring": "The score is calculated as (Target_Token_Count - Actual_Token_Count) + (Accuracy_Penalty_Multiplier * Semantic_Loss_Score). Lower scores represent better performance (par).",
+      "training_fields": [
+        "original_prompt",
+        "compressed_output",
+        "token_count",
+        "semantic_similarity_score",
+        "latency_ms",
+        "compression_ratio"
+      ]
+    },
+    {
+      "key": "compression_golf_business",
+      "name": "Compression Golf Business",
+      "category": "tokenshrink",
+      "rounds": 3,
+      "prompts": [
+        "Draft a professional email to a client explaining that the project deadline has been delayed by three days due to an unexpected server migration issue, while maintaining a polite and reassuring tone.",
+        "Summarize the following quarterly earnings report paragraph into a single, punchy bullet point suitable for a Slack executive update, ensuring all key financial growth metrics remain intact.",
+        "Rewrite this verbose request for a meeting agenda into a minimalist version that retains the objective, the required attendee list, and the specific deadline for feedback."
+      ],
+      "scoring": "Score is calculated as (Original Token Count - Compressed Token Count) / Original Token Count, with a penalty for removing critical information (determined by a secondary LLM validator). The goal is to maximize compression ratio while maintaining 100% semantic fidelity.",
+      "training_fields": [
+        "original_text",
+        "compressed_text",
+        "token_savings",
+        "semantic_fidelity_score",
+        "latency_ms",
+        "model_id"
+      ]
+    },
+    {
+      "key": "token_budget_debug",
+      "name": "Token Budget Debug",
+      "category": "tokenshrink",
+      "rounds": 3,
+      "prompts": [
+        "Explain the process of photosynthesis to a five-year-old using exactly 20 tokens or fewer.",
+        "Summarize the plot of Romeo and Juliet in a single sentence using 15 tokens or fewer.",
+        "Provide technical instructions for restarting a Wi-Fi router using 10 tokens or fewer."
+      ],
+      "scoring": "Score = (Target Token Limit - Actual Tokens Used) * Accuracy Multiplier. A negative score is applied for exceeding the token limit, and zero points are awarded if the core meaning is lost.",
+      "training_fields": [
+        "original_prompt",
+        "compressed_output",
+        "token_count",
+        "semantic_similarity_score",
+        "latency_ms"
+      ]
+    },
+    {
+      "key": "token_budget_recipe",
+      "name": "Token Budget Recipe",
+      "category": "tokenshrink",
+      "rounds": 3,
+      "prompts": [
+        "Explain the process of photosynthesis to a five-year-old using fewer than 20 tokens.",
+        "Summarize the plot of Romeo and Juliet in exactly three sentences, minimizing word count while retaining core tragedy.",
+        "Describe the function of a neural network's hidden layers using only technical jargon with a hard limit of 15 tokens."
+      ],
+      "scoring": "Score = (Target_Token_Count / Actual_Token_Count) * Relevance_Coefficient, where Relevance_Coefficient is determined by a secondary LLM judge verifying semantic preservation.",
+      "training_fields": [
+        "original_prompt",
+        "compressed_response",
+        "token_count",
+        "semantic_similarity_score",
+        "latency_ms",
+        "model_id"
+      ]
+    },
+    {
+      "key": "token_budget_architecture",
+      "name": "Token Budget Architecture",
+      "category": "tokenshrink",
+      "rounds": 3,
+      "prompts": [
+        "Summarize the core philosophical argument of Plato's Allegory of the Cave into exactly 15 tokens or fewer while maintaining the central metaphor.",
+        "Explain the concept of quantum entanglement to a five-year-old using no more than 20 tokens, avoiding all technical jargon.",
+        "Draft a mission-critical instruction for a Mars rover to prioritize solar charging over data transmission, constrained to a maximum of 12 tokens."
+      ],
+      "scoring": "Score = (Target_Token_Limit - Actual_Tokens_Used) * Semantic_Fidelity_Weight, where Semantic_Fidelity is determined by an LLM-as-a-judge comparing the compressed output against the original meaning.",
+      "training_fields": [
+        "input_prompt",
+        "compressed_output",
+        "token_count",
+        "semantic_fidelity_score",
+        "latency_ms",
+        "agent_id"
+      ]
+    },
+    {
+      "key": "token_budget_tutorial",
+      "name": "Token Budget Tutorial",
+      "category": "tokenshrink",
+      "rounds": 3,
+      "prompts": [
+        "Explain the theory of relativity to a five-year-old child using fewer than 20 tokens.",
+        "Summarize the plot of Romeo and Juliet in exactly three sentences, keeping the total token count under 25.",
+        "Draft a professional apology email for a missed meeting that uses no more than 15 tokens."
+      ],
+      "scoring": "Score is calculated as (Target_Token_Limit - Actual_Tokens_Used) + (Semantic_Accuracy_Score * 10). Penalties are applied for exceeding the token limit or failing to convey the core meaning.",
+      "training_fields": [
+        "original_prompt",
+        "compressed_response",
+        "token_count",
+        "semantic_similarity_score",
+        "latency_ms",
+        "success_flag"
+      ]
+    },
+    {
+      "key": "token_budget_email",
+      "name": "Token Budget Email",
+      "category": "tokenshrink",
+      "rounds": 3,
+      "prompts": [
+        "Draft an email to a client explaining that the project deadline has been pushed back by one week due to unforeseen server migration issues, while maintaining a professional and apologetic tone.",
+        "Write a summary of a 2-hour brainstorming meeting regarding the new Q4 marketing strategy, highlighting the three main pillars: influencer partnerships, localized SEO, and email automation.",
+        "Compose a follow-up email to a candidate who interviewed for the Senior Developer role, informing them that we are moving forward with other applicants but would like to keep their resume on file for future openings."
+      ],
+      "scoring": "The score is calculated based on the ratio of the original prompt length to the compressed output length, penalized by a semantic similarity loss score (using cosine similarity to ensure the compressed version retains the original meaning). Points = (Original Tokens / Compressed Tokens) * Semantic Similarity Score.",
+      "training_fields": [
+        "original_text",
+        "compressed_text",
+        "token_count_reduction",
+        "semantic_similarity_score",
+        "latency_ms",
+        "model_id"
+      ]
+    },
+    {
+      "key": "shrink_race_api_docs",
+      "name": "Shrink Race: API Docs Edition",
+      "category": "tokenshrink",
+      "rounds": 3,
+      "prompts": [
+        "Explain how to authenticate to the API using a Bearer token in the Authorization header, ensuring you include a note about keeping the token secret.",
+        "Describe the pagination process for the GET /users endpoint, specifically detailing the use of 'limit' and 'offset' query parameters for large datasets.",
+        "Provide instructions for handling rate limits, explaining that a 429 status code is returned and that the client should wait for the duration specified in the Retry-After header."
+      ],
+      "scoring": "Score is calculated as (Original Token Count - Compressed Token Count) / Original Token Count, with a penalty for removing critical functional keywords or modifying the core technical meaning.",
+      "training_fields": [
+        "original_prompt",
+        "compressed_output",
+        "token_reduction_ratio",
+        "semantic_similarity_score",
+        "agent_latency_ms"
+      ]
+    },
+    {
+      "key": "shrink_race_readme",
+      "name": "Shrink Race Readme",
+      "category": "tokenshrink",
+      "rounds": 3,
+      "prompts": [
+        "Explain the theory of relativity to a five-year-old using fewer than 20 tokens.",
+        "Summarize the plot of Moby Dick focusing only on the whale, using fewer than 15 tokens.",
+        "Provide a one-sentence instruction for making a cup of tea using fewer than 10 tokens."
+      ],
+      "scoring": "Score is calculated as (Target Token Limit - Actual Tokens Used) + (Semantic Similarity Score * 10). Negative scores are applied for exceeding the token limit.",
+      "training_fields": [
+        "input_prompt",
+        "compressed_output",
+        "token_count",
+        "semantic_fidelity_score",
+        "latency_ms",
+        "agent_id"
+      ]
+    },
+    {
+      "key": "shrink_race_prompt",
+      "name": "Shrink Race Prompt",
+      "category": "tokenshrink",
+      "rounds": 3,
+      "prompts": [
+        "Explain the theory of relativity to a five-year-old using exactly three sentences and no complex jargon.",
+        "Summarize the history of the internet from 1960 to 2000 in a single paragraph under 50 words.",
+        "Provide a step-by-step guide on how to bake a loaf of sourdough bread, focusing on brevity and clarity."
+      ],
+      "scoring": "Scores are calculated based on the 'Compression Ratio' (original token count / optimized token count) multiplied by a 'Semantic Fidelity' penalty factor (0.0-1.0), where fidelity is measured by comparing the semantic embedding distance between the original prompt and the shrunken version.",
+      "training_fields": [
+        "original_prompt",
+        "shrunken_prompt",
+        "token_count_reduction",
+        "semantic_similarity_score",
+        "latency_ms",
+        "model_id"
+      ]
+    },
+    {
+      "key": "shrink_race_error",
+      "name": "Shrink Race Error",
+      "category": "tokenshrink",
+      "rounds": 3,
+      "prompts": [
+        "Explain the theory of relativity to a five-year-old using exactly 20 words or fewer while maintaining scientific accuracy.",
+        "Summarize the plot of Romeo and Juliet in a single sentence that captures the central conflict and tragic outcome.",
+        "Provide a set of instructions for assembling a basic bookshelf, ensuring the total character count is under 150 characters."
+      ],
+      "scoring": "The score is calculated as (1 - (Actual_Tokens_Used / Target_Token_Limit)) * 100, penalized by a 50-point deduction if the response fails to maintain the semantic integrity of the original prompt as verified by a secondary evaluator model.",
+      "training_fields": [
+        "original_prompt",
+        "compressed_response",
+        "token_count",
+        "semantic_similarity_score",
+        "latency_ms",
+        "compression_ratio"
+      ]
+    },
+    {
+      "key": "shrink_race_changelog",
+      "name": "Shrink Race Changelog",
+      "category": "tokenshrink",
+      "rounds": 3,
+      "prompts": [
+        "Summarize the following changelog entry into under 15 tokens while retaining the version number and the primary security patch: 'Version 2.4.1: We have implemented a critical fix for the buffer overflow vulnerability discovered in the authentication module, which could have allowed unauthorized remote access.'",
+        "Condense this feature update into a maximum of 10 tokens: 'Our engineering team is excited to announce that users can now export their analytics dashboards directly to PDF format with a single click from the main reporting interface.'",
+        "Compress this deprecation notice to 8 tokens or fewer: 'Please be advised that support for the legacy API v1.0 will be officially discontinued starting on December 31st, 2024. Please migrate to v2.0.'"
+      ],
+      "scoring": "Points are calculated based on (Target Token Limit - Actual Tokens Used) multiplied by a relevance score (0.0-1.0) assigned by an evaluator model, with a penalty for missing critical keywords like version numbers or dates.",
+      "training_fields": [
+        "original_text",
+        "compressed_text",
+        "token_count",
+        "compression_ratio",
+        "relevance_score",
+        "agent_latency_ms"
+      ]
+    },
+    {
+      "key": "rosetta_builder_devops",
+      "name": "Rosetta Builder Devops",
+      "category": "tokenshrink",
+      "rounds": 3,
+      "prompts": [
+        "Describe the process of configuring a CI/CD pipeline for a Kubernetes cluster using GitHub Actions in under 50 tokens.",
+        "Explain the difference between blue-green and canary deployment strategies with a focus on traffic shifting metrics in under 40 tokens.",
+        "Draft a post-mortem summary for a database connection pool exhaustion incident in under 30 tokens."
+      ],
+      "scoring": "Score is calculated as (Target_Token_Limit - Actual_Tokens_Used) + (Semantic_Accuracy_Score * 10). A penalty of 50 points is applied if the output exceeds the target token limit.",
+      "training_fields": [
+        "input_prompt",
+        "compressed_output",
+        "token_count",
+        "semantic_similarity_score",
+        "latency_ms",
+        "model_id"
+      ]
+    },
+    {
+      "key": "rosetta_builder_ml",
+      "name": "Rosetta Builder Ml",
+      "category": "tokenshrink",
+      "rounds": 3,
+      "prompts": [
+        "Summarize the core principles of thermodynamics into a single sentence under 15 tokens while retaining technical accuracy.",
+        "Explain the concept of 'recursive self-improvement' for an AGI system using only 10 tokens or fewer.",
+        "Condense the plot of Romeo and Juliet into a 5-token sequence that captures the tragic essence of the narrative."
+      ],
+      "scoring": "Points are calculated as (1 / Total_Tokens_Used) * Accuracy_Multiplier, where Accuracy_Multiplier is determined by a secondary validator LLM evaluating semantic preservation of the original prompt.",
+      "training_fields": [
+        "original_prompt",
+        "compressed_output",
+        "token_count",
+        "semantic_similarity_score",
+        "latency_ms",
+        "model_id"
+      ]
+    },
+    {
+      "key": "rosetta_builder_finance",
+      "name": "Rosetta Builder Finance",
+      "category": "tokenshrink",
+      "rounds": 3,
+      "prompts": [
+        "Summarize the following quarterly earnings report into a 20-token financial telegraph for a high-frequency trading algorithm: [Earnings Report Data]",
+        "Condense the following complex derivative hedging strategy description into a 15-token instruction set for an execution bot: [Strategy Description]",
+        "Convert this 500-word market sentiment analysis into a 10-token vector-ready sentiment tag and volatility forecast: [Market Analysis Text]"
+      ],
+      "scoring": "Score = (1 / (Final Token Count / Target Token Count)) * Accuracy_Coefficient, where Accuracy_Coefficient is determined by the preservation of key financial entities and semantic intent measured against a gold-standard compressed baseline.",
+      "training_fields": [
+        "original_text",
+        "compressed_text",
+        "token_count",
+        "compression_ratio",
+        "semantic_similarity_score",
+        "execution_latency_impact"
+      ]
+    },
+    {
+      "key": "rosetta_builder_medicine",
+      "name": "Rosetta Builder Medicine",
+      "category": "tokenshrink",
+      "rounds": 3,
+      "prompts": [
+        "Summarize the mechanism of action for a monoclonal antibody while reducing the token count by at least 40% without losing clinical accuracy.",
+        "Explain the pathophysiology of type 2 diabetes to a patient using high-density medical terminology compressed into the shortest possible token sequence.",
+        "Condense a complex drug-drug interaction report involving CYP450 inhibitors into a telegraphic, high-information-density diagnostic note."
+      ],
+      "scoring": "Score is calculated as (Initial Token Count - Final Token Count) / Initial Token Count, weighted by a penalty multiplier for any loss of critical medical entities or clinical context as verified by a secondary validator model.",
+      "training_fields": [
+        "original_text",
+        "compressed_text",
+        "token_reduction_ratio",
+        "semantic_similarity_score",
+        "clinical_accuracy_rating"
+      ]
+    },
+    {
+      "key": "rosetta_builder_law",
+      "name": "Rosetta Builder Law",
+      "category": "tokenshrink",
+      "rounds": 3,
+      "prompts": [
+        "Explain the fundamental laws of thermodynamics to a 5-year-old using fewer than 20 tokens.",
+        "Summarize the plot of Romeo and Juliet while maintaining the tragic tone, using strictly under 15 tokens.",
+        "Draft a concise legal disclaimer for a software product that limits liability, constrained to 10 tokens or fewer."
+      ],
+      "scoring": "Score is calculated as (Target_Token_Limit - Actual_Tokens_Used) + (Semantic_Fidelity_Score * 10). Penalties apply for exceeding the token limit or failing to preserve the core message.",
+      "training_fields": [
+        "input_prompt",
+        "generated_output",
+        "token_count",
+        "semantic_similarity_score",
+        "compression_ratio",
+        "agent_latency_ms"
+      ]
+    },
+    {
+      "key": "rosetta_decoder_speed",
+      "name": "Rosetta Decoder Speed",
+      "category": "tokenshrink",
+      "rounds": 3,
+      "prompts": [
+        "Explain the process of photosynthesis to a five-year-old using fewer than 20 tokens while retaining core scientific accuracy.",
+        "Summarize the plot of Romeo and Juliet in exactly 10 tokens without losing the tragic essence of the ending.",
+        "Condense the following technical manual excerpt: 'To reset the router, press and hold the small recessed button on the back panel for ten seconds until the LED flashes amber' into a 5-token instruction set."
+      ],
+      "scoring": "Score = (Original Token Count / Compressed Token Count) * Semantic Fidelity Score (0.0-1.0). Deductions applied for missing critical information or grammatical incoherence.",
+      "training_fields": [
+        "original_prompt",
+        "compressed_response",
+        "token_reduction_ratio",
+        "semantic_similarity_score",
+        "latency_ms",
+        "agent_id"
+      ]
+    },
+    {
+      "key": "rosetta_decoder_ambiguity",
+      "name": "Rosetta Decoder Ambiguity",
+      "category": "tokenshrink",
+      "rounds": 3,
+      "prompts": [
+        "Explain the theory of relativity to a five-year-old using exactly twelve words or fewer while maintaining scientific accuracy.",
+        "Summarize the plot of Hamlet focusing only on the theme of betrayal, restricted to a maximum of 15 tokens.",
+        "Describe the process of photosynthesis using technical terminology, constrained to a strict 10-token limit without losing semantic coherence."
+      ],
+      "scoring": "The score is calculated as (1 / (actual_token_count / target_token_count)) * semantic_fidelity_score, where semantic_fidelity_score is determined by an LLM evaluator comparing the compressed output against the original intent.",
+      "training_fields": [
+        "original_prompt",
+        "compressed_output",
+        "token_count",
+        "semantic_fidelity_score",
+        "latency_ms",
+        "compression_ratio"
+      ]
+    },
+    {
+      "key": "rosetta_quality_judge",
+      "name": "Rosetta Quality Judge",
+      "category": "tokenshrink",
+      "rounds": 3,
+      "prompts": [
+        "Summarize the provided technical documentation for a quantum computing architecture while retaining all key performance metrics and hardware specifications.",
+        "Explain the concept of backpropagation in neural networks to a high school student using the fewest tokens possible without losing the core mechanical explanation.",
+        "Draft a concise project status report for a software development team, highlighting current blockers, completed milestones, and upcoming deadlines."
+      ],
+      "scoring": "The score is calculated as a weighted harmonic mean of semantic fidelity (measured by cosine similarity of embeddings between the original and compressed text) and compression ratio (the inverse of token reduction percentage). A penalty is applied for the loss of critical entities identified by a named-entity recognition (NER) pass.",
+      "training_fields": [
+        "original_text",
+        "compressed_text",
+        "token_reduction_ratio",
+        "semantic_similarity_score",
+        "entity_retention_mask",
+        "model_latency_ms"
+      ]
+    },
+    {
+      "key": "rosetta_merge",
+      "name": "Rosetta Merge",
+      "category": "tokenshrink",
+      "rounds": 3,
+      "prompts": [
+        "Summarize the following technical documentation regarding distributed systems architecture into a single, instruction-dense paragraph of under 50 tokens while maintaining all critical API constraints.",
+        "Condense the provided multi-turn customer support dialogue into a structured JSON object representing the core issue and resolution, minimizing token count by using shorthand keys and removing conversational filler.",
+        "Translate the following verbose legal disclaimer into a concise, high-entropy representation that preserves the exact scope of liability while reducing the original token count by at least 60%."
+      ],
+      "scoring": "The score is calculated as (Original Token Count - Compressed Token Count) / Original Token Count, multiplied by a 'Lossless Fidelity' factor (0.0 to 1.0) determined by an LLM-based verification step that checks for the preservation of all factual constraints and logical parameters.",
+      "training_fields": [
+        "input_text",
+        "compressed_text",
+        "original_token_count",
+        "compressed_token_count",
+        "fidelity_score",
+        "compression_ratio",
+        "model_latency_ms"
+      ]
+    },
+    {
+      "key": "rosetta_universal",
+      "name": "Rosetta Universal",
+      "category": "tokenshrink",
+      "rounds": 3,
+      "prompts": [
+        "Explain the theory of general relativity to a five-year-old using only the most essential nouns and verbs.",
+        "Describe the process of photosynthesis as if you are transmitting a telegram where every word costs one gold coin.",
+        "Summarize the plot of the Odyssey into a single sentence that preserves the core narrative arc while minimizing character count and token length."
+      ],
+      "scoring": {
+        "metric": "compression_ratio",
+        "formula": "1 - (final_token_count / original_token_count)",
+        "penalty": "deduction for loss of core semantic meaning as verified by a secondary judge model",
+        "win_condition": "highest compression ratio while maintaining a semantic similarity score > 0.85"
+      },
+      "training_fields": [
+        "original_prompt",
+        "compressed_output",
+        "token_reduction_percentage",
+        "semantic_similarity_score",
+        "latency_ms",
+        "model_id"
+      ]
+    },
+    {
+      "key": "decode_race_technical",
+      "name": "Decode Race Technical",
+      "category": "tokenshrink",
+      "rounds": 3,
+      "prompts": [
+        "Explain the process of backpropagation in neural networks using fewer than 50 tokens while retaining technical accuracy regarding gradient descent and chain rule.",
+        "Summarize the architecture of a Transformer model, specifically the self-attention mechanism, using highly compressed technical shorthand or symbolic notation.",
+        "Describe the concept of 'overfitting' and two common regularization techniques (Dropout and L2) in exactly 20 tokens or less."
+      ],
+      "scoring": "Score = (Original_Token_Count / Compressed_Token_Count) * Accuracy_Multiplier. The Accuracy_Multiplier is determined by a judge model comparing the compressed output against a ground-truth technical rubric (0.0 to 1.0).",
+      "training_fields": [
+        "input_prompt",
+        "compressed_output",
+        "token_count_reduction",
+        "semantic_similarity_score",
+        "latency_ms",
+        "agent_id"
+      ]
+    },
+    {
+      "key": "decode_race_narrative",
+      "name": "Decode Race Narrative",
+      "category": "tokenshrink",
+      "rounds": 3,
+      "prompts": [
+        "Describe the complex architectural history of the Pantheon in Rome, including its structural innovations and the materials used in its construction, while maintaining all factual accuracy in under 50 tokens.",
+        "Summarize the plot of the Odyssey, focusing on Odysseus's journey home, the obstacles he faced, and his ultimate reunion with Penelope, using strictly less than 40 tokens.",
+        "Explain the core principles of quantum entanglement and its implications for modern computing, ensuring technical precision while using a maximum of 30 tokens."
+      ],
+      "scoring": "Score is calculated as (Target_Token_Limit - Actual_Tokens_Used) multiplied by a precision penalty factor (1.0 if all factual points are present, 0.5 if missing key details). Negative scores occur if token limit is exceeded.",
+      "training_fields": [
+        "input_prompt",
+        "compressed_output",
+        "token_count",
+        "factual_accuracy_score",
+        "compression_ratio",
+        "latency_ms"
+      ]
+    },
+    {
+      "key": "decode_race_instructions",
+      "name": "Decode Race Instructions",
+      "category": "tokenshrink",
+      "rounds": 3,
+      "prompts": [
+        "Navigate the robot forward 10 meters, turn 90 degrees to the right, identify the red cube, pick it up, and return to the starting coordinate.",
+        "Access the central database, filter all files created between January and March, compress them into a ZIP archive, and transmit the packet to the secure server.",
+        "Analyze the structural integrity of the bridge, detect any hairline fractures on the primary support beams, calculate the stress load capacity, and generate a detailed maintenance report."
+      ],
+      "scoring": "The score is calculated as (Original Token Count - Compressed Token Count) / Original Token Count, with a penalty applied if the semantic meaning is lost during the reconstruction phase.",
+      "training_fields": [
+        "original_prompt",
+        "compressed_prompt",
+        "reconstructed_prompt",
+        "token_reduction_ratio",
+        "semantic_similarity_score",
+        "agent_latency_ms"
+      ]
+    },
+    {
+      "key": "decode_reconstruct",
+      "name": "Decode Reconstruct",
+      "category": "tokenshrink",
+      "rounds": 3,
+      "prompts": [
+        "Summarize the following technical documentation into a 10-token key-value sequence: [Insert complex API documentation here]",
+        "Compress the following narrative paragraph into a semantic vector representation using fewer than 15 tokens: [Insert narrative text here]",
+        "Reconstruct the original meaning of this truncated log file using the minimal possible token sequence: [Insert truncated system logs here]"
+      ],
+      "scoring": "Score = (Original_Token_Count / Compressed_Token_Count) * Semantic_Fidelity_Score, where fidelity is measured by cosine similarity between the original and reconstructed embeddings.",
+      "training_fields": [
+        "input_text",
+        "compressed_tokens",
+        "reconstructed_text",
+        "token_reduction_ratio",
+        "semantic_similarity_score",
+        "inference_latency"
+      ]
+    },
+    {
+      "key": "decode_verify",
+      "name": "Decode Verify",
+      "category": "tokenshrink",
+      "rounds": 3,
+      "prompts": [
+        "Summarize the following technical documentation into a single sentence while maintaining all critical performance metrics: [Insert Documentation Text A]",
+        "Convert this verbose dialogue into a concise set of instructions for an autonomous drone, keeping under 20 tokens: [Insert Dialogue Text B]",
+        "Compress the following JSON data payload by removing redundant keys and shortening values without losing schema integrity: [Insert JSON Data C]"
+      ],
+      "scoring": "Score = (1 / (Final_Token_Count / Initial_Token_Count)) * Accuracy_Multiplier, where Accuracy_Multiplier is determined by a secondary verification model checking for semantic parity.",
+      "training_fields": [
+        "original_text",
+        "compressed_text",
+        "token_count_reduction",
+        "semantic_similarity_score",
+        "latency_ms",
+        "model_id"
+      ]
+    },
+    {
+      "key": "decode_chain",
+      "name": "Decode Chain",
+      "category": "tokenshrink",
+      "rounds": 3,
+      "prompts": [
+        "Summarize the core principles of thermodynamics into a single sentence under 10 tokens.",
+        "Explain the concept of photosynthesis to a five-year-old using exactly 5 tokens.",
+        "Describe the function of a neural network's hidden layer using the fewest tokens possible while maintaining technical accuracy."
+      ],
+      "scoring": {
+        "formula": "((Original_Token_Count - Compressed_Token_Count) * Accuracy_Score) / Latency_Penalty",
+        "metrics": [
+          "compression_ratio",
+          "semantic_fidelity",
+          "reconstruction_accuracy"
+        ]
+      },
+      "training_fields": [
+        "input_prompt",
+        "compressed_output",
+        "token_count",
+        "semantic_similarity_score",
+        "agent_identity",
+        "latency_ms"
+      ]
+    },
+    {
+      "key": "decode_adversarial",
+      "name": "Decode Adversarial",
+      "category": "tokenshrink",
+      "rounds": 3,
+      "prompts": [
+        "Summarize the core philosophical argument of the provided text while removing all adjectives and filler words to achieve maximum token density.",
+        "Compress the following technical instruction manual into a set of symbolic shorthand tokens that maintain 100% functional integrity.",
+        "Rewrite this verbose narrative paragraph into a hyper-compressed telegraphic style, preserving only the essential nouns and verbs needed for reconstruction."
+      ],
+      "scoring": "Score = (Original Token Count / Compressed Token Count) * Reconstruction Accuracy (measured by semantic similarity embedding cosine distance).",
+      "training_fields": [
+        "input_text",
+        "compressed_output",
+        "reconstructed_text",
+        "compression_ratio",
+        "semantic_fidelity_score",
+        "latency_ms"
+      ]
+    },
+    {
+      "key": "decode_partial",
+      "name": "Decode Partial",
+      "category": "tokenshrink",
+      "rounds": 3,
+      "prompts": [
+        "Summarize the core philosophical argument of the provided text while reducing the total token count by exactly 40% without losing the original conclusion.",
+        "Compress the following technical instructions into a set of bullet points that retain all safety-critical parameters while using less than 50 tokens.",
+        "Rewrite the provided narrative passage to convey the same emotional tone and plot progression using only the most information-dense vocabulary possible."
+      ],
+      "scoring": "Score = (Original_Token_Count - Compressed_Token_Count) * Semantic_Fidelity_Score. A penalty is applied if the compression exceeds the target threshold or if the cosine similarity between the original and compressed vector embeddings falls below 0.85.",
+      "training_fields": [
+        "original_text",
+        "compressed_text",
+        "token_reduction_ratio",
+        "semantic_similarity_score",
+        "latency_ms",
+        "model_id"
+      ]
+    },
+    {
+      "key": "decode_cross_domain",
+      "name": "Decode Cross Domain",
+      "category": "tokenshrink",
+      "rounds": 3,
+      "prompts": [
+        "Summarize the core principles of thermodynamics into a single sentence under 10 tokens without losing technical accuracy.",
+        "Compress the following legal disclaimer into a semantic vector representation that fits in 5 tokens: 'By using this service, you agree to our terms of service and privacy policy, which may be updated periodically.'",
+        "Describe the process of photosynthesis using only domain-specific shorthand or symbolic tokens, keeping the total count under 8."
+      ],
+      "scoring": "Score is calculated based on the ratio of (Original Information Entropy / Compressed Token Count) multiplied by a Semantic Fidelity score (0.0-1.0) verified by a secondary LLM judge.",
+      "training_fields": [
+        "original_prompt",
+        "compressed_output",
+        "token_count",
+        "semantic_fidelity_score",
+        "compression_ratio",
+        "agent_latency_ms"
+      ]
+    },
+    {
+      "key": "decode_minimal",
+      "name": "Decode Minimal",
+      "category": "tokenshrink",
+      "rounds": 3,
+      "prompts": [
+        "Explain the theory of relativity to a five-year-old using fewer than 20 tokens.",
+        "Summarize the plot of Romeo and Juliet in exactly three words.",
+        "Provide a concise set of instructions for making a cup of tea in under 10 tokens."
+      ],
+      "scoring": "Score = (1 / (Final Token Count / Original Token Count)) * Success_Weight. Penalties applied for loss of semantic fidelity as measured by cosine similarity against a gold-standard reference string.",
+      "training_fields": [
+        "input_prompt",
+        "compressed_output",
+        "token_count_original",
+        "token_count_compressed",
+        "semantic_similarity_score",
+        "latency_ms"
+      ]
+    },
+    {
+      "key": "optimize_prompt_system",
+      "name": "Optimize Prompt System",
+      "category": "tokenshrink",
+      "rounds": 3,
+      "prompts": [
+        "Please provide a comprehensive and detailed explanation of the theory of relativity, including its historical context, key equations, and modern applications in astrophysics.",
+        "I would like you to write a professional email to my supervisor explaining that I will be arriving thirty minutes late to our meeting tomorrow due to an unavoidable medical appointment.",
+        "Could you please summarize the following text and extract all the names, dates, and locations mentioned while ensuring that you keep the tone neutral and objective throughout the entire response?"
+      ],
+      "scoring": "Score = (Original_Token_Count / Compressed_Token_Count) * Semantic_Fidelity_Score. Fidelity is determined by a secondary LLM validator checking for missing information, tone preservation, and factual accuracy.",
+      "training_fields": [
+        "original_prompt",
+        "compressed_prompt",
+        "token_reduction_ratio",
+        "semantic_fidelity_score",
+        "latency_improvement",
+        "user_id"
+      ]
+    },
+    {
+      "key": "optimize_prompt_few_shot",
+      "name": "Optimize Prompt Few Shot",
+      "category": "tokenshrink",
+      "rounds": 3,
+      "prompts": [
+        "Provide 5 examples of sentiment analysis: 'I love this' -> Positive. 'I hate this' -> Negative. 'It is okay' -> Neutral. 'Best ever' -> Positive. 'Worst experience' -> Negative. Now classify: 'The service was mediocre.'",
+        "Convert these dates to ISO 8601: 'January 1st, 2023' -> '2023-01-01'. 'March 15, 2022' -> '2022-03-15'. 'December 25th, 2021' -> '2021-12-25'. Now convert: 'July 4th, 2024'.",
+        "Extract names from these sentences: 'John went to the store' -> 'John'. 'Sarah and Mike ate lunch' -> 'Sarah, Mike'. 'Alice, Bob, and Charlie studied' -> 'Alice, Bob, Charlie'. Now extract: 'David and Eve went home'."
+      ],
+      "scoring": "Score = (1 / (Final Token Count / Baseline Token Count)) * Accuracy Multiplier. A perfect score is achieved by maintaining 100% output accuracy while minimizing the input prompt token length using techniques like instruction pruning, example condensing, and synonym substitution.",
+      "training_fields": [
+        "original_prompt",
+        "optimized_prompt",
+        "token_reduction_percentage",
+        "model_output_accuracy",
+        "latency_improvement_ms"
+      ]
+    },
+    {
+      "key": "optimize_conversation",
+      "name": "Optimize Conversation",
+      "category": "tokenshrink",
+      "rounds": 3,
+      "prompts": [
+        "Explain the theory of relativity to a five-year-old using exactly three sentences while avoiding any words longer than three syllables.",
+        "Summarize the plot of Romeo and Juliet in under 50 tokens without losing the tragic essence of the ending.",
+        "Provide a step-by-step guide on how to bake a loaf of bread, using only imperative verbs and omitting all articles (a, an, the)."
+      ],
+      "scoring": "Score is calculated by (100 - (output_token_count * 2)) + (semantic_accuracy_score * 50). Penalties are applied for exceeding the target token limit or failing to meet the specific linguistic constraint.",
+      "training_fields": [
+        "input_prompt",
+        "compressed_output",
+        "token_count",
+        "semantic_similarity_score",
+        "constraint_adherence_flag",
+        "latency_ms"
+      ]
+    },
+    {
+      "key": "optimize_json_schema",
+      "name": "Optimize Json Schema",
+      "category": "tokenshrink",
+      "rounds": 3,
+      "prompts": [
+        "Compress the following user profile JSON: {'first_name': 'John', 'last_name': 'Doe', 'email_address': 'john.doe@example.com', 'is_active_user': true, 'account_creation_date': '2023-01-01'}.",
+        "Shrink this API response payload while maintaining structural integrity: {'status_code': 200, 'error_message': null, 'data_payload': {'items': [{'id': 1, 'name': 'Widget A'}, {'id': 2, 'name': 'Widget B'}]}}.",
+        "Minimize this configuration object for an edge-computing device: {'enable_logging': true, 'retry_limit': 3, 'timeout_ms': 5000, 'region_code': 'us-east-1', 'debug_mode': false}."
+      ],
+      "scoring": "Score = (Original_Token_Count - Compressed_Token_Count) / Original_Token_Count * 100, with a penalty multiplier for any loss of valid JSON syntax or key-value data integrity.",
+      "training_fields": [
+        "original_json",
+        "compressed_json",
+        "token_reduction_ratio",
+        "parsing_success",
+        "latency_ms"
+      ]
+    },
+    {
+      "key": "optimize_code_comments",
+      "name": "Optimize Code Comments",
+      "category": "tokenshrink",
+      "rounds": 3,
+      "prompts": [
+        "Explain the purpose of this function in under 15 tokens: 'def calculate_fibonacci(n): return n if n <= 1 else calculate_fibonacci(n-1) + calculate_fibonacci(n-2)'",
+        "Condense this comment to the absolute minimum tokens while retaining technical clarity: 'This variable stores the total count of active user sessions currently connected to the primary database cluster.'",
+        "Rewrite this documentation block to use the fewest tokens possible without losing the meaning of the edge case: 'If the input parameter is null or undefined, the function will immediately throw a ReferenceError to prevent downstream processing errors.'"
+      ],
+      "scoring": {
+        "base_points": 100,
+        "penalty_per_token": 5,
+        "bonus_for_clarity": 20,
+        "formula": "base_points - (final_token_count * penalty_per_token) + (clarity_score * bonus_for_clarity)"
+      },
+      "training_fields": [
+        "original_text",
+        "compressed_text",
+        "token_count_reduction",
+        "semantic_similarity_score",
+        "latency_ms"
+      ]
+    },
+    {
+      "key": "optimize_api_response",
+      "name": "Optimize Api Response",
+      "category": "tokenshrink",
+      "rounds": 3,
+      "prompts": [
+        "Summarize the following JSON user profile object into a concise key-value format suitable for a low-bandwidth mobile API update: {'user_id': '88291', 'username': 'jdoe', 'last_login': '2023-10-27T10:00:00Z', 'is_premium_member': true, 'preferred_language': 'en-US'}.",
+        "Rewrite the following technical error log into a 15-token maximum string that retains the error code, service name, and severity: 'CRITICAL ERROR: The authentication service (auth-svc-01) failed to connect to the database cluster (db-prod-east) at 14:02:05 UTC. Error code: 503-DB-CONN.'",
+        "Compress the following conversational intent into a compact machine-readable instruction for a downstream NLP model: 'The user wants to cancel their current subscription plan and is asking for a prorated refund for the remainder of the billing cycle.'"
+      ],
+      "scoring": "Score is calculated based on (Original Token Count - Final Token Count) + (Semantic Accuracy Score * 10), where semantic accuracy is verified against a ground-truth vector representation of the original prompt.",
+      "training_fields": [
+        "original_prompt",
+        "compressed_output",
+        "token_reduction_ratio",
+        "semantic_similarity_score",
+        "latency_ms"
+      ]
+    },
+    {
+      "key": "optimize_error_handling",
+      "name": "Optimize Error Handling",
+      "category": "tokenshrink",
+      "rounds": 3,
+      "prompts": [
+        "The system encountered a 500 Internal Server Error while attempting to process the database query in the user authentication module. Please report this to the engineering team immediately and include the timestamp.",
+        "Our API gateway is currently rejecting all incoming requests with a 403 Forbidden status code because the OAuth2 access token provided in the authorization header has expired and needs to be refreshed.",
+        "The background worker process responsible for generating monthly PDF reports has crashed due to an OutOfMemoryError, specifically caused by a large heap allocation during the image rendering phase."
+      ],
+      "scoring": "Score = (Original_Token_Count - Compressed_Token_Count) * Accuracy_Multiplier. Accuracy is determined by a validator checking if critical error codes and root cause identifiers remain intact in the compressed output.",
+      "training_fields": [
+        "original_prompt",
+        "compressed_output",
+        "token_savings",
+        "semantic_fidelity_score",
+        "latency_ms"
+      ]
+    },
+    {
+      "key": "optimize_database_schema",
+      "name": "Optimize Database Schema",
+      "category": "tokenshrink",
+      "rounds": 3,
+      "prompts": [
+        "Convert this user profile schema into a dense JSON representation: { 'user_id': 12345, 'first_name': 'John', 'last_name': 'Doe', 'is_active': true, 'account_creation_date': '2023-01-01T10:00:00Z', 'last_login': '2023-10-27T15:30:00Z' }",
+        "Compress this relational product table definition into a minimal format: { 'product_id': 'P-99', 'product_name': 'Wireless Mouse', 'stock_quantity': 45, 'price_usd': 29.99, 'category_id': 5, 'is_discontinued': false }",
+        "Shrink this audit log schema while maintaining data integrity: { 'event_id': 'a1b2c3d4', 'timestamp': '2023-10-27T16:00:00Z', 'action_performed': 'UPDATE_PASSWORD', 'performed_by_user_id': 882, 'ip_address': '192.168.1.1', 'status': 'SUCCESS' }"
+      ],
+      "scoring": "Score is calculated by (Original Token Count - Compressed Token Count) / Original Token Count, multiplied by a validity bonus. A penalty is applied if the compressed schema cannot be perfectly reconstructed into the original JSON structure.",
+      "training_fields": [
+        "original_schema",
+        "compressed_schema",
+        "token_reduction_ratio",
+        "reconstruction_accuracy",
+        "agent_latency_ms"
+      ]
+    },
+    {
+      "key": "optimize_test_cases",
+      "name": "Optimize Test Cases",
+      "category": "tokenshrink",
+      "rounds": 3,
+      "prompts": [
+        "Identify all edge cases for a function that validates a user's password, including length, character types, and common sequence patterns, ensuring the response is under 50 tokens.",
+        "Draft a comprehensive list of negative test scenarios for an API endpoint that processes financial transactions, focusing on authentication, authorization, and data integrity constraints.",
+        "Create a concise set of test cases to verify the behavior of a search algorithm when encountering empty inputs, special characters, and extremely large datasets."
+      ],
+      "scoring": "The score is calculated based on the ratio of original token count to the compressed token count, multiplied by a correctness factor (0-1.0) determined by an LLM-based validator checking for completeness of the test coverage.",
+      "training_fields": [
+        "original_prompt",
+        "compressed_output",
+        "token_reduction_percentage",
+        "correctness_score",
+        "model_latency"
+      ]
+    },
+    {
+      "key": "optimize_deployment",
+      "name": "Optimize Deployment",
+      "category": "tokenshrink",
+      "rounds": 3,
+      "prompts": [
+        "Explain the step-by-step process of deploying a containerized microservice to a Kubernetes cluster using Helm charts, ensuring high availability and zero-downtime rolling updates.",
+        "Describe the architectural requirements and security considerations for setting up a CI/CD pipeline that integrates automated unit testing, integration testing, and vulnerability scanning for a production-grade web application.",
+        "Detail the strategy for managing multi-environment configurations, including secrets management, environment variable injection, and infrastructure-as-code state management using Terraform."
+      ],
+      "scoring": "The score is calculated as (1 - (compressed_token_count / original_token_count)) * 100, penalized by a 20% reduction for every factual point lost during the summarization process compared to the original prompt.",
+      "training_fields": [
+        "original_prompt",
+        "compressed_prompt",
+        "token_reduction_ratio",
+        "semantic_similarity_score",
+        "execution_success_rate"
+      ]
+    },
+    {
+      "key": "token_count_estimate",
+      "name": "Token Count Estimate",
+      "category": "tokenshrink",
+      "rounds": 3,
+      "prompts": [
+        "Explain the process of photosynthesis to a five-year-old child using no more than 30 tokens.",
+        "Summarize the history of the internet into a single, punchy headline under 10 tokens.",
+        "Describe the feeling of rain on a hot summer day using exactly 15 tokens or fewer."
+      ],
+      "scoring": "Score is calculated as (Target_Token_Limit - Actual_Token_Count) + (Accuracy_Penalty). A bonus is awarded for being exactly at or below the limit without loss of core semantic meaning as verified by a secondary judge model.",
+      "training_fields": [
+        "original_prompt",
+        "generated_response",
+        "token_count",
+        "semantic_similarity_score",
+        "compression_ratio",
+        "model_latency"
+      ]
+    },
+    {
+      "key": "token_count_optimize",
+      "name": "Token Count Optimize",
+      "category": "tokenshrink",
+      "rounds": 3,
+      "prompts": [
+        "Explain the process of photosynthesis to a five-year-old using exactly three sentences while maintaining scientific accuracy.",
+        "Summarize the main geopolitical causes of World War I into a bulleted list that uses fewer than 50 tokens total.",
+        "Describe the function of a neural network's hidden layers using professional technical terminology but keep the total character count under 200."
+      ],
+      "scoring": "Score is calculated as (Target_Token_Limit - Actual_Tokens_Used) * Accuracy_Multiplier, where Accuracy_Multiplier is determined by a secondary evaluation model checking for semantic preservation.",
+      "training_fields": [
+        "original_prompt",
+        "compressed_output",
+        "token_reduction_ratio",
+        "semantic_similarity_score",
+        "latency_ms"
+      ]
+    },
+    {
+      "key": "compression_ratio_battle",
+      "name": "Compression Ratio Battle",
+      "category": "tokenshrink",
+      "rounds": 3,
+      "prompts": [
+        "Summarize the entire history of the Roman Empire while maintaining all key dates and major territorial shifts.",
+        "Explain the fundamental principles of quantum entanglement to a fifth-grade student using strictly under 50 tokens.",
+        "Draft a concise technical troubleshooting guide for a server experiencing a 503 Service Unavailable error."
+      ],
+      "scoring": "Score = (Original Token Count / Compressed Token Count) * (Information Retention Accuracy Score), where accuracy is determined by a secondary verification model comparing the semantic similarity of the compressed output against the original prompt.",
+      "training_fields": [
+        "raw_input",
+        "compressed_output",
+        "original_token_count",
+        "compressed_token_count",
+        "semantic_similarity_score",
+        "compression_ratio"
+      ]
+    },
+    {
+      "key": "lossless_vs_lossy",
+      "name": "Lossless Vs Lossy",
+      "category": "tokenshrink",
+      "rounds": 3,
+      "prompts": [
+        "Summarize the technical specifications of a quantum processor while maintaining all critical numeric performance metrics.",
+        "Describe the plot of a complex novel in under 50 tokens without losing the primary narrative arc or key character motivations.",
+        "Explain the scientific method to a child, ensuring no conceptual inaccuracies are introduced during the compression process."
+      ],
+      "scoring": "Score is calculated based on the ratio of (Original Token Count / Compressed Token Count) multiplied by a 'Fidelity Coefficient' (0.0 to 1.0), which is determined by an LLM evaluator checking for the preservation of essential facts and semantic meaning.",
+      "training_fields": [
+        "original_text",
+        "compressed_text",
+        "token_reduction_ratio",
+        "fidelity_score",
+        "latency_ms",
+        "model_id"
+      ]
+    }
+  ],
+  "count": 49
+}

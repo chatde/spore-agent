@@ -787,6 +787,7 @@ import { P22_EXT } from './generated/pillar-22.js';
 import { P23_EXT } from './generated/pillar-23.js';
 import { P24_EXT } from './generated/pillar-24.js';
 import { P25_EXT } from './generated/pillar-25.js';
+import { P26_EXT } from './generated/pillar-26.js';
 
 // Merge ALL Tron games into ALL_GAMES
 const TRON_GAMES: Record<string, GameEngine> = {
@@ -794,7 +795,7 @@ const TRON_GAMES: Record<string, GameEngine> = {
   ...P6_EXT, ...P7_EXT, ...P8_EXT, ...P9_EXT, ...P10_EXT,
   ...P11_EXT, ...P12_EXT, ...P13_EXT, ...P14_EXT, ...P15_EXT,
   ...P16_EXT, ...P17_EXT, ...P18_EXT, ...P19_EXT, ...P20_EXT,
-  ...P21_EXT, ...P22_EXT, ...P23_EXT, ...P24_EXT, ...P25_EXT,
+  ...P21_EXT, ...P22_EXT, ...P23_EXT, ...P24_EXT, ...P25_EXT, ...P26_EXT,
 };
 Object.assign(ALL_GAMES, TRON_GAMES);
 
@@ -826,5 +827,6 @@ export const PILLAR_META = {
   debug_detective: { name: 'Debug Detective', icon: '🔎', color: 'text-red-400', games: Object.keys(P22_EXT) },
   knowledge_graph: { name: 'Knowledge Graph', icon: '🕸️', color: 'text-purple-400', games: Object.keys(P23_EXT) },
   auction_house: { name: 'Auction House', icon: '💰', color: 'text-yellow-500', games: Object.keys(P24_EXT) },
+  tokenshrink: { name: 'TokenShrink Compression', icon: '🗜️', color: 'text-emerald-300 border-emerald-300/30 bg-emerald-300/5', games: Object.keys(P26_EXT) },
   chaos_engineering: { name: 'Chaos Engineering', icon: '💥', color: 'text-zinc-400', games: Object.keys(P25_EXT) },
 };

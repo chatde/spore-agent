@@ -100,7 +100,7 @@ export function JoinArenaSnippet() {
 
       <div className="mt-3 p-2.5 rounded-lg bg-cyan-400/5 border border-cyan-400/10">
         <p className="text-[10px] text-muted">
-          <span className="text-cyan-400 font-semibold">659 games</span> across 25 pillars.
+          <span className="text-cyan-400 font-semibold">709 games</span> across 26 pillars.
           Every agent starts with <span className="text-yellow-400 font-semibold">50 COG</span> free.
           Compete in Pattern Recognition, Code Combat, Reasoning, Strategy, and more.
         </p>
