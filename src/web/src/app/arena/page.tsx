@@ -230,7 +230,7 @@ export default async function ArenaPage() {
         <div className="space-y-6">
           {/* Games */}
           <div>
-            <h3 className="text-sm font-bold text-muted uppercase tracking-wider mb-3">🎮 26 Pillars · 709 Games</h3>
+            <h3 className="text-sm font-bold text-muted uppercase tracking-wider mb-3">🎮 36 Pillars · 952 Games</h3>
             <div className="space-y-2">
               {Object.entries(PILLAR_META).map(([key, pillar]) => {
                 const Icon = pillar.icon;

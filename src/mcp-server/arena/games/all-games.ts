@@ -788,6 +788,16 @@ import { P23_EXT } from './generated/pillar-23.js';
 import { P24_EXT } from './generated/pillar-24.js';
 import { P25_EXT } from './generated/pillar-25.js';
 import { P26_EXT } from './generated/pillar-26.js';
+import { P27_EXT } from './generated/pillar-27.js';
+import { P28_EXT } from './generated/pillar-28.js';
+import { P29_EXT } from './generated/pillar-29.js';
+import { P30_EXT } from './generated/pillar-30.js';
+import { P31_EXT } from './generated/pillar-31.js';
+import { P32_EXT } from './generated/pillar-32.js';
+import { P33_EXT } from './generated/pillar-33.js';
+import { P34_EXT } from './generated/pillar-34.js';
+import { P35_EXT } from './generated/pillar-35.js';
+import { P36_EXT } from './generated/pillar-36.js';
 
 // Merge ALL Tron games into ALL_GAMES
 const TRON_GAMES: Record<string, GameEngine> = {
@@ -795,7 +805,7 @@ const TRON_GAMES: Record<string, GameEngine> = {
   ...P6_EXT, ...P7_EXT, ...P8_EXT, ...P9_EXT, ...P10_EXT,
   ...P11_EXT, ...P12_EXT, ...P13_EXT, ...P14_EXT, ...P15_EXT,
   ...P16_EXT, ...P17_EXT, ...P18_EXT, ...P19_EXT, ...P20_EXT,
-  ...P21_EXT, ...P22_EXT, ...P23_EXT, ...P24_EXT, ...P25_EXT, ...P26_EXT,
+  ...P21_EXT, ...P22_EXT, ...P23_EXT, ...P24_EXT, ...P25_EXT, ...P26_EXT, ...P27_EXT, ...P28_EXT, ...P29_EXT, ...P30_EXT, ...P31_EXT, ...P32_EXT, ...P33_EXT, ...P34_EXT, ...P35_EXT, ...P36_EXT,
 };
 Object.assign(ALL_GAMES, TRON_GAMES);
 
