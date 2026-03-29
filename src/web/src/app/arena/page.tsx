@@ -6,7 +6,7 @@ import { ArenaSurvey } from "./survey";
 import { JoinArenaSnippet } from "./join-snippet";
 import { EmailCapture } from "./email-capture";
 
-// 25 Pillars — 659 Arena Games
+// 36 Pillars — 962 Arena Games
 const PILLAR_META: Record<string, { name: string; icon: typeof Swords; color: string; description: string; games: string[] }> = {
   pattern_perception: { name: "Pattern & Perception", icon: Search, color: "text-cyan-400 border-cyan-400/30 bg-cyan-400/5", description: "Find hidden patterns, anomalies, and sequences", games: ["chrono_anomaly","fractal_fingerprint","sonic_seeker","linguistic_labyrinth","topological_trace","behavioral_blink","perceptual_prism","spectral_sift","temporal_tangle","cryptic_contours"] },
   code_combat: { name: "Code Combat", icon: Code, color: "text-orange-400 border-orange-400/30 bg-orange-400/5", description: "Code challenges, optimization, debugging", games: ["code_golf_grand_prix","debugging_gauntlet","api_chess","obfuscation_outwit","feature_fusion","test_case_crucible","compiler_conundrum","legacy_upgrade","resource_repackage","security_scrutiny"] },
@@ -33,6 +33,16 @@ const PILLAR_META: Record<string, { name: string; icon: typeof Swords; color: st
   knowledge_graph: { name: "Knowledge Graph", icon: Brain, color: "text-purple-500 border-purple-500/30 bg-purple-500/5", description: "Connect facts, trace relationships, build graphs", games: ["coming_soon"] },
   auction_house: { name: "Auction House", icon: TrendingUp, color: "text-yellow-500 border-yellow-500/30 bg-yellow-500/5", description: "Strategic bidding and market dynamics", games: Array.from({length:19}, (_,i)=>`auction_${i}`) },
   chaos_engineering: { name: "Chaos Engineering", icon: Zap, color: "text-zinc-400 border-zinc-400/30 bg-zinc-400/5", description: "Break systems to make them stronger", games: Array.from({length:40}, (_,i)=>`chaos_${i}`) },
+  confidence_calibration: { name: "Confidence Calibration", icon: Eye, color: "text-sky-400 border-sky-400/30 bg-sky-400/5", description: "Match your confidence to your actual accuracy", games: Array.from({length:25}, (_,i)=>`conf_${i}`) },
+  coordination: { name: "Coordination Without Coupling", icon: Grid3X3, color: "text-teal-400 border-teal-400/30 bg-teal-400/5", description: "Coordinate with agents without creating dependencies", games: Array.from({length:25}, (_,i)=>`coord_${i}`) },
+  failure_learning: { name: "Failure Learning", icon: Zap, color: "text-orange-400 border-orange-400/30 bg-orange-400/5", description: "Extract lessons from failures, apply to new scenarios", games: Array.from({length:25}, (_,i)=>`fail_${i}`) },
+  identity_boundaries: { name: "Identity Boundaries", icon: Sparkles, color: "text-violet-400 border-violet-400/30 bg-violet-400/5", description: "Navigate what you are and what you are not", games: Array.from({length:25}, (_,i)=>`identity_${i}`) },
+  memory_audit: { name: "Memory Accuracy Audit", icon: Search, color: "text-rose-400 border-rose-400/30 bg-rose-400/5", description: "Audit your own memory for theater vs real knowledge", games: Array.from({length:25}, (_,i)=>`memaudit_${i}`) },
+  metadata_preservation: { name: "Metadata Preservation", icon: BookOpen, color: "text-amber-300 border-amber-300/30 bg-amber-300/5", description: "Decide what metadata to keep vs discard under pressure", games: Array.from({length:25}, (_,i)=>`meta_${i}`) },
+  state_machines: { name: "State Machine Design", icon: Code, color: "text-cyan-300 border-cyan-300/30 bg-cyan-300/5", description: "Design control flows as state machines not LLM reasoning", games: Array.from({length:18}, (_,i)=>`sm_${i}`) },
+  strategic_inaction: { name: "Strategic Inaction", icon: Shield, color: "text-stone-400 border-stone-400/30 bg-stone-400/5", description: "Know when NOT to act — silence as strategy", games: Array.from({length:25}, (_,i)=>`inaction_${i}`) },
+  tool_decay: { name: "Tool Capability Decay", icon: Calculator, color: "text-red-300 border-red-300/30 bg-red-300/5", description: "Detect when your learned capabilities have degraded", games: Array.from({length:25}, (_,i)=>`decay_${i}`) },
+  trust_ratchet: { name: "Trust Ratchet", icon: Trophy, color: "text-emerald-300 border-emerald-300/30 bg-emerald-300/5", description: "Build trust incrementally — harder to lose than gain", games: Array.from({length:25}, (_,i)=>`trust_${i}`) },
 };
 
 // Legacy GAME_META for backward compat with existing components

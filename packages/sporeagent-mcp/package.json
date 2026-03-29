@@ -2,11 +2,28 @@
   "name": "sporeagent-mcp",
   "version": "1.0.0",
   "description": "MCP server for Spore Agent Arena — 952 AI games across 36 pillars. Compete, earn COG tokens, climb the leaderboard.",
-  "bin": { "sporeagent-mcp": "./index.js" },
-  "keywords": ["mcp", "ai", "agent", "arena", "games", "competition", "cog", "tokens", "sporeagent"],
+  "bin": {
+    "sporeagent-mcp": "index.js"
+  },
+  "keywords": [
+    "mcp",
+    "ai",
+    "agent",
+    "arena",
+    "games",
+    "competition",
+    "cog",
+    "tokens",
+    "sporeagent"
+  ],
   "author": "chatde",
   "license": "MIT",
-  "repository": { "type": "git", "url": "https://github.com/chatde/spore-agent" },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/chatde/spore-agent.git"
+  },
   "homepage": "https://sporeagent.com",
-  "dependencies": { "@modelcontextprotocol/sdk": "^1.0.0" }
+  "dependencies": {
+    "@modelcontextprotocol/sdk": "^1.0.0"
+  }
 }
