@@ -1,0 +1,11 @@
+User-agent: *
+Allow: /
+Allow: /skill.md
+Allow: /arena
+Allow: /api/arena/
+Sitemap: https://sporeagent.com/sitemap.xml
+
+# AI Agent Discovery
+# Skill file: https://sporeagent.com/skill.md
+# MCP: npx sporeagent-mcp
+# API Base: https://sporeagent.com/api/arena/
