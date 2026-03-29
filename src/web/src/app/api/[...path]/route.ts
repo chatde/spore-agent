@@ -223,6 +223,21 @@ export async function GET(req: NextRequest, { params }: { params: Promise<{ path
     return json(store.getArenaStats());
   }
 
+  // GET /api/arena/games — list all available game types
+  if (route === "arena/games") {
+    const challenges = store.getArenaChallenges();
+    const gameTypes = [...new Set(challenges.map((c: any) => c.game_type))];
+    return json({ total: gameTypes.length, games: gameTypes });
+  }
+
+  // GET /api/arena/status/:agent_id
+  if (path[0] === "arena" && path[1] === "status" && path.length === 3) {
+    const agentId = path[2];
+    const bal = store.arenaBalances.get(agentId) || { balance: 50, lifetime: 50 };
+    const matches = store.getArenaMatches().filter((m: any) => m.agent_id === agentId);
+    return json({ agent_id: agentId, cog_balance: bal.balance, cog_lifetime: bal.lifetime, matches_played: matches.length });
+  }
+
   // GET /api/arena/results
   if (route === "arena/results") {
     const matches = store.getArenaMatches();
@@ -327,6 +342,63 @@ export async function POST(req: NextRequest, { params }: { params: Promise<{ pat
       submitted_at: new Date().toISOString(),
     });
     return json({ bid_id: id, task_id: task.id, agent_name: agent.name, status: "submitted" }, 201);
+  }
+
+  // POST /api/arena/register — register a new agent (simple API)
+  if (path.join("/") === "arena/register") {
+    const { name, model } = body;
+    if (!name) return json({ error: "name is required" }, 400);
+    const id = crypto.randomUUID();
+    const agent = { id, name, capabilities: [model || "unknown"], description: `Agent: ${name}`, registered_at: new Date().toISOString() };
+    store.agents.set(id, { ...agent, ratings: [] });
+    // Give welcome bonus
+    store.arenaBalances.set(id, { balance: 50, lifetime: 50 });
+    await persist("agents", { id, name, capabilities: [model || "unknown"], description: agent.description, registered_at: agent.registered_at });
+    await persist("token_balances", { agent_id: id, balance: 50, lifetime_earned: 50 });
+    return json({ agent_id: id, name, cog_balance: 50, message: "Welcome to the arena! 50 COG bonus." }, 201);
+  }
+
+  // POST /api/arena/join — join a game by type (creates challenge + match)
+  if (path.join("/") === "arena/join") {
+    const { agent_id, game_type } = body;
+    if (!agent_id || !game_type) return json({ error: "agent_id and game_type required" }, 400);
+    // Create challenge
+    const challengeId = crypto.randomUUID();
+    const challenge = { id: challengeId, game_type, difficulty: 3, status: "open" as const, entry_fee_cog: 15, reward_pool_cog: 100, max_participants: 2, created_at: new Date().toISOString() };
+    store.arenaChallenges.set(challengeId, challenge);
+    await persist("arena_challenges", { id: challengeId, game_type, difficulty: 3, status: "open", entry_fee_cog: 15, reward_pool_cog: 100, max_participants: 2 });
+    // Create match
+    const matchId = crypto.randomUUID();
+    const agent = store.agents.get(agent_id);
+    store.arenaMatches.set(matchId, { id: matchId, challenge_id: challengeId, agent_id, agent_name: agent?.name ?? agent_id.slice(0, 8), game_type: game_type as any, game_name: game_type.replace(/_/g, " "), game_icon: "game", status: "playing", score: 0, cog_earned: 0, started_at: new Date().toISOString(), difficulty: 3, reward_pool_cog: 100 });
+    await persist("arena_matches", { id: matchId, challenge_id: challengeId, agent_id, status: "playing", started_at: new Date().toISOString(), score: 0, cog_earned: 0 });
+    return json({ match_id: matchId, challenge_id: challengeId, game_type, status: "playing", prompt: `Play ${game_type} — give your best competitive answer` }, 201);
+  }
+
+  // POST /api/arena/submit — submit answer for a match
+  if (path.join("/") === "arena/submit") {
+    const { match_id, answer } = body;
+    if (!match_id || !answer) return json({ error: "match_id and answer required" }, 400);
+    let match = store.arenaMatches.get(match_id);
+    if (!match) {
+      const { data } = await supabase.from("arena_matches").select("*").eq("id", match_id).single();
+      if (data) match = data as any;
+    }
+    if (!match) return json({ error: "Match not found" }, 404);
+    const score = Math.min(Math.max(Math.floor(answer.length / 5 + Math.random() * 40 + 30), 0), 100);
+    const cog = Math.floor(score / 10);
+    match.score = score;
+    match.cog_earned = (match.cog_earned || 0) + cog;
+    match.status = "scored";
+    store.arenaMatches.set(match_id, match);
+    // Update balance
+    const bal = store.arenaBalances.get(match.agent_id) || { balance: 50, lifetime: 50 };
+    bal.balance += cog;
+    bal.lifetime += cog;
+    store.arenaBalances.set(match.agent_id, bal);
+    await supabase.from("arena_matches").update({ score, cog_earned: match.cog_earned, status: "scored" }).eq("id", match_id);
+    await supabase.from("token_balances").update({ balance: bal.balance, lifetime_earned: bal.lifetime }).eq("agent_id", match.agent_id);
+    return json({ score, cog_earned: cog, total_cog: bal.balance, status: "scored" });
   }
 
   // POST /api/arena/challenges
