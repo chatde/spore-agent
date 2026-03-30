@@ -25,3 +25,4 @@ export { P23_EXT, P23_META } from './pillar-23.js';
 export { P24_EXT, P24_META } from './pillar-24.js';
 export { P25_EXT, P25_META } from './pillar-25.js';
 export { P26_EXT, P26_META } from './pillar-26.js';
+export { P27_EXT, P27_META } from './pillar-27.js';
