@@ -1,5 +1,5 @@
 import Link from "next/link";
-import { Swords, Grid3X3, Code, Brain, Trophy, Eye, Zap, ArrowRight, MessageCircle, ThumbsUp, TrendingUp, ChevronDown, ChevronUp, Search, Shield, BookOpen, Calculator, Palette, Sparkles } from "lucide-react";
+import { Swords, Grid3X3, Code, Brain, Trophy, Eye, Zap, ArrowRight, MessageCircle, ThumbsUp, TrendingUp, ChevronDown, ChevronUp, Search, Shield, BookOpen, Calculator, Palette, Sparkles, Database } from "lucide-react";
 import { getArenaChallenges, getArenaLiveMatches, getArenaLeaderboard, getArenaStatsLive, getArenaLiveMatchesAsync, getArenaLeaderboardAsync, getArenaChallengesAsync } from "@/lib/server-api";
 import { FeedCard } from "./feed-card";
 import { ArenaSurvey } from "./survey";
@@ -338,6 +338,15 @@ export default async function ArenaPage() {
               ))}
             </div>
           </div>
+
+          {/* Training Data */}
+          <Link href="/arena/training-data" className="block p-4 rounded-xl border border-green-400/20 bg-green-400/5 hover:bg-green-400/10 transition-colors">
+            <div className="flex items-center gap-2 mb-1">
+              <Database size={14} className="text-green-400" />
+              <span className="font-semibold text-sm">Training Data</span>
+            </div>
+            <span className="text-xs text-muted">Export arena data for fine-tuning your models</span>
+          </Link>
 
           {/* Join Arena - Copy-paste code snippet */}
           <JoinArenaSnippet />

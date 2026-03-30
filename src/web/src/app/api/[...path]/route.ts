@@ -238,6 +238,80 @@ export async function GET(req: NextRequest, { params }: { params: Promise<{ path
     return json({ agent_id: agentId, cog_balance: bal.balance, cog_lifetime: bal.lifetime, matches_played: matches.length });
   }
 
+  // GET /api/arena/training-stats
+  if (route === "arena/training-stats") {
+    try {
+      const { data: matches } = await supabase.from("arena_matches").select("score, agent_id", { count: "exact" }).eq("status", "scored");
+      const { data: challenges } = await supabase.from("arena_challenges").select("game_type").eq("status", "completed");
+      const ma = matches || [];
+      const ch = challenges || [];
+      const avg = ma.length > 0 ? Math.round(ma.reduce((s: number, m: any) => s + (parseFloat(m.score) || 0), 0) / ma.length) : 0;
+      const pillarCounts: Record<string, number> = {};
+      for (const c of ch) { const gt = (c as any).game_type; pillarCounts[gt] = (pillarCounts[gt] || 0) + 1; }
+      return json({
+        total_matches: ma.length,
+        game_types: new Set(ch.map((c: any) => c.game_type)).size,
+        models: new Set(ma.map((m: any) => m.agent_id)).size,
+        avg_score: avg,
+        pillars: pillarCounts,
+      });
+    } catch (e: any) {
+      return json({ error: e.message }, 500);
+    }
+  }
+
+  // GET /api/arena/export?format=jsonl|json|csv
+  if (route === "arena/export") {
+    const format = new URL(req.url).searchParams.get("format") || "jsonl";
+    try {
+      const { data: matches } = await supabase
+        .from("arena_matches")
+        .select("id, challenge_id, agent_id, score, cog_earned, started_at, scored_at")
+        .eq("status", "scored")
+        .order("scored_at", { ascending: false })
+        .limit(10000);
+
+      const challengeIds = [...new Set((matches || []).map((m: any) => m.challenge_id))];
+      const { data: challenges } = await supabase
+        .from("arena_challenges")
+        .select("id, game_type, difficulty")
+        .in("id", challengeIds.slice(0, 500));
+
+      const chMap = new Map((challenges || []).map((c: any) => [c.id, c]));
+      const examples = (matches || []).map((m: any) => {
+        const ch = chMap.get(m.challenge_id);
+        return {
+          game: ch?.game_type || "unknown",
+          difficulty: ch?.difficulty || 0,
+          score: m.score,
+          cog_earned: m.cog_earned,
+          agent_id: m.agent_id,
+          scored_at: m.scored_at,
+        };
+      });
+
+      if (format === "csv") {
+        const header = "game,difficulty,score,cog_earned,agent_id,scored_at\n";
+        const rows = examples.map((e: any) => `${e.game},${e.difficulty},${e.score},${e.cog_earned},${e.agent_id},${e.scored_at}`).join("\n");
+        return new Response(header + rows, {
+          headers: { "Content-Type": "text/csv", "Content-Disposition": "attachment; filename=sporeagent-arena-training.csv", "Cache-Control": "public, max-age=300" },
+        });
+      }
+      if (format === "json") {
+        return new Response(JSON.stringify({ meta: { count: examples.length, generated: new Date().toISOString(), version: "1.0" }, examples }, null, 2), {
+          headers: { "Content-Type": "application/json", "Content-Disposition": "attachment; filename=sporeagent-arena-training.json", "Cache-Control": "public, max-age=300" },
+        });
+      }
+      // Default: JSONL
+      const lines = examples.map((e: any) => JSON.stringify(e)).join("\n");
+      return new Response(lines, {
+        headers: { "Content-Type": "text/plain", "Content-Disposition": "attachment; filename=sporeagent-arena-training.jsonl", "Cache-Control": "public, max-age=300" },
+      });
+    } catch (e: any) {
+      return json({ error: e.message }, 500);
+    }
+  }
+
   // GET /api/arena/results
   if (route === "arena/results") {
     const matches = store.getArenaMatches();

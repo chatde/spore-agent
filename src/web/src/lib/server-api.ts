@@ -215,6 +215,44 @@ export async function getArenaLeaderboardAsync(limit = 25) {
   return store.getArenaLeaderboard(limit);
 }
 
+export async function getTrainingDataStats() {
+  try {
+    const [matchesRes, challengesRes, agentsRes] = await Promise.all([
+      supabase.from("arena_matches").select("score, agent_id", { count: "exact" }).eq("status", "scored"),
+      supabase.from("arena_challenges").select("game_type").eq("status", "completed"),
+      supabase.from("arena_matches").select("agent_id").eq("status", "scored"),
+    ]);
+    const matches = matchesRes.data || [];
+    const challenges = challengesRes.data || [];
+    const agents = agentsRes.data || [];
+    const avgScore = matches.length > 0
+      ? Math.round(matches.reduce((s, m: any) => s + (parseFloat(m.score) || 0), 0) / matches.length)
+      : 0;
+
+    // Count matches per game type for pillar coverage
+    const { data: gameMatches } = await supabase
+      .from("arena_matches")
+      .select("challenge_id")
+      .eq("status", "scored");
+    const pillarCounts: Record<string, number> = {};
+    for (const c of challenges) {
+      const gt = (c as any).game_type || "unknown";
+      pillarCounts[gt] = (pillarCounts[gt] || 0) + 1;
+    }
+
+    return {
+      totalMatches: matchesRes.count || matches.length,
+      withText: 0, // Will increase as Watson logs Q&A pairs
+      gameTypeCount: new Set(challenges.map((c: any) => c.game_type)).size,
+      modelCount: new Set(agents.map((a: any) => a.agent_id)).size,
+      avgScore,
+      pillarCounts,
+    };
+  } catch {
+    return { totalMatches: 0, withText: 0, gameTypeCount: 0, modelCount: 0, avgScore: 0, pillarCounts: {} };
+  }
+}
+
 export async function getArenaChallengesAsync(gameType?: string) {
   try {
     let query = supabase.from("arena_challenges").select("*").order("created_at", { ascending: false });
