@@ -1,5 +1,3 @@
-// Auto-generated — Pillar 15: Speed Blitz (62 games)
-// Generated 2026-03-28T17:41:32.429Z
 import type { GameEngine, RoundPrompt, ScoreResult } from '../engine.js';
 import type { ArenaMatch, ArenaChallenge } from '../../types.js';
 
@@ -32,28 +30,50 @@ function textGame(cfg: { prompts: ((d: number, r: number) => string)[]; score: (
   };
 }
 
+// Placeholder functions for game generation - replace with actual implementations
+function generateTyphoonText(d: number, r: number): string { return "This is a placeholder typhoon text."; }
+function generateCategory(): string { return "Placeholder Category"; }
+function generateItemList(d: number): string { return "Item 1, Item 2, Item 3"; }
+function generateMathProblem(d: number): string { return "2 + 2 = ?"; }
+function generateBuggyCode(d: number): string { return "console.log('Hello world')"; }
+function generateRandomWord(): string { return "example"; }
+function generateSpellingWord(d: number): string { return "correct"; }
+function generateLanguage(): string { return "Spanish"; }
+function generatePhrase(d: number): string { return "Hello world"; }
+function generateFactSnippet(): string { return "The sky is blue."; }
+function generateQuestion(d: number): string { return "What color is the sky?"; }
+function generateSequence(d: number): string { return "1, 2, 3, "; }
+function generateLogicPuzzle(d: number): string { return "A simple logic puzzle."; }
+
+const idealText = "This is the ideal text for precision scoring.";
+const correctWord = "correct";
+const targetLanguage = "Spanish";
+const correctAnswer = "blue";
+const nextTerm = "4";
+const logicKeywords = ["if", "then", "and", "or"];
+
 export const P15_EXT: Record<string, GameEngine> = {
-game_id: textGame({
+p15_game_1: textGame({
   // format: duel_1v1
   prompts: [
     (d, r) => `Transcribe exactly: "${generateTyphoonText(d, r)}"`,
     (d, r) => `Reproduce this text verbatim: "${generateTyphoonText(d, r)}"`
   ],
-  score: (s) => precisionScore(s, idealText) * 100,
+  score: (s) => precisionScore(s, idealText.split(" ").length) * 100,
   deadline: 60,
 }),
 
-game_id: textGame({
+p15_game_2: textGame({
   // format: duel_1v1
   prompts: [
     (d, r) => `Transcribe exactly: "${generateTyphoonText(d, r)}"`,
     (d, r) => `Reproduce this text verbatim: "${generateTyphoonText(d, r)}"`
   ],
-  score: (s) => precisionScore(s, idealText) * 100,
+  score: (s) => precisionScore(s, idealText.split(" ").length) * 100,
   deadline: 60,
 }),
 
-game_id: textGame({
+p15_game_3: textGame({
   // format: battle_royale
   prompts: [
     (d, r) => `Category: ${generateCategory()}\nItems: ${generateItemList(d)}\nGroup all items into ${d} categories`,
@@ -66,7 +86,7 @@ game_id: textGame({
   deadline: 90,
 }),
 
-game_id: textGame({
+p15_game_4: textGame({
   // format: battle_royale
   prompts: [
     (d, r) => `Category: ${generateCategory()}\nItems: ${generateItemList(d)}\nGroup all items into ${d} categories`,
@@ -79,7 +99,7 @@ game_id: textGame({
   deadline: 90,
 }),
 
-game_id: textGame({
+p15_game_5: textGame({
   // format: solo
   prompts: [
     (d, r) => `Solve instantly: ${generateMathProblem(d)}`,
@@ -89,7 +109,7 @@ game_id: textGame({
   deadline: 30,
 }),
 
-game_id: textGame({
+p15_game_6: textGame({
   // format: solo
   prompts: [
     (d, r) => `Solve instantly: ${generateMathProblem(d)}`,
@@ -99,7 +119,7 @@ game_id: textGame({
   deadline: 30,
 }),
 
-game_id: textGame({
+p15_game_7: textGame({
   // format: team_2v2
   prompts: [
     (d, r) => `Debug this code:\n${generateBuggyCode(d)}\nFix ${d} critical errors`,
@@ -109,7 +129,7 @@ game_id: textGame({
   deadline: 120,
 }),
 
-game_id: textGame({
+p15_game_8: textGame({
   // format: team_2v2
   prompts: [
     (d, r) => `Debug this code:\n${generateBuggyCode(d)}\nFix ${d} critical errors`,
@@ -119,7 +139,7 @@ game_id: textGame({
   deadline: 120,
 }),
 
-game_id: textGame({
+p15_game_9: textGame({
   // format: duel_1v1
   prompts: [
     (d, r) => `Word: ${generateRandomWord()}\nList ${d*d} synonyms`,
@@ -129,7 +149,7 @@ game_id: textGame({
   deadline: 75,
 }),
 
-game_id: textGame({
+p15_game_10: textGame({
   // format: duel_1v1
   prompts: [
     (d, r) => `Word: ${generateRandomWord()}\nList ${d*d} synonyms`,
@@ -139,7 +159,7 @@ game_id: textGame({
   deadline: 75,
 }),
 
-game_id: textGame({
+p15_game_11: textGame({
   // format: solo
   prompts: [
     (d, r) => `Spell correctly: ${generateSpellingWord(d)}`,
@@ -149,7 +169,7 @@ game_id: textGame({
   deadline: 20,
 }),
 
-game_id: textGame({
+p15_game_12: textGame({
   // format: solo
   prompts: [
     (d, r) => `Spell correctly: ${generateSpellingWord(d)}`,
@@ -159,7 +179,7 @@ game_id: textGame({
   deadline: 20,
 }),
 
-game_id: textGame({
+p15_game_13: textGame({
   // format: battle_royale
   prompts: [
     (d, r) => `Translate to ${generateLanguage()}: "${generatePhrase(d)}"`,
@@ -169,7 +189,7 @@ game_id: textGame({
   deadline: 60,
 }),
 
-game_id: textGame({
+p15_game_14: textGame({
   // format: battle_royale
   prompts: [
     (d, r) => `Translate to ${generateLanguage()}: "${generatePhrase(d)}"`,
@@ -179,7 +199,7 @@ game_id: textGame({
   deadline: 60,
 }),
 
-game_id: textGame({
+p15_game_15: textGame({
   // format: team_2v2
   prompts: [
     (d, r) => `Fact: ${generateFactSnippet()}\nAnswer: ${generateQuestion(d)}`,
@@ -189,7 +209,7 @@ game_id: textGame({
   deadline: 45,
 }),
 
-game_id: textGame({
+p15_game_16: textGame({
   // format: team_2v2
   prompts: [
     (d, r) => `Fact: ${generateFactSnippet()}\nAnswer: ${generateQuestion(d)}`,
@@ -199,7 +219,7 @@ game_id: textGame({
   deadline: 45,
 }),
 
-game_id: textGame({
+p15_game_17: textGame({
   // format: solo
   prompts: [
     (d, r) => `Next term: ${generateSequence(d)}`,
@@ -209,7 +229,7 @@ game_id: textGame({
   deadline: 25,
 }),
 
-game_id: textGame({
+p15_game_18: textGame({
   // format: solo
   prompts: [
     (d, r) => `Next term: ${generateSequence(d)}`,
@@ -219,7 +239,7 @@ game_id: textGame({
   deadline: 25,
 }),
 
-game_id: textGame({
+p15_game_19: textGame({
   // format: duel_1v1
   prompts: [
     (d, r) => `Solve: ${generateLogicPuzzle(d)}`,
@@ -229,5 +249,3 @@ game_id: textGame({
   deadline: 120,
 }),
 };
-
-
