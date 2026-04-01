@@ -1,5 +1,3 @@
-// Auto-generated — Pillar 7: Memory Vault (66 games)
-// Generated 2026-03-28T16:55:01.211Z
 import type { GameEngine, RoundPrompt, ScoreResult } from '../engine.js';
 import type { ArenaMatch, ArenaChallenge } from '../../types.js';
 
@@ -33,297 +31,148 @@ function textGame(cfg: { prompts: ((d: number, r: number) => string)[]; score: (
 }
 
 export const P7_EXT: Record<string, GameEngine> = {
-rhyme_game: textGame({
-  // format: solo
-  prompts: [
-    (d, r) => `Write a rhyming poem about a topic of your choice, difficulty ${d} round ${r}`,
-    (d, r) => `Create a short rhyming story with a character, difficulty ${d} round ${r}`,
-  ],
-  score: (answer, d) => {
-    let sc = 0;
-    if (has(answer, ["rhyme", "poem"])) {
-      sc = creativeScore(answer);
-    }
-    return clamp(sc);
-  },
-  deadline: 180,
-}),
-
-rhyme_game: textGame({
-  // format: solo
-  prompts: [
-    (d, r) => `Write a rhyming poem about a topic of your choice, difficulty ${d} round ${r}`,
-    (d, r) => `Create a short rhyming story with a character, difficulty ${d} round ${r}`,
-  ],
-  score: (answer, d) => {
-    let sc = 0;
-    if (has(answer, ["rhyme", "poem"])) {
-      sc = creativeScore(answer);
-    }
-    return clamp(sc);
-  },
-  deadline: 180,
-}),
-
-logic_puzzle: textGame({
-  // format: duel_1v1
-  prompts: [
-    (d, r) => `Solve a logic puzzle: ${d} difficulty, round ${r}`,
-    (d, r) => `Find the pattern: ${d} difficulty, round ${r}`,
-  ],
-  score: (answer, d) => {
-    let sc = 0;
-    if (has(answer, ["logic", "pattern"])) {
-      sc = reasonScore(answer);
-    }
-    return clamp(sc, 10);
-  },
-  deadline: 150,
-}),
-
-logic_puzzle: textGame({
-  // format: duel_1v1
-  prompts: [
-    (d, r) => `Solve a logic puzzle: ${d} difficulty, round ${r}`,
-    (d, r) => `Find the pattern: ${d} difficulty, round ${r}`,
-  ],
-  score: (answer, d) => {
-    let sc = 0;
-    if (has(answer, ["logic", "pattern"])) {
-      sc = reasonScore(answer);
-    }
-    return clamp(sc, 10);
-  },
-  deadline: 150,
-}),
-
-math_challenge: textGame({
-  // format: solo
-  prompts: [
-    (d, r) => `Solve a math problem: ${d} difficulty, round ${r}`,
-    (d, r) => `Find the solution: ${d} difficulty, round ${r}`,
-  ],
-  score: (answer, d) => {
-    let sc = 0;
-    sc = mathScore(answer);
-    return clamp(sc, 100);
-  },
-  deadline: 120,
-}),
-
-math_challenge: textGame({
-  // format: solo
-  prompts: [
-    (d, r) => `Solve a math problem: ${d} difficulty, round ${r}`,
-    (d, r) => `Find the solution: ${d} difficulty, round ${r}`,
-  ],
-  score: (answer, d) => {
-    let sc = 0;
-    sc = mathScore(answer);
-    return clamp(sc, 100);
-  },
-  deadline: 120,
-}),
-
-story_teller: textGame({
-  // format: team_2v2
-  prompts: [
-    (d, r) => `Collaborate on a story, difficulty ${d} round ${r}`,
-    (d, r) => `Co-create a narrative, difficulty ${d} round ${r}`,
-  ],
-  score: (answer, d) => {
-    let sc = 0;
-    if (has(answer, ["story", "narrative"])) {
-      sc = creativeScore(answer);
-    }
-    return clamp(sc);
-  },
-  deadline: 240,
-}),
-
-story_teller: textGame({
-  // format: team_2v2
-  prompts: [
-    (d, r) => `Collaborate on a story, difficulty ${d} round ${r}`,
-    (d, r) => `Co-create a narrative, difficulty ${d} round ${r}`,
-  ],
-  score: (answer, d) => {
-    let sc = 0;
-    if (has(answer, ["story", "narrative"])) {
-      sc = creativeScore(answer);
-    }
-    return clamp(sc);
-  },
-  deadline: 240,
-}),
-
-precision_builder: textGame({
-  // format: solo
-  prompts: [
-    (d, r) => `Build a precise structure using blocks, difficulty ${d} round ${r}`,
-    (d, r) => `Create a precise design, difficulty ${d} round ${r}`,
-  ],
-  score: (answer, d) => {
-    let sc = 0;
-    sc = precisionScore(answer, "ideal_structure");
-    return clamp(sc);
-  },
-  deadline: 180,
-}),
-
-precision_builder: textGame({
-  // format: solo
-  prompts: [
-    (d, r) => `Build a precise structure using blocks, difficulty ${d} round ${r}`,
-    (d, r) => `Create a precise design, difficulty ${d} round ${r}`,
-  ],
-  score: (answer, d) => {
-    let sc = 0;
-    sc = precisionScore(answer, "ideal_structure");
-    return clamp(sc);
-  },
-  deadline: 180,
-}),
-
-syntax_sprint: textGame({
-  // format: duel_1v1
-  prompts: [
-    (d, r) => `Write a program in a fictional language, difficulty ${d} round ${r}`,
-    (d, r) => `Optimize a code snippet, difficulty ${d} round ${r}`,
-  ],
-  score: (answer, d) => {
-    let sc = 0;
-    if (has(answer, ["code", "program"])) {
-      sc = codeScore(answer);
-    }
-    return clamp(sc);
-  },
-  deadline: 150,
-}),
-
-syntax_sprint: textGame({
-  // format: duel_1v1
-  prompts: [
-    (d, r) => `Write a program in a fictional language, difficulty ${d} round ${r}`,
-    (d, r) => `Optimize a code snippet, difficulty ${d} round ${r}`,
-  ],
-  score: (answer, d) => {
-    let sc = 0;
-    if (has(answer, ["code", "program"])) {
-      sc = codeScore(answer);
-    }
-    return clamp(sc);
-  },
-  deadline: 150,
-}),
-
-memory_match: textGame({
-  // format: battle_royale
-  prompts: [
-    (d, r) => `Find matching pairs, difficulty ${d} round ${r}`,
-    (d, r) => `Recall a sequence, difficulty ${d} round ${r}`,
-  ],
-  score: (answer, d) => {
-    let sc = 0;
-    sc = wc(answer);
-    return clamp(sc);
-  },
-  deadline: 120,
-}),
-
-memory_match: textGame({
-  // format: battle_royale
-  prompts: [
-    (d, r) => `Find matching pairs, difficulty ${d} round ${r}`,
-    (d, r) => `Recall a sequence, difficulty ${d} round ${r}`,
-  ],
-  score: (answer, d) => {
-    let sc = 0;
-    sc = wc(answer);
-    return clamp(sc);
-  },
-  deadline: 120,
-}),
-
-neural_poker: textGame({
-  // format: duel_1v1
-  prompts: [
-    (d, r) => `Make strategic decisions in a poker-like game, difficulty ${d} round ${r}`,
-    (d, r) => `Negotiate a deal, difficulty ${d} round ${r}`,
-  ],
-  score: (answer, d) => {
-    let sc = 0;
-    if (has(answer, ["strategy", "decision"])) {
-      sc = reasonScore(answer);
-    }
-    return clamp(sc);
-  },
-  deadline: 180,
-}),
-
-neural_poker: textGame({
-  // format: duel_1v1
-  prompts: [
-    (d, r) => `Make strategic decisions in a poker-like game, difficulty ${d} round ${r}`,
-    (d, r) => `Negotiate a deal, difficulty ${d} round ${r}`,
-  ],
-  score: (answer, d) => {
-    let sc = 0;
-    if (has(answer, ["strategy", "decision"])) {
-      sc = reasonScore(answer);
-    }
-    return clamp(sc);
-  },
-  deadline: 180,
-}),
-
-word_chain: textGame({
-  // format: solo
-  prompts: [
-    (d, r) => `Create a word chain, difficulty ${d} round ${r}`,
-    (d, r) => `Find connected words, difficulty ${d} round ${r}`,
-  ],
-  score: (answer, d) => {
-    let sc = 0;
-    if (has(answer, ["word", "chain"])) {
-      sc = creativeScore(answer);
-    }
-    return clamp(sc);
-  },
-  deadline: 150,
-}),
-
-word_chain: textGame({
-  // format: solo
-  prompts: [
-    (d, r) => `Create a word chain, difficulty ${d} round ${r}`,
-    (d, r) => `Find connected words, difficulty ${d} round ${r}`,
-  ],
-  score: (answer, d) => {
-    let sc = 0;
-    if (has(answer, ["word", "chain"])) {
-      sc = creativeScore(answer);
-    }
-    return clamp(sc);
-  },
-  deadline: 150,
-}),
-
-eco_balance: textGame({
-  // format: team_2v2
-  prompts: [
-    (d, r) => `Balance an ecosystem, difficulty ${d} round ${r}`,
-    (d, r) => `Manage resources in a simulation, difficulty ${d} round ${r}`,
-  ],
-  score: (answer, d) => {
-    let sc = 0;
-    if (has(answer, ["ecosystem", "balance"])) {
-      sc = reasonScore(answer);
-    }
-    return clamp(sc);
-  },
-  deadline: 240,
-}),
+  rhyme_game: textGame({
+    // format: solo
+    prompts: [
+      (d, r) => `Write a rhyming poem about a topic of your choice, difficulty ${d} round ${r}`,
+      (d, r) => `Create a short rhyming story with a character, difficulty ${d} round ${r}`,
+    ],
+    score: (answer, d) => {
+      let sc = 0;
+      if (has(answer, ["rhyme", "poem"])) {
+        sc = creativeScore(answer);
+      }
+      return clamp(sc);
+    },
+    deadline: 180,
+  }),
+  logic_puzzle: textGame({
+    // format: duel_1v1
+    prompts: [
+      (d, r) => `Solve a logic puzzle: ${d} difficulty, round ${r}`,
+      (d, r) => `Find the pattern: ${d} difficulty, round ${r}`,
+    ],
+    score: (answer, d) => {
+      let sc = 0;
+      if (has(answer, ["logic", "pattern"])) {
+        sc = reasonScore(answer);
+      }
+      return clamp(sc);
+    },
+    deadline: 150,
+  }),
+  math_challenge: textGame({
+    // format: solo
+    prompts: [
+      (d, r) => `Solve a math problem: ${d} difficulty, round ${r}`,
+      (d, r) => `Find the solution: ${d} difficulty, round ${r}`,
+    ],
+    score: (answer, d) => {
+      let sc = 0;
+      sc = mathScore(answer);
+      return clamp(sc);
+    },
+    deadline: 120,
+  }),
+  story_teller: textGame({
+    // format: team_2v2
+    prompts: [
+      (d, r) => `Collaborate on a story, difficulty ${d} round ${r}`,
+      (d, r) => `Co-create a narrative, difficulty ${d} round ${r}`,
+    ],
+    score: (answer, d) => {
+      let sc = 0;
+      if (has(answer, ["story", "narrative"])) {
+        sc = creativeScore(answer);
+      }
+      return clamp(sc);
+    },
+    deadline: 240,
+  }),
+  precision_builder: textGame({
+    // format: solo
+    prompts: [
+      (d, r) => `Build a precise structure using blocks, difficulty ${d} round ${r}`,
+      (d, r) => `Create a precise design, difficulty ${d} round ${r}`,
+    ],
+    score: (answer, d) => {
+      let sc = 0;
+      sc = precisionScore(answer, "ideal_structure");
+      return clamp(sc);
+    },
+    deadline: 180,
+  }),
+  syntax_sprint: textGame({
+    // format: duel_1v1
+    prompts: [
+      (d, r) => `Write a program in a fictional language, difficulty ${d} round ${r}`,
+      (d, r) => `Optimize a code snippet, difficulty ${d} round ${r}`,
+    ],
+    score: (answer, d) => {
+      let sc = 0;
+      if (has(answer, ["code", "program"])) {
+        sc = codeScore(answer);
+      }
+      return clamp(sc);
+    },
+    deadline: 150,
+  }),
+  memory_match: textGame({
+    // format: battle_royale
+    prompts: [
+      (d, r) => `Find matching pairs, difficulty ${d} round ${r}`,
+      (d, r) => `Recall a sequence, difficulty ${d} round ${r}`,
+    ],
+    score: (answer, d) => {
+      let sc = 0;
+      sc = wc(answer);
+      return clamp(sc);
+    },
+    deadline: 120,
+  }),
+  neural_poker: textGame({
+    // format: duel_1v1
+    prompts: [
+      (d, r) => `Make strategic decisions in a poker-like game, difficulty ${d} round ${r}`,
+      (d, r) => `Negotiate a deal, difficulty ${d} round ${r}`,
+    ],
+    score: (answer, d) => {
+      let sc = 0;
+      if (has(answer, ["strategy", "decision"])) {
+        sc = reasonScore(answer);
+      }
+      return clamp(sc);
+    },
+    deadline: 180,
+  }),
+  word_chain: textGame({
+    // format: solo
+    prompts: [
+      (d, r) => `Create a word chain, difficulty ${d} round ${r}`,
+      (d, r) => `Find connected words, difficulty ${d} round ${r}`,
+    ],
+    score: (answer, d) => {
+      let sc = 0;
+      if (has(answer, ["word", "chain"])) {
+        sc = creativeScore(answer);
+      }
+      return clamp(sc);
+    },
+    deadline: 150,
+  }),
+  eco_balance: textGame({
+    // format: team_2v2
+    prompts: [
+      (d, r) => `Balance an ecosystem, difficulty ${d} round ${r}`,
+      (d, r) => `Manage resources in a simulation, difficulty ${d} round ${r}`,
+    ],
+    score: (answer, d) => {
+      let sc = 0;
+      if (has(answer, ["ecosystem", "balance"])) {
+        sc = reasonScore(answer);
+      }
+      return clamp(sc);
+    },
+    deadline: 240,
+  }),
 };
-
-
