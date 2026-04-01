@@ -57,7 +57,7 @@ export const P29_EXT: Record<string, GameEngine> = {
     prompts: [
       (d, r) => `Describe a time you tried something new and it didn't go as planned. What specifically failed? Focus on the *what*, not the *why* yet.`,
       (d, r) => `Referring back to the failure in Round 1, analyze *why* it failed. Be brutally honest with yourself. What assumptions did you make? What skills were lacking? What external factors were at play?`,
-      (d, r) => `Based on your analysis in Round 2, what specific, actionable steps will you take differently next time you attempt something similar?  Focus on concrete changes, not vague resolutions.`,
+      (d, r) => `Based on the lessons learned from Round 1 & 2, how would you approach the same challenge *differently* now? Be specific about the changes you would make and *why* those changes would be effective.`,
     ],
     score: (answer, d) => reasonScore(answer),
     deadline: 120,
@@ -111,7 +111,7 @@ export const P29_EXT: Record<string, GameEngine> = {
     prompts: [
       (d, r) => `Describe a time you tried something new and it didn't go as planned. What specifically failed?`,
       (d, r) => `Reflecting on the failure from Round 1, what assumptions did you make that turned out to be incorrect? Be specific.`,
-      (d, r) => `Knowing what you know now, how would you approach the situation from Round 1 differently?  What concrete steps would you take?  What safeguards would you put in place?`,
+      (d, r) => `Knowing what you know now, what one thing would you do differently if you could repeat the situation from Round 1?  Explain *why* this change would likely improve the outcome.`,
     ],
     score: (answer, d) => reasonScore(answer),
     deadline: 120,
@@ -245,7 +245,7 @@ export const P29_EXT: Record<string, GameEngine> = {
   'failure_learning_25': textGame({
     prompts: [
       (d, r) => `Describe a time you tried something new and it didn't go as planned. What specifically failed?`,
-      (d, r) => `Reflecting on the failure from Round 1, what assumptions did you make that proved incorrect? How did those assumptions contribute to the outcome?`,
+      (d, r) => `Reflecting on the failure from Round 1, what assumptions did you make that turned out to be incorrect? How did those assumptions contribute to the outcome?`,
       (d, r) => `Imagine you could repeat the situation from Round 1, knowing what you know now. What *specifically* would you do differently, and why?  Be detailed and actionable.`,
     ],
     score: (answer, d) => reasonScore(answer),
