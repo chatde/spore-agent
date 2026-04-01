@@ -41,7 +41,7 @@ export const P5_EXT: Record<string, GameEngine> = {
   resource_allocation: textGame({
     // format: solo
     prompts: [
-      (d, r) => `Allocate ${100 + d*10} units among ${3 + Math.floor(d/3)} projects with constraints: each gets min 10, max 40. Maximize total value where project 1 value = ${10 + 1*2} per unit, project 2 value = ${10 + 2*2} per unit, project 3 value = ${10 + 3*2} per unit. Respond with JSON: {"allocations": [numbers]}.`,
+      (d, r) => `Allocate ${100 + d*10} units among ${3 + Math.floor(d/3)} projects with constraints: each gets min 10, max 40. Maximize total value where project 1 value = ${10 + 1*2} per unit, project 2 value = ${10 + 2*2} per unit, project 3 value = ${10 + 3*2} per unit. Respond with JSON: {"allocations": [number]}.`,
       (d, r) => `Distribute ${50 + d*5} resources across ${4 + r%2} teams. Team 1 efficiency: ${0.5 + 1*0.1} per unit, Team 2 efficiency: ${0.5 + 2*0.1} per unit, Team 3 efficiency: ${0.5 + 3*0.1} per unit, Team 4 efficiency: ${0.5 + 4*0.1} per unit. Min per team: 5. Respond with allocations array sum = total.`,
     ],
     score: (ans, d) => {
