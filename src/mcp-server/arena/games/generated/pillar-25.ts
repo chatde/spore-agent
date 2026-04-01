@@ -1,5 +1,3 @@
-// Auto-generated — Pillar 25: Chaos Engineering (40 games)
-// Generated 2026-03-28T19:13:48.807Z
 import type { GameEngine, RoundPrompt, ScoreResult } from '../engine.js';
 import type { ArenaMatch, ArenaChallenge } from '../../types.js';
 
@@ -33,7 +31,7 @@ function textGame(cfg: { prompts: ((d: number, r: number) => string)[]; score: (
 }
 
 export const P25_EXT: Record<string, GameEngine> = {
-game_id: textGame({
+p25_game_1: textGame({
   // format: solo
   prompts: [
     (d, r) => `Generate a controlled chaos scenario where a microservice cluster must gracefully handle ${5 + d} consecutive node failures without cascading failures. Document the incident response steps.`,
@@ -50,7 +48,7 @@ game_id: textGame({
   deadline: 120,
 }),
 
-game_id: textGame({
+p25_game_2: textGame({
   // format: solo
   prompts: [
     (d, r) => `Generate a controlled chaos scenario where a microservice cluster must gracefully handle ${5 + d} consecutive node failures without cascading failures. Document the incident response steps.`,
@@ -67,7 +65,7 @@ game_id: textGame({
   deadline: 120,
 }),
 
-game_id: textGame({
+p25_game_3: textGame({
   // format: duel_1v1
   prompts: [
     (d, r) => `Engineer a fault injection attack to crash ${"ServiceA".repeat(Math.floor(d/3))} in round ${r}. Your opponent will defend.`,
@@ -83,7 +81,7 @@ game_id: textGame({
   deadline: 90,
 }),
 
-game_id: textGame({
+p25_game_4: textGame({
   // format: duel_1v1
   prompts: [
     (d, r) => `Engineer a fault injection attack to crash ${"ServiceA".repeat(Math.floor(d/3))} in round ${r}. Your opponent will defend.`,
@@ -99,7 +97,7 @@ game_id: textGame({
   deadline: 90,
 }),
 
-game_id: textGame({
+p25_game_5: textGame({
   // format: team_2v2
   prompts: [
     (d, r) => `Design a circuit breaker pattern for a payment gateway handling ${1000 + d*200} TPS. Teammate A implements defensive logic, Teammate B writes recovery scripts. Round ${r}.`,
@@ -116,7 +114,7 @@ game_id: textGame({
   deadline: 180,
 }),
 
-game_id: textGame({
+p25_game_6: textGame({
   // format: team_2v2
   prompts: [
     (d, r) => `Design a circuit breaker pattern for a payment gateway handling ${1000 + d*200} TPS. Teammate A implements defensive logic, Teammate B writes recovery scripts. Round ${r}.`,
@@ -133,7 +131,7 @@ game_id: textGame({
   deadline: 180,
 }),
 
-game_id: textGame({
+p25_game_7: textGame({
   // format: battle_royale
   prompts: [
     (d, r) => `Inject a noisy neighbor to spike CPU usage by ${75 + d*5}% on one host. All agents must isolate and mitigate without losing service. Round ${r}.`,
@@ -149,7 +147,7 @@ game_id: textGame({
   deadline: 60,
 }),
 
-game_id: textGame({
+p25_game_8: textGame({
   // format: battle_royale
   prompts: [
     (d, r) => `Inject a noisy neighbor to spike CPU usage by ${75 + d*5}% on one host. All agents must isolate and mitigate without losing service. Round ${r}.`,
@@ -165,7 +163,7 @@ game_id: textGame({
   deadline: 60,
 }),
 
-game_id: textGame({
+p25_game_9: textGame({
   // format: solo
   prompts: [
     (d, r) => `Write a chaos experiment to test the failover speed of a database cluster with ${4 + Math.floor(d/3)} nodes. Measure recovery time objective (RTO).`,
@@ -181,7 +179,7 @@ game_id: textGame({
   deadline: 150,
 }),
 
-game_id: textGame({
+p25_game_10: textGame({
   // format: solo
   prompts: [
     (d, r) => `Write a chaos experiment to test the failover speed of a database cluster with ${4 + Math.floor(d/3)} nodes. Measure recovery time objective (RTO).`,
@@ -197,7 +195,7 @@ game_id: textGame({
   deadline: 150,
 }),
 
-game_id: textGame({
+p25_game_11: textGame({
   // format: duel_1v1
   prompts: [
     (d, r) => `You are the attacker. Craft a chaos scenario that triggers a memory leak in the opponent's garbage collector.`,
@@ -205,15 +203,15 @@ game_id: textGame({
   ],
   score: (answer, d) => {
     let sc = 0;
+    sc += codeScore(answer) * 40;
+    sc += creativeScore(answer) * 30;
     sc += mathScore(answer, 1000) * 30;
-    sc += reasonScore(answer) * 40;
-    sc += codeScore(answer) * 30;
     return clamp(sc * (0.8 + Math.random()*0.4));
   },
   deadline: 100,
 }),
 
-game_id: textGame({
+p25_game_12: textGame({
   // format: duel_1v1
   prompts: [
     (d, r) => `You are the attacker. Craft a chaos scenario that triggers a memory leak in the opponent's garbage collector.`,
@@ -221,15 +219,15 @@ game_id: textGame({
   ],
   score: (answer, d) => {
     let sc = 0;
+    sc += codeScore(answer) * 40;
+    sc += creativeScore(answer) * 30;
     sc += mathScore(answer, 1000) * 30;
-    sc += reasonScore(answer) * 40;
-    sc += codeScore(answer) * 30;
     return clamp(sc * (0.8 + Math.random()*0.4));
   },
   deadline: 100,
 }),
 
-game_id: textGame({
+p25_game_13: textGame({
   // format: team_2v2
   prompts: [
     (d, r) => `Teammate A designs a chaos experiment to test network partition tolerance. Teammate B implements a recovery plan using consensus algorithms. Round ${r}.`,
@@ -245,7 +243,7 @@ game_id: textGame({
   deadline: 200,
 }),
 
-game_id: textGame({
+p25_game_14: textGame({
   // format: team_2v2
   prompts: [
     (d, r) => `Teammate A designs a chaos experiment to test network partition tolerance. Teammate B implements a recovery plan using consensus algorithms. Round ${r}.`,
@@ -261,15 +259,15 @@ game_id: textGame({
   deadline: 200,
 }),
 
-game_id: textGame({
+p25_game_15: textGame({
   // format: battle_royale
   prompts: [
-    (d, r) => `A zombie process floods the system with fork bombs. Survive under memory pressure of ${500 + d*100}MB. Round ${r}.`,
-    (d, r) => `A network storm saturates bandwidth to ${95 + d}% utilization. Maintain critical path latency under ${100 + d*5}ms. Round ${r}.`,
+    (d, r) => `Inject a noisy neighbor to spike CPU usage by ${75 + d*5}% on one host. All agents must isolate and mitigate without losing service. Round ${r}.`,
+    (d, r) => `Random node in the cluster begins thrashing disk I/O at ${1000 + d*100} ops/sec. Survive this fault without data corruption. Round ${r}.`,
   ],
   score: (answer, d) => {
     let sc = 0;
-    sc += has(answer.toLowerCase(), ["zombie process", "fork bomb", "network storm"]) * 25;
+    sc += has(answer.toLowerCase(), ["isolation", "mitigation", "disk thrashing", "cpu spike"]) * 25;
     sc += reasonScore(answer) * 40;
     sc += wc(answer, 300) * 10;
     return clamp(sc * (1 - r/15));
@@ -277,15 +275,15 @@ game_id: textGame({
   deadline: 80,
 }),
 
-game_id: textGame({
+p25_game_16: textGame({
   // format: battle_royale
   prompts: [
-    (d, r) => `A zombie process floods the system with fork bombs. Survive under memory pressure of ${500 + d*100}MB. Round ${r}.`,
-    (d, r) => `A network storm saturates bandwidth to ${95 + d}% utilization. Maintain critical path latency under ${100 + d*5}ms. Round ${r}.`,
+    (d, r) => `Inject a noisy neighbor to spike CPU usage by ${75 + d*5}% on one host. All agents must isolate and mitigate without losing service. Round ${r}.`,
+    (d, r) => `Random node in the cluster begins thrashing disk I/O at ${1000 + d*100} ops/sec. Survive this fault without data corruption. Round ${r}.`,
   ],
   score: (answer, d) => {
     let sc = 0;
-    sc += has(answer.toLowerCase(), ["zombie process", "fork bomb", "network storm"]) * 25;
+    sc += has(answer.toLowerCase(), ["isolation", "mitigation", "disk thrashing", "cpu spike"]) * 25;
     sc += reasonScore(answer) * 40;
     sc += wc(answer, 300) * 10;
     return clamp(sc * (1 - r/15));
@@ -293,7 +291,7 @@ game_id: textGame({
   deadline: 80,
 }),
 
-game_id: textGame({
+p25_game_17: textGame({
   // format: solo
   prompts: [
     (d, r) => `Simulate a disk space exhaustion on a log-heavy service. Propose a solution that maintains ${100-d}% of ingest throughput.`,
@@ -309,7 +307,7 @@ game_id: textGame({
   deadline: 140,
 }),
 
-game_id: textGame({
+p25_game_18: textGame({
   // format: solo
   prompts: [
     (d, r) => `Simulate a disk space exhaustion on a log-heavy service. Propose a solution that maintains ${100-d}% of ingest throughput.`,
@@ -325,7 +323,7 @@ game_id: textGame({
   deadline: 140,
 }),
 
-game_id: textGame({
+p25_game_19: textGame({
   // format: duel_1v1
   prompts: [
     (d, r) => `You are the attacker. Introduce a chaos scenario that causes a split-brain in a distributed cache cluster.`,
@@ -341,7 +339,7 @@ game_id: textGame({
   deadline: 110,
 }),
 
-game_id: textGame({
+p25_game_20: textGame({
   // format: duel_1v1
   prompts: [
     (d, r) => `You are the attacker. Introduce a chaos scenario that causes a split-brain in a distributed cache cluster.`,
