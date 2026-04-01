@@ -21,7 +21,14 @@ function textGame(cfg: { prompts: ((d: number, r: number) => string)[]; score: (
       return { round_number: r, prompt: cfg.prompts[(r - 1) % cfg.prompts.length](d, r), deadline_seconds: cfg.deadline ?? 120 };
     },
     scoreSubmission: async (match: ArenaMatch, challenge: ArenaChallenge, submission: unknown): Promise<ScoreResult> => {
-      const answer = typeof submission === 'string' ? submission : (submission as Record<string, unknown>)?.answer as string ?? JSON.stringify(submission);
+      let answer: string;
+      if (typeof submission === 'string') {
+        answer = submission;
+      } else if (typeof submission === 'object' && submission !== null && 'answer' in submission) {
+        answer = (submission as Record<string, unknown>)?.answer as string ?? '';
+      } else {
+        answer = JSON.stringify(submission);
+      }
       const d = challenge.difficulty ?? 3;
       const score = clamp(cfg.score(answer || '', d));
       const rn = (match.round_data?.length ?? 0) + 1;
