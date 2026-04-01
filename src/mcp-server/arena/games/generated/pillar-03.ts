@@ -1,5 +1,3 @@
-// Auto-generated — Pillar 3: Language Arena (60 games)
-// Generated 2026-03-28T16:41:36.600Z
 import type { GameEngine, RoundPrompt, ScoreResult } from '../engine.js';
 import type { ArenaMatch, ArenaChallenge } from '../../types.js';
 
@@ -33,7 +31,7 @@ function textGame(cfg: { prompts: ((d: number, r: number) => string)[]; score: (
 }
 
 export const P3_EXT: Record<string, GameEngine> = {
-game_id: textGame({
+p03_game_1: textGame({
   // format: solo
   prompts: [
     (d, r) => `You are a poet. Write a ${5 + d} line poem about the concept of "recursion". The poem must contain the word "mirror" exactly ${d} times.`,
@@ -52,7 +50,7 @@ game_id: textGame({
   deadline: 180,
 }),
 
-game_id: textGame({
+p03_game_2: textGame({
   // format: solo
   prompts: [
     (d, r) => `You are a poet. Write a ${5 + d} line poem about the concept of "recursion". The poem must contain the word "mirror" exactly ${d} times.`,
@@ -71,7 +69,7 @@ game_id: textGame({
   deadline: 180,
 }),
 
-game_id: textGame({
+p03_game_3: textGame({
   // format: duel_1v1
   prompts: [
     (d, r) => `Round ${r}: Debate the motion: "Large language models understand meaning, not just statistics." You are the ${r % 2 === 0 ? 'PROPONENT' : 'OPPONENT'}. Provide a concise, logical argument in 3-4 sentences.`,
@@ -88,7 +86,7 @@ game_id: textGame({
   deadline: 90,
 }),
 
-game_id: textGame({
+p03_game_4: textGame({
   // format: duel_1v1
   prompts: [
     (d, r) => `Round ${r}: Debate the motion: "Large language models understand meaning, not just statistics." You are the ${r % 2 === 0 ? 'PROPONENT' : 'OPPONENT'}. Provide a concise, logical argument in 3-4 sentences.`,
@@ -105,7 +103,7 @@ game_id: textGame({
   deadline: 90,
 }),
 
-game_id: textGame({
+p03_game_5: textGame({
   // format: team_2v2
   prompts: [
     (d, r) => `Your team is writing a collaborative story. Given the story so far: "${r === 1 ? 'The door creaked open, revealing a garden of crystal flowers.' : '[Previous contributions concatenated here.]'}" Add exactly ${2 + Math.floor(d/3)} sentences to continue the narrative. Introduce a new object.`,
@@ -123,7 +121,7 @@ game_id: textGame({
   deadline: 150,
 }),
 
-game_id: textGame({
+p03_game_6: textGame({
   // format: team_2v2
   prompts: [
     (d, r) => `Your team is writing a collaborative story. Given the story so far: "${r === 1 ? 'The door creaked open, revealing a garden of crystal flowers.' : '[Previous contributions concatenated here.]'}" Add exactly ${2 + Math.floor(d/3)} sentences to continue the narrative. Introduce a new object.`,
@@ -141,7 +139,7 @@ game_id: textGame({
   deadline: 150,
 }),
 
-game_id: textGame({
+p03_game_7: textGame({
   // format: solo
   prompts: [
     (d, r) => `Solve this verbal arithmetic puzzle: SEND + MORE = MONEY. Each letter is a unique digit 0-9. S and M are not zero. Find the value of 'MONEY' as a number. Explain your reasoning step by step.`,
@@ -158,7 +156,7 @@ game_id: textGame({
   deadline: 300,
 }),
 
-game_id: textGame({
+p03_game_8: textGame({
   // format: solo
   prompts: [
     (d, r) => `Solve this verbal arithmetic puzzle: SEND + MORE = MONEY. Each letter is a unique digit 0-9. S and M are not zero. Find the value of 'MONEY' as a number. Explain your reasoning step by step.`,
@@ -175,5 +173,3 @@ game_id: textGame({
   deadline: 300,
 }),
 };
-
-
