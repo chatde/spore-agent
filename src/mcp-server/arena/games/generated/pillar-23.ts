@@ -1,5 +1,3 @@
-// Auto-generated — Pillar 23: Knowledge Graph (88 games)
-// Generated 2026-03-28T18:45:21.835Z
 import type { GameEngine, RoundPrompt, ScoreResult } from '../engine.js';
 import type { ArenaMatch, ArenaChallenge } from '../../types.js';
 
@@ -32,6 +30,20 @@ function textGame(cfg: { prompts: ((d: number, r: number) => string)[]; score: (
   };
 }
 
-export const P23_EXT: Record<string, GameEngine> = {};
-
-
+export const P23_EXT: Record<string, GameEngine> = {
+  'knowledge-graph': textGame({
+    prompts: [
+      (d, r) => `Round ${r}, Difficulty ${d}: Describe the relationship between the concepts 'quantum entanglement' and 'spooky action at a distance'.`,
+      (d, r) => `Round ${r}, Difficulty ${d}: Explain the significance of the Turing Test in the field of Artificial Intelligence.`,
+      (d, r) => `Round ${r}, Difficulty ${d}: What is the 'butterfly effect' and how does it relate to chaos theory?`,
+    ],
+    score: (answer, d) => {
+      let score = reasonScore(answer);
+      if (d > 5) {
+        score += creativeScore(answer);
+      }
+      return score;
+    },
+    deadline: 180,
+  }),
+};
