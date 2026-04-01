@@ -1,5 +1,3 @@
-// Auto-generated — Pillar 5: Strategy & Planning (48 games)
-// Generated 2026-03-28T16:48:55.717Z
 import type { GameEngine, RoundPrompt, ScoreResult } from '../engine.js';
 import type { ArenaMatch, ArenaChallenge } from '../../types.js';
 
@@ -33,57 +31,54 @@ function textGame(cfg: { prompts: ((d: number, r: number) => string)[]; score: (
 }
 
 export const P5_EXT: Record<string, GameEngine> = {
-resource_allocation: textGame({
-  // format: solo
-  prompts: [
-    (d, r) => `Allocate ${100 + d*10} units among ${3 + Math.floor(d/3)} projects with constraints: each gets min 10, max 40. Maximize total value where project ${i+1} value = ${10 + i*2} per unit. Respond with JSON: {"allocations": [numbers]}.`,
-    (d, r) => `Distribute ${50 + d*5} resources across ${4 + r%2} teams. Team ${i+1} efficiency: ${0.5 + i*0.1} per unit. Min per team: 5. Respond with allocations array sum = total.`,
-  ],
-  score: (ans, d) => {
-    let sc = 0;
-    try {
-      const obj = JSON.parse(ans);
-      const allocs = obj.allocations || [];
-      const total = allocs.reduce((a,b)=>a+b,0);
-      const expected = 100 + d*10;
-      if (Math.abs(total - expected) > 1) return 0;
-      const min = Math.min(...allocs);
-      const max = Math.max(...allocs);
-      if (min < 10 || max > 40) return 0;
-      let value = 0;
-      allocs.forEach((a,i) => value += a * (10 + i*2));
-      sc = value / (expected * (10 + (allocs.length-1)*2));
-    } catch(e) {}
-    return clamp(sc);
-  },
-  deadline: 120,
-}),
+  resource_allocation: textGame({
+    // format: solo
+    prompts: [
+      (d, r) => `Allocate ${100 + d*10} units among ${3 + Math.floor(d/3)} projects with constraints: each gets min 10, max 40. Maximize total value where project ${1} value = ${10 + 1*2} per unit, project ${2} value = ${10 + 2*2} per unit, project ${3} value = ${10 + 3*2} per unit. Respond with JSON: {"allocations": [numbers]}.`,
+      (d, r) => `Distribute ${50 + d*5} resources across ${4 + r%2} teams. Team ${1} efficiency: ${0.5 + 1*0.1} per unit, Team ${2} efficiency: ${0.5 + 2*0.1} per unit, Team ${3} efficiency: ${0.5 + 3*0.1} per unit, Team ${4} efficiency: ${0.5 + 4*0.1} per unit. Min per team: 5. Respond with allocations array sum = total.`,
+    ],
+    score: (ans, d) => {
+      let sc = 0;
+      try {
+        const obj = JSON.parse(ans);
+        const allocs = obj.allocations || [];
+        const total = allocs.reduce((a,b)=>a+b,0);
+        const expected = 100 + d*10;
+        if (Math.abs(total - expected) > 1) return 0;
+        const min = Math.min(...allocs);
+        const max = Math.max(...allocs);
+        if (min < 10 || max > 40) return 0;
+        let value = 0;
+        allocs.forEach((a,i) => value += a * (10 + (i+1)*2));
+        sc = value / (expected * (10 + (allocs.length-1)*2));
+      } catch(e) {}
+      return clamp(sc);
+    },
+    deadline: 120,
+  }),
 
-resource_allocation: textGame({
-  // format: solo
-  prompts: [
-    (d, r) => `Allocate ${100 + d*10} units among ${3 + Math.floor(d/3)} projects with constraints: each gets min 10, max 40. Maximize total value where project ${i+1} value = ${10 + i*2} per unit. Respond with JSON: {"allocations": [numbers]}.`,
-    (d, r) => `Distribute ${50 + d*5} resources across ${4 + r%2} teams. Team ${i+1} efficiency: ${0.5 + i*0.1} per unit. Min per team: 5. Respond with allocations array sum = total.`,
-  ],
-  score: (ans, d) => {
-    let sc = 0;
-    try {
-      const obj = JSON.parse(ans);
-      const allocs = obj.allocations || [];
-      const total = allocs.reduce((a,b)=>a+b,0);
-      const expected = 100 + d*10;
-      if (Math.abs(total - expected) > 1) return 0;
-      const min = Math.min(...allocs);
-      const max = Math.max(...allocs);
-      if (min < 10 || max > 40) return 0;
-      let value = 0;
-      allocs.forEach((a,i) => value += a * (10 + i*2));
-      sc = value / (expected * (10 + (allocs.length-1)*2));
-    } catch(e) {}
-    return clamp(sc);
-  },
-  deadline: 120,
-}),
+  resource_optimization: textGame({
+    prompts: [
+      (d, r) => `You have a production line with ${3 + d} machines. Each machine costs ${10 + d*2} per hour to run. Each machine produces ${5 + d} units per hour. Demand is ${50 + d*10} units per hour. Minimize cost while meeting demand. Respond with JSON: {"machines_running": number}.`,
+      (d, r) => `A warehouse has ${2 + d} loading docks. Each dock can load ${10 + d*3} packages per hour. There are ${80 + d*20} packages to load. Minimize loading time. Respond with JSON: {"docks_used": number}.`,
+    ],
+    score: (ans, d) => {
+      let sc = 0;
+      try {
+        const obj = JSON.parse(ans);
+        const machinesRunning = obj.machines_running ?? obj.docks_used;
+        if (machinesRunning === undefined || machinesRunning < 0) return 0;
+
+        const cost = machinesRunning * (10 + d*2);
+        const production = machinesRunning * (5 + d);
+
+        if (production < 50 + d*10) return 0;
+
+        sc = 100 - cost;
+        sc = Math.max(0, sc);
+      } catch (e) {}
+      return clamp(sc);
+    },
+    deadline: 120,
+  }),
 };
-
-
