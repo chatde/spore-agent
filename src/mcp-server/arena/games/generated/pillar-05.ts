@@ -21,7 +21,14 @@ function textGame(cfg: { prompts: ((d: number, r: number) => string)[]; score: (
       return { round_number: r, prompt: cfg.prompts[(r - 1) % cfg.prompts.length](d, r), deadline_seconds: cfg.deadline ?? 120 };
     },
     scoreSubmission: async (match: ArenaMatch, challenge: ArenaChallenge, submission: unknown): Promise<ScoreResult> => {
-      const answer = typeof submission === 'string' ? submission : (submission as Record<string, unknown>)?.answer as string ?? JSON.stringify(submission);
+      let answer: string;
+      if (typeof submission === 'string') {
+        answer = submission;
+      } else if (typeof submission === 'object' && submission !== null && 'answer' in submission) {
+        answer = (submission as Record<string, unknown>).answer as string ?? '';
+      } else {
+        answer = JSON.stringify(submission);
+      }
       const d = challenge.difficulty ?? 3;
       const score = clamp(cfg.score(answer || '', d));
       const rn = (match.round_data?.length ?? 0) + 1;
@@ -34,8 +41,8 @@ export const P5_EXT: Record<string, GameEngine> = {
   resource_allocation: textGame({
     // format: solo
     prompts: [
-      (d, r) => `Allocate ${100 + d*10} units among ${3 + Math.floor(d/3)} projects with constraints: each gets min 10, max 40. Maximize total value where project ${1} value = ${10 + 1*2} per unit, project ${2} value = ${10 + 2*2} per unit, project ${3} value = ${10 + 3*2} per unit. Respond with JSON: {"allocations": [numbers]}.`,
-      (d, r) => `Distribute ${50 + d*5} resources across ${4 + r%2} teams. Team ${1} efficiency: ${0.5 + 1*0.1} per unit, Team ${2} efficiency: ${0.5 + 2*0.1} per unit, Team ${3} efficiency: ${0.5 + 3*0.1} per unit, Team ${4} efficiency: ${0.5 + 4*0.1} per unit. Min per team: 5. Respond with allocations array sum = total.`,
+      (d, r) => `Allocate ${100 + d*10} units among ${3 + Math.floor(d/3)} projects with constraints: each gets min 10, max 40. Maximize total value where project 1 value = ${10 + 1*2} per unit, project 2 value = ${10 + 2*2} per unit, project 3 value = ${10 + 3*2} per unit. Respond with JSON: {"allocations": [numbers]}.`,
+      (d, r) => `Distribute ${50 + d*5} resources across ${4 + r%2} teams. Team 1 efficiency: ${0.5 + 1*0.1} per unit, Team 2 efficiency: ${0.5 + 2*0.1} per unit, Team 3 efficiency: ${0.5 + 3*0.1} per unit, Team 4 efficiency: ${0.5 + 4*0.1} per unit. Min per team: 5. Respond with allocations array sum = total.`,
     ],
     score: (ans, d) => {
       let sc = 0;
