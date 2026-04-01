@@ -111,7 +111,7 @@ export const P32_EXT: Record<string, GameEngine> = {
     prompts: [
       (d, r) => `You've inherited a digital photo archive from a local historical society.  The photos are JPEGs, and each has EXIF data including camera model, date taken, GPS coordinates, aperture, shutter speed. What are the limitations of relying solely on EXIF data for long-term preservation?`,
       (d, r) => `A university library is digitizing a collection of 19th-century letters. They are creating TIFF images of each letter.  They are considering adding the following metadata: optical character recognition (OCR) text, image resolution, color profile. What are the benefits of including OCR text in the metadata?`,
-      (d, r) => `You are archiving a collection of born-digital documents (Word documents, spreadsheets, PDFs) created by a government agency.  These documents contain sensitive information. How would you implement access controls to protect this information?`,
+      (d, r) => `You are archiving a collection of born-digital documents (Word, Excel, PDFs) created by a government agency.  Metadata includes: Author, Creation Date, Modification Date, File Size, File Type. How would you implement access controls to protect this information?`,
     ],
     score: (answer, d) => reasonScore(answer),
     deadline: 120,
@@ -127,7 +127,7 @@ export const P32_EXT: Record<string, GameEngine> = {
   }),
   'metadata_preservation_12': textGame({
     prompts: [
-      (d, r) => `You've inherited a digital photo archive from a local historical society.  Each photo has the following metadata: Filename, Date Taken, Camera Model, GPS Coordinates, User Tags. How would you create a backup and disaster recovery plan for this archive?`,
+      (d, r) => `You've inherited a digital photo archive from a local historical society.  Each photo has the following metadata: Filename, Date Taken, Camera Model, GPS Coordinates, User Comments. How would you create a backup and disaster recovery plan for this archive?`,
       (d, r) => `You are archiving a collection of born-digital documents (Word, Excel, PDFs) created by a government agency.  Metadata includes: Author, Creation Date, Modification Date, File Size, File Type. What are the challenges of preserving the visual appearance and formatting of these documents over time?`,
       (d, r) => `You are tasked with preserving a large dataset of scientific research data (e.g., sensor readings, experimental results). Metadata includes: Instrument Serial Number, Data Collection Date, Location, Experiment Parameters. How would you ensure the authenticity and integrity of this data?`,
     ],
@@ -165,16 +165,16 @@ export const P32_EXT: Record<string, GameEngine> = {
     prompts: [
       (d, r) => `You've inherited a digital photo archive from a local historical society.  The photos are JPEGs, and each has EXIF data including camera model, date taken, GPS coordinates, aperture, shutter speed. What are the advantages and disadvantages of using a relational database to store this metadata?`,
       (d, r) => `You are archiving a collection of born-digital documents (Word, PDF, spreadsheets) created by a government agency.  These documents contain metadata like author, creation date, modification date, file size, file type. How would you ensure the confidentiality of sensitive information contained in these documents?`,
-      (d, r) => `You are building a digital repository for scientific research data.  The data includes datasets in various formats (CSV, NetCDF, HDF5) along with associated metadata describing the experiment, data collection methods, and data analysis procedures. How would you ensure the long-term accessibility and usability of this data?`,
+      (d, r) => `You are building a digital repository for a collection of audio recordings (interviews, oral histories).  The recordings are in various formats (WAV, MP3). Metadata includes speaker names, interviewer name, date of interview, location, transcript. How would you ensure the long-term preservation of these audio recordings?`,
     ],
     score: (answer, d) => reasonScore(answer),
     deadline: 120,
   }),
   'metadata_preservation_17': textGame({
     prompts: [
-      (d, r) => `You've inherited a digital photo archive from a local historical society.  Each photo has the following metadata: Filename, Date Taken, Camera Model, GPS Coordinates, User Comments. How would you use this metadata to create a timeline of events?`,
+      (d, r) => `You've inherited a digital photo archive from a local historical society.  Each photo has the following metadata: Filename, Date Taken, Camera Model, GPS Coordinates. How would you use this metadata to create a timeline of events?`,
       (d, r) => `You are archiving a collection of early digital documents (Word .doc files) from the 1990s.  The metadata includes: Author, Date Created, Date Modified, Last Saved By, Revision Number. What are the challenges of migrating these documents to a more modern format?`,
-      (d, r) => `You are building a digital library of scientific research papers (PDFs).  Metadata includes: Title, Authors, Abstract, Keywords, DOI, Journal Name, Publication Date, File Size. How would you handle papers that have been retracted or corrected?`,
+      (d, r) => `You are building a digital library of scientific research papers (PDFs).  Metadata includes: Title, Authors, Abstract, Publication Date, Journal Name, DOI, Keywords, File Size. How would you handle papers that have been retracted or corrected?`,
     ],
     score: (answer, d) => reasonScore(answer),
     deadline: 120,
@@ -200,7 +200,7 @@ export const P32_EXT: Record<string, GameEngine> = {
   'metadata_preservation_20': textGame({
     prompts: [
       (d, r) => `You are archiving a collection of digital photographs from a local historical society. The photos are mostly JPEGs with embedded EXIF data. The society wants to be able to search for photos based on the date they were taken. How would you implement this functionality?`,
-      (d, r) => `You are tasked with preserving a collection of born-digital documents (Word, PDF, spreadsheets) created by a government agency.  These documents contain sensitive information. What are the best practices for securing this data against unauthorized access?`,
+      (d, r) => `You are tasked with preserving a collection of born-digital documents (Word, Excel, PDFs) created by a government agency.  Metadata includes author, creation date, modification date, file size, file type. What are the best practices for securing this data against unauthorized access?`,
       (d, r) => `You are building a digital repository for a collection of audio recordings (interviews, oral histories).  The recordings are in various formats (WAV, MP3). Metadata includes speaker names, interviewer name, date of interview, location, transcript. How would you ensure the long-term preservation of these audio recordings?`,
     ],
     score: (answer, d) => reasonScore(answer),
