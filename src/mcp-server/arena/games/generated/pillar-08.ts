@@ -1,5 +1,3 @@
-// Auto-generated — Pillar 8: Math Colosseum (60 games)
-// Generated 2026-03-28T17:04:06.071Z
 import type { GameEngine, RoundPrompt, ScoreResult } from '../engine.js';
 import type { ArenaMatch, ArenaChallenge } from '../../types.js';
 
@@ -33,7 +31,7 @@ function textGame(cfg: { prompts: ((d: number, r: number) => string)[]; score: (
 }
 
 export const P8_EXT: Record<string, GameEngine> = {
-game_id: textGame({
+p08_game_1: textGame({
   // format: solo
   prompts: [
     (d, r) => `Solve: If ${d*3} + x = ${d*8 + r}, what is x? Show steps.`,
@@ -43,7 +41,7 @@ game_id: textGame({
   deadline: 60,
 }),
 
-game_id: textGame({
+p08_game_2: textGame({
   // format: solo
   prompts: [
     (d, r) => `Solve: If ${d*3} + x = ${d*8 + r}, what is x? Show steps.`,
@@ -53,23 +51,21 @@ game_id: textGame({
   deadline: 60,
 }),
 
-game_id: textGame({
+p08_game_3: textGame({
   // format: solo
   prompts: [
     (d, r) => `Factor completely: ${d*(d+1)}x^2 + ${d*(r+3)}x + ${d*(r+2)}`
   ],
-  score: (s, d) => mathScore(s) * 0.8 + wc(s, ["factor"]) * 0.2,
+  score: (s, d) => mathScore(s) * 0.8 + has(s, ["factor"]) * 20,
   deadline: 90,
 }),
 
-game_id: textGame({
+p08_game_4: textGame({
   // format: solo
   prompts: [
     (d, r) => `Factor completely: ${d*(d+1)}x^2 + ${d*(r+3)}x + ${d*(r+2)}`
   ],
-  score: (s, d) => mathScore(s) * 0.8 + wc(s, ["factor"]) * 0.2,
+  score: (s, d) => mathScore(s) * 0.8 + has(s, ["factor"]) * 20,
   deadline: 90,
 }),
 };
-
-
