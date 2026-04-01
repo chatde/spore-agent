@@ -9,7 +9,7 @@ function clamp(n: number): number { return Math.max(0, Math.min(100, Math.round(
 function codeScore(s: string): number { let sc = 0; if (s.includes('function') || s.includes('=>')) sc += 20; if (s.includes('return')) sc += 15; if (s.includes('{')) sc += 10; if (s.length > 20) sc += 15; if (s.length > 100) sc += 10; return clamp(sc + rand(5, 20)); }
 function reasonScore(s: string): number { const m = ['therefore','because','since','thus','hence','if','then','given','conclude','follows','implies']; let sc = has(s, m) * 7; if (wc(s) > 30) sc += 15; if (wc(s) > 80) sc += 10; return clamp(sc + rand(5, 20)); }
 function creativeScore(s: string): number { const u = new Set(s.toLowerCase().split(/\s+/)); let sc = Math.min(40, u.size); if (wc(s) > 20) sc += 15; return clamp(sc + rand(5, 20)); }
-function precisionScore(s: string, ideal: number): number { const len = wc(s); if (len === 0) return 0; return clamp(100 - Math.abs(len - ideal) * 3); }
+function precisionScore(s: string, ideal: string): number { const len = wc(s); if (len === 0) return 0; const idealNum = parseFloat(ideal); if (isNaN(idealNum)) return 0; return clamp(100 - Math.abs(len - idealNum) * 3); }
 function mathScore(s: string): number { let sc = 0; if (/\d/.test(s)) sc += 20; if (s.includes('=') || s.includes('+')) sc += 15; if (has(s, ['therefore','thus','equals','answer','result','solution']) > 0) sc += 15; if (wc(s) > 10) sc += 15; return clamp(sc + rand(10, 25)); }
 
 function textGame(cfg: { prompts: ((d: number, r: number) => string)[]; score: (answer: string, d: number) => number; deadline?: number; }): GameEngine {
@@ -38,8 +38,8 @@ p24_game_1: textGame({
     (d, r) => `Round ${r}: Another bid just appeared at $${1200 + d*150 + d*50}. Re-evaluate and bid.`
   ],
   score: (answer, d) => {
-    let sc = mathScore(answer, Math.abs(2000 + d*300 - (1200 + d*150)), 100, 500) * 0.6;
-    sc += reasonScore(answer, ["valuation", "bid", "strategy"], 0.4);
+    let sc = mathScore(answer) * 0.6;
+    sc += reasonScore(answer) * 0.4;
     return clamp(sc);
   },
   deadline: 90,
@@ -52,8 +52,8 @@ p24_game_2: textGame({
     (d, r) => `Round ${r}: Another bid just appeared at $${1200 + d*150 + d*50}. Re-evaluate and bid.`
   ],
   score: (answer, d) => {
-    let sc = mathScore(answer, Math.abs(2000 + d*300 - (1200 + d*150)), 100, 500) * 0.6;
-    sc += reasonScore(answer, ["valuation", "bid", "strategy"], 0.4);
+    let sc = mathScore(answer) * 0.6;
+    sc += reasonScore(answer) * 0.4;
     return clamp(sc);
   },
   deadline: 90,
@@ -66,7 +66,7 @@ p24_game_3: textGame({
     (d, r) => `Volatility surge! Price spiked $${d*10} in 5 minutes. Widen spread.`
   ],
   score: (answer, d) => {
-    let sc = precisionScore(answer, `${d*2}%`, 0.5);
+    let sc = precisionScore(answer, `${d*2}%`);
     sc += has(answer, ["bid", "ask", "spread"]) * 50;
     return clamp(sc);
   },
@@ -80,7 +80,7 @@ p24_game_4: textGame({
     (d, r) => `Volatility surge! Price spiked $${d*10} in 5 minutes. Widen spread.`
   ],
   score: (answer, d) => {
-    let sc = precisionScore(answer, `${d*2}%`, 0.5);
+    let sc = precisionScore(answer, `${d*2}%`);
     sc += has(answer, ["bid", "ask", "spread"]) * 50;
     return clamp(sc);
   },
@@ -94,8 +94,8 @@ p24_game_5: textGame({
     (d, r) => `Market crash: crypto risk increased ${d*5}%. Reallocate.`
   ],
   score: (answer, d) => {
-    let sc = mathScore(answer, 0, 1, 0.05) * 0.5;
-    sc += codeScore(answer, "portfolio", 0.5);
+    let sc = mathScore(answer) * 0.5;
+    sc += codeScore(answer) * 0.5;
     return clamp(sc);
   },
   deadline: 120,
@@ -108,8 +108,8 @@ p24_game_6: textGame({
     (d, r) => `Market crash: crypto risk increased ${d*5}%. Reallocate.`
   ],
   score: (answer, d) => {
-    let sc = mathScore(answer, 0, 1, 0.05) * 0.5;
-    sc += codeScore(answer, "portfolio", 0.5);
+    let sc = mathScore(answer) * 0.5;
+    sc += codeScore(answer) * 0.5;
     return clamp(sc);
   },
   deadline: 120,
@@ -124,7 +124,7 @@ p24_game_7: textGame({
   score: (answer, d) => {
     let sc = wc(answer.split(',').filter(x => x.trim())) * 33.33; // Expect 3 items
     sc += has(answer, ["bid", "item", "budget"]) * 33.33;
-    sc += creativeScore(answer, "blind auction strategy") * 33.34;
+    sc += creativeScore(answer) * 33.34;
     return clamp(sc);
   },
   deadline: 45,
@@ -139,7 +139,7 @@ p24_game_8: textGame({
   score: (answer, d) => {
     let sc = wc(answer.split(',').filter(x => x.trim())) * 33.33; // Expect 3 items
     sc += has(answer, ["bid", "item", "budget"]) * 33.33;
-    sc += creativeScore(answer, "blind auction strategy") * 33.34;
+    sc += creativeScore(answer) * 33.34;
     return clamp(sc);
   },
   deadline: 45,
@@ -153,8 +153,8 @@ p24_game_9: textGame({
   ],
   score: (answer, d) => {
     let ideal = 250 * (1 + (d>5?0.3:-0.2));
-    let sc = precisionScore(answer, ideal.toString(), 0.6);
-    sc += reasonScore(answer, ["sentiment", "trend", "profit margin"], 0.4);
+    let sc = precisionScore(answer, ideal.toString()) * 0.6;
+    sc += reasonScore(answer) * 0.4;
     return clamp(sc);
   },
   deadline: 60,
@@ -168,8 +168,8 @@ p24_game_10: textGame({
   ],
   score: (answer, d) => {
     let ideal = 250 * (1 + (d>5?0.3:-0.2));
-    let sc = precisionScore(answer, ideal.toString(), 0.6);
-    sc += reasonScore(answer, ["sentiment", "trend", "profit margin"], 0.4);
+    let sc = precisionScore(answer, ideal.toString()) * 0.6;
+    sc += reasonScore(answer) * 0.4;
     return clamp(sc);
   },
   deadline: 60,
@@ -182,8 +182,8 @@ p24_game_11: textGame({
     (d, r) => `Opponent bid $${1200 + d*100}. Your turn.`
   ],
   score: (answer, d) => {
-    let sc = reasonScore(answer, ["opponent behavior", "increment", "psychology"], 0.7);
-    sc += mathScore(answer, 0, 1, 100) * 0.3;
+    let sc = reasonScore(answer) * 0.7;
+    sc += mathScore(answer) * 0.3;
     return clamp(sc);
   },
   deadline: 30,
@@ -196,8 +196,8 @@ p24_game_12: textGame({
     (d, r) => `Opponent bid $${1200 + d*100}. Your turn.`
   ],
   score: (answer, d) => {
-    let sc = reasonScore(answer, ["opponent behavior", "increment", "psychology"], 0.7);
-    sc += mathScore(answer, 0, 1, 100) * 0.3;
+    let sc = reasonScore(answer) * 0.7;
+    sc += mathScore(answer) * 0.3;
     return clamp(sc);
   },
   deadline: 30,
@@ -212,7 +212,7 @@ p24_game_13: textGame({
   score: (answer, d) => {
     let sc = wc(answer.split(',').filter(x => x.trim())) * 25; // 4 items expected
     sc += has(answer, ["bid", "NFT", "floor"]) * 25;
-    sc += precisionScore(answer, (30*d).toString(), 0.5) * 50;
+    sc += precisionScore(answer, (30*d).toString()) * 50;
     return clamp(sc);
   },
   deadline: 90,
@@ -227,7 +227,7 @@ p24_game_14: textGame({
   score: (answer, d) => {
     let sc = wc(answer.split(',').filter(x => x.trim())) * 25; // 4 items expected
     sc += has(answer, ["bid", "NFT", "floor"]) * 25;
-    sc += precisionScore(answer, (30*d).toString(), 0.5) * 50;
+    sc += precisionScore(answer, (30*d).toString()) * 50;
     return clamp(sc);
   },
   deadline: 90,
@@ -240,8 +240,8 @@ p24_game_15: textGame({
     (d, r) => `Inflation rises ${d}%. Shift to inflation-protected assets.`
   ],
   score: (answer, d) => {
-    let sc = mathScore(answer, 0, 1, 0.05) * 0.6;
-    sc += codeScore(answer, "correlation", 0.4);
+    let sc = mathScore(answer) * 0.6;
+    sc += codeScore(answer) * 0.4;
     return clamp(sc);
   },
   deadline: 120,
@@ -254,8 +254,8 @@ p24_game_16: textGame({
     (d, r) => `Inflation rises ${d}%. Shift to inflation-protected assets.`
   ],
   score: (answer, d) => {
-    let sc = mathScore(answer, 0, 1, 0.05) * 0.6;
-    sc += codeScore(answer, "correlation", 0.4);
+    let sc = mathScore(answer) * 0.6;
+    sc += codeScore(answer) * 0.4;
     return clamp(sc);
   },
   deadline: 120,
@@ -269,8 +269,8 @@ p24_game_17: textGame({
   ],
   score: (answer, d) => {
     let ideal = (d/10) * d*1000;
-    let sc = precisionScore(answer, ideal.toString(), 0.7);
-    sc += reasonScore(answer, ["default probability", "credit risk"], 0.3);
+    let sc = precisionScore(answer, ideal.toString()) * 0.7;
+    sc += reasonScore(answer) * 0.3;
     return clamp(sc);
   },
   deadline: 45,
@@ -284,8 +284,8 @@ p24_game_18: textGame({
   ],
   score: (answer, d) => {
     let ideal = (d/10) * d*1000;
-    let sc = precisionScore(answer, ideal.toString(), 0.7);
-    sc += reasonScore(answer, ["default probability", "credit risk"], 0.3);
+    let sc = precisionScore(answer, ideal.toString()) * 0.7;
+    sc += reasonScore(answer) * 0.3;
     return clamp(sc);
   },
   deadline: 45,
@@ -298,7 +298,7 @@ p24_game_19: textGame({
     (d, r) => `Short squeeze! Price jumped ${d*5}%. Aggressively widen spread.`
   ],
   score: (answer, d) => {
-    let sc = precisionScore(answer, `${d/2}%`, 0.5);
+    let sc = precisionScore(answer, `${d/2}%`) * 0.5;
     sc += has(answer, ["ask", "bid", "volatility"]) * 50;
     return clamp(sc);
   },
