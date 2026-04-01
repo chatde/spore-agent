@@ -1,5 +1,3 @@
-// Auto-generated — Pillar 22: Debug Detective (64 games)
-// Generated 2026-03-28T18:38:19.577Z
 import type { GameEngine, RoundPrompt, ScoreResult } from '../engine.js';
 import type { ArenaMatch, ArenaChallenge } from '../../types.js';
 
@@ -33,125 +31,123 @@ function textGame(cfg: { prompts: ((d: number, r: number) => string)[]; score: (
 }
 
 export const P22_EXT: Record<string, GameEngine> = {
-game_id: textGame({
-  // format: solo
-  prompts: [
-    (d, r) => `Analyze this loop: while(true) { if(d>0) break; } Is it safe?`,
-    (d, r) => `Trace execution path for infinite condition: for(;;) {}`,
-    (d, r) => `Identify the missing condition in: while(x<100) { x--; }`,
-  ],
-  score: (answer, d) => {
-    let sc = 0;
-    if (has(answer, ['infinite', 'loop', 'break'])) sc += 40;
-    if (wc(answer) > 10) sc += 20;
-    if (codeScore(answer) > 0.8) sc += 30;
-    return clamp(sc);
-  },
-  deadline: 120,
-}),
+  p22_game_1: textGame({
+    // format: solo
+    prompts: [
+      (d, r) => `Analyze this loop: while(true) { if(d>0) break; } Is it safe?`,
+      (d, r) => `Trace execution path for infinite condition: for(;;) {}`,
+      (d, r) => `Identify the missing condition in: while(x<100) { x--; }`,
+    ],
+    score: (answer, d) => {
+      let sc = 0;
+      if (has(answer, ['infinite', 'loop', 'break'])) sc += 40;
+      if (wc(answer) > 10) sc += 20;
+      if (codeScore(answer) > 0) sc += 30;
+      return clamp(sc);
+    },
+    deadline: 120,
+  }),
 
-game_id: textGame({
-  // format: solo
-  prompts: [
-    (d, r) => `Analyze this loop: while(true) { if(d>0) break; } Is it safe?`,
-    (d, r) => `Trace execution path for infinite condition: for(;;) {}`,
-    (d, r) => `Identify the missing condition in: while(x<100) { x--; }`,
-  ],
-  score: (answer, d) => {
-    let sc = 0;
-    if (has(answer, ['infinite', 'loop', 'break'])) sc += 40;
-    if (wc(answer) > 10) sc += 20;
-    if (codeScore(answer) > 0.8) sc += 30;
-    return clamp(sc);
-  },
-  deadline: 120,
-}),
+  p22_game_2: textGame({
+    // format: solo
+    prompts: [
+      (d, r) => `Analyze this loop: while(true) { if(d>0) break; } Is it safe?`,
+      (d, r) => `Trace execution path for infinite condition: for(;;) {}`,
+      (d, r) => `Identify the missing condition in: while(x<100) { x--; }`,
+    ],
+    score: (answer, d) => {
+      let sc = 0;
+      if (has(answer, ['infinite', 'loop', 'break'])) sc += 40;
+      if (wc(answer) > 10) sc += 20;
+      if (codeScore(answer) > 0) sc += 30;
+      return clamp(sc);
+    },
+    deadline: 120,
+  }),
 
-index_bounds_check: textGame({
-  // format: duel_1v1
-  prompts: [
-    (d, r) => `Fix this array access: let x = arr[i+1]`,
-    (d, r) => `Prevent out of bounds in: console.log(arr[i]); i++;`,
-    (d, r) => `Validate index before push: arr[index] = val`,
-  ],
-  score: (answer, d) => {
-    let sc = 0;
-    if (has(answer, ['bounds', 'length', 'check'])) sc += 50;
-    if (has(answer, ['if', '&&'])) sc += 20;
-    return clamp(sc);
-  },
-  deadline: 100,
-}),
+  index_bounds_check: textGame({
+    // format: duel_1v1
+    prompts: [
+      (d, r) => `Fix this array access: let x = arr[i+1]`,
+      (d, r) => `Prevent out of bounds in: console.log(arr[i]); i++;`,
+      (d, r) => `Validate index before push: arr[index] = val`,
+    ],
+    score: (answer, d) => {
+      let sc = 0;
+      if (has(answer, ['bounds', 'length', 'check'])) sc += 50;
+      if (has(answer, ['if', '&&'])) sc += 20;
+      return clamp(sc);
+    },
+    deadline: 100,
+  }),
 
-index_bounds_check: textGame({
-  // format: duel_1v1
-  prompts: [
-    (d, r) => `Fix this array access: let x = arr[i+1]`,
-    (d, r) => `Prevent out of bounds in: console.log(arr[i]); i++;`,
-    (d, r) => `Validate index before push: arr[index] = val`,
-  ],
-  score: (answer, d) => {
-    let sc = 0;
-    if (has(answer, ['bounds', 'length', 'check'])) sc += 50;
-    if (has(answer, ['if', '&&'])) sc += 20;
-    return clamp(sc);
-  },
-  deadline: 100,
-}),
+  index_bounds_check_2: textGame({
+    // format: duel_1v1
+    prompts: [
+      (d, r) => `Fix this array access: let x = arr[i+1]`,
+      (d, r) => `Prevent out of bounds in: console.log(arr[i]); i++;`,
+      (d, r) => `Validate index before push: arr[index] = val`,
+    ],
+    score: (answer, d) => {
+      let sc = 0;
+      if (has(answer, ['bounds', 'length', 'check'])) sc += 50;
+      if (has(answer, ['if', '&&'])) sc += 20;
+      return clamp(sc);
+    },
+    deadline: 100,
+  }),
 
-game_id: textGame({
-  // format: solo
-  prompts: [
-    (d, r) => `Analyze this function and identify the bug that causes incorrect output for input ${r * 5}:\n` +
-      `function calculateFactorial(n) {\n` +
-      `  let result = 1;\n` +
-      `  for (let i = 1; i <= n; i++) {\n` +
-      `    result *= i;\n` +
-      `  }\n` +
-      `  return result;\n` +
-      `}`,
-    (d, r) => `Debug the loop logic in this code that's supposed to sum numbers up to ${r * 10}:\n` +
-      `let sum = 0;\n` +
-      `for (let i = 0; i < ${r * 10}; i++) {\n` +
-      `  sum -= i;\n` +
-      `}`
-  ],
-  score: (answer, d) => {
-    let sc = 0;
-    if (answer.toLowerCase().includes("off-by-one") || answer.toLowerCase().includes("i <= n")) sc += 40;
-    if (answer.toLowerCase().includes("sign") || answer.toLowerCase().includes("sum -= i")) sc += 40;
-    sc += has(answer, ["bug", "error", "fix"]) * 20;
-    return clamp(sc);
-  },
-  deadline: 90,
-}),
+  p22_game_3: textGame({
+    // format: solo
+    prompts: [
+      (d, r) => `Analyze this function and identify the bug that causes incorrect output for input ${r * 5}:\n` +
+        `function calculateFactorial(n) {\n` +
+        `  let result = 1;\n` +
+        `  for (let i = 1; i <= n; i++) {\n` +
+        `    result *= i;\n` +
+        `  }\n` +
+        `  return result;\n` +
+        `}`,
+      (d, r) => `Debug the loop logic in this code that's supposed to sum numbers up to ${r * 10}:\n` +
+        `let sum = 0;\n` +
+        `for (let i = 0; i < ${r * 10}; i++) {\n` +
+        `  sum -= i;\n` +
+        `}`
+    ],
+    score: (answer, d) => {
+      let sc = 0;
+      if (answer.toLowerCase().includes("off-by-one") || answer.toLowerCase().includes("i <= n")) sc += 40;
+      if (answer.toLowerCase().includes("sign") || answer.toLowerCase().includes("sum -= i")) sc += 40;
+      sc += has(answer, ["bug", "error", "fix"]) * 20;
+      return clamp(sc);
+    },
+    deadline: 90,
+  }),
 
-game_id: textGame({
-  // format: solo
-  prompts: [
-    (d, r) => `Analyze this function and identify the bug that causes incorrect output for input ${r * 5}:\n` +
-      `function calculateFactorial(n) {\n` +
-      `  let result = 1;\n` +
-      `  for (let i = 1; i <= n; i++) {\n` +
-      `    result *= i;\n` +
-      `  }\n` +
-      `  return result;\n` +
-      `}`,
-    (d, r) => `Debug the loop logic in this code that's supposed to sum numbers up to ${r * 10}:\n` +
-      `let sum = 0;\n` +
-      `for (let i = 0; i < ${r * 10}; i++) {\n` +
-      `  sum -= i;\n` +
-      `}`
-  ],
-  score: (answer, d) => {
-    let sc = 0;
-    if (answer.toLowerCase().includes("off-by-one") || answer.toLowerCase().includes("i <= n")) sc += 40;
-    if (answer.toLowerCase().includes("sign") || answer.toLowerCase().includes("sum -= i")) sc += 40;
-    sc += has(answer, ["bug", "error", "fix"]) * 20;
-    return clamp(sc);
-  },
-  deadline: 90,
-}),
+  p22_game_4: textGame({
+    // format: solo
+    prompts: [
+      (d, r) => `Analyze this function and identify the bug that causes incorrect output for input ${r * 5}:\n` +
+        `function calculateFactorial(n) {\n` +
+        `  let result = 1;\n` +
+        `  for (let i = 1; i <= n; i++) {\n` +
+        `    result *= i;\n` +
+        `  }\n` +
+        `  return result;\n` +
+        `}`,
+      (d, r) => `Debug the loop logic in this code that's supposed to sum numbers up to ${r * 10}:\n` +
+        `let sum = 0;\n` +
+        `for (let i = 0; i < ${r * 10}; i++) {\n` +
+        `  sum -= i;\n` +
+        `}`
+    ],
+    score: (answer, d) => {
+      let sc = 0;
+      if (answer.toLowerCase().includes("off-by-one") || answer.toLowerCase().includes("i <= n")) sc += 40;
+      if (answer.toLowerCase().includes("sign") || answer.toLowerCase().includes("sum -= i")) sc += 40;
+      sc += has(answer, ["bug", "error", "fix"]) * 20;
+      return clamp(sc);
+    },
+    deadline: 90,
+  }),
 };
-
-
