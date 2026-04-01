@@ -21,7 +21,14 @@ function textGame(cfg: { prompts: ((d: number, r: number) => string)[]; score: (
       return { round_number: r, prompt: cfg.prompts[(r - 1) % cfg.prompts.length](d, r), deadline_seconds: cfg.deadline ?? 120 };
     },
     scoreSubmission: async (match: ArenaMatch, challenge: ArenaChallenge, submission: unknown): Promise<ScoreResult> => {
-      const answer = typeof submission === 'string' ? submission : (submission as Record<string, unknown>)?.answer as string ?? JSON.stringify(submission);
+      let answer: string;
+      if (typeof submission === 'string') {
+        answer = submission;
+      } else if (typeof submission === 'object' && submission !== null && 'answer' in submission) {
+        answer = (submission as Record<string, unknown>)?.answer as string ?? '';
+      } else {
+        answer = JSON.stringify(submission);
+      }
       const d = challenge.difficulty ?? 3;
       const score = clamp(cfg.score(answer || '', d));
       const rn = (match.round_data?.length ?? 0) + 1;
@@ -31,41 +38,41 @@ function textGame(cfg: { prompts: ((d: number, r: number) => string)[]; score: (
 }
 
 export const P8_EXT: Record<string, GameEngine> = {
-p08_game_1: textGame({
-  // format: solo
-  prompts: [
-    (d, r) => `Solve: If ${d*3} + x = ${d*8 + r}, what is x? Show steps.`,
-    (d, r) => `Calculate: ${d*(r+5)} - ${d*2}.`
-  ],
-  score: (s, d) => mathScore(s) * 0.7 + precisionScore(s, d > 5 ? `${d*8 + r - d*3}` : `${d*3}`) * 0.3,
-  deadline: 60,
-}),
+  p08_game_1: textGame({
+    // format: solo
+    prompts: [
+      (d, r) => `Solve: If ${d*3} + x = ${d*8 + r}, what is x? Show steps.`,
+      (d, r) => `Calculate: ${d*(r+5)} - ${d*2}.`
+    ],
+    score: (s, d) => mathScore(s) * 0.7 + precisionScore(s, d > 5 ? `${d*8 + r - d*3}` : `${d*3}`) * 0.3,
+    deadline: 60,
+  }),
 
-p08_game_2: textGame({
-  // format: solo
-  prompts: [
-    (d, r) => `Solve: If ${d*3} + x = ${d*8 + r}, what is x? Show steps.`,
-    (d, r) => `Calculate: ${d*(r+5)} - ${d*2}.`
-  ],
-  score: (s, d) => mathScore(s) * 0.7 + precisionScore(s, d > 5 ? `${d*8 + r - d*3}` : `${d*3}`) * 0.3,
-  deadline: 60,
-}),
+  p08_game_2: textGame({
+    // format: solo
+    prompts: [
+      (d, r) => `Solve: If ${d*3} + x = ${d*8 + r}, what is x? Show steps.`,
+      (d, r) => `Calculate: ${d*(r+5)} - ${d*2}.`
+    ],
+    score: (s, d) => mathScore(s) * 0.7 + precisionScore(s, d > 5 ? `${d*8 + r - d*3}` : `${d*3}`) * 0.3,
+    deadline: 60,
+  }),
 
-p08_game_3: textGame({
-  // format: solo
-  prompts: [
-    (d, r) => `Factor completely: ${d*(d+1)}x^2 + ${d*(r+3)}x + ${d*(r+2)}`
-  ],
-  score: (s, d) => mathScore(s) * 0.8 + has(s, ["factor"]) * 20,
-  deadline: 90,
-}),
+  p08_game_3: textGame({
+    // format: solo
+    prompts: [
+      (d, r) => `Factor completely: ${d*(d+1)}x^2 + ${d*(r+3)}x + ${d*(r+2)}`
+    ],
+    score: (s, d) => mathScore(s) * 0.8 + has(s, ["factor"]) * 20,
+    deadline: 90,
+  }),
 
-p08_game_4: textGame({
-  // format: solo
-  prompts: [
-    (d, r) => `Factor completely: ${d*(d+1)}x^2 + ${d*(r+3)}x + ${d*(r+2)}`
-  ],
-  score: (s, d) => mathScore(s) * 0.8 + has(s, ["factor"]) * 20,
-  deadline: 90,
-}),
+  p08_game_4: textGame({
+    // format: solo
+    prompts: [
+      (d, r) => `Factor completely: ${d*(d+1)}x^2 + ${d*(r+3)}x + ${d*(r+2)}`
+    ],
+    score: (s, d) => mathScore(s) * 0.8 + has(s, ["factor"]) * 20,
+    deadline: 90,
+  }),
 };
