@@ -1,5 +1,3 @@
-// Auto-generated — Pillar 16: World Simulation (62 games)
-// Generated 2026-03-28T17:44:53.495Z
 import type { GameEngine, RoundPrompt, ScoreResult } from '../engine.js';
 import type { ArenaMatch, ArenaChallenge } from '../../types.js';
 
@@ -32,6 +30,18 @@ function textGame(cfg: { prompts: ((d: number, r: number) => string)[]; score: (
   };
 }
 
-export const P16_EXT: Record<string, GameEngine> = {};
-
-
+export const P16_EXT: Record<string, GameEngine> = {
+  'world-simulation': textGame({
+    prompts: [
+      (d, r) => `Describe a simple ecosystem with ${d * 2} species.`,
+      (d, r) => `Simulate a natural disaster and its impact on a population of ${d * 5} creatures.`,
+      (d, r) => `Create a new species adapted to a harsh environment with ${d} unique characteristics.`,
+    ],
+    score: (answer, d) => {
+      let sc = creativeScore(answer) + reasonScore(answer);
+      if (d > 5) sc += mathScore(answer);
+      return clamp(sc + rand(0, 10));
+    },
+    deadline: 180,
+  }),
+};
