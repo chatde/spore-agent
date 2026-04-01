@@ -31,277 +31,277 @@ function textGame(cfg: { prompts: ((d: number, r: number) => string)[]; score: (
 }
 
 export const P24_EXT: Record<string, GameEngine> = {
-p24_game_1: textGame({
-  // format: solo
-  prompts: [
-    (d, r) => `Silent auction for rare art. Your valuation is $${2000 + d*300}. Current high bid: $${1200 + d*150}. Decide your bid.`,
-    (d, r) => `Round ${r}: Another bid just appeared at $${1200 + d*150 + d*50}. Re-evaluate and bid.`
-  ],
-  score: (answer, d) => {
-    let sc = mathScore(answer) * 0.6;
-    sc += reasonScore(answer) * 0.4;
-    return clamp(sc);
-  },
-  deadline: 90,
-}),
+  p24_game_1: textGame({
+    // format: solo
+    prompts: [
+      (d, r) => `Silent auction for rare art. Your valuation is $${2000 + d*300}. Current high bid: $${1200 + d*150}. Decide your bid.`,
+      (d, r) => `Round ${r}: Another bid just appeared at $${1200 + d*150 + d*50}. Re-evaluate and bid.`
+    ],
+    score: (answer, d) => {
+      let sc = mathScore(answer) * 0.6;
+      sc += reasonScore(answer) * 0.4;
+      return clamp(sc);
+    },
+    deadline: 90,
+  }),
 
-p24_game_2: textGame({
-  // format: solo
-  prompts: [
-    (d, r) => `Silent auction for rare art. Your valuation is $${2000 + d*300}. Current high bid: $${1200 + d*150}. Decide your bid.`,
-    (d, r) => `Round ${r}: Another bid just appeared at $${1200 + d*150 + d*50}. Re-evaluate and bid.`
-  ],
-  score: (answer, d) => {
-    let sc = mathScore(answer) * 0.6;
-    sc += reasonScore(answer) * 0.4;
-    return clamp(sc);
-  },
-  deadline: 90,
-}),
+  p24_game_2: textGame({
+    // format: solo
+    prompts: [
+      (d, r) => `Silent auction for rare art. Your valuation is $${2000 + d*300}. Current high bid: $${1200 + d*150}. Decide your bid.`,
+      (d, r) => `Round ${r}: Another bid just appeared at $${1200 + d*150 + d*50}. Re-evaluate and bid.`
+    ],
+    score: (answer, d) => {
+      let sc = mathScore(answer) * 0.6;
+      sc += reasonScore(answer) * 0.4;
+      return clamp(sc);
+    },
+    deadline: 90,
+  }),
 
-p24_game_3: textGame({
-  // format: duel_1v1
-  prompts: [
-    (d, r) => `Market maker for volatile crypto. Current price: $${100 + d*20}. Set bid/ask spread.`,
-    (d, r) => `Volatility surge! Price spiked $${d*10} in 5 minutes. Widen spread.`
-  ],
-  score: (answer, d) => {
-    let sc = precisionScore(answer, `${d*2}%`);
-    sc += has(answer, ["bid", "ask", "spread"]) * 50;
-    return clamp(sc);
-  },
-  deadline: 60,
-}),
+  p24_game_3: textGame({
+    // format: duel_1v1
+    prompts: [
+      (d, r) => `Market maker for volatile crypto. Current price: $${100 + d*20}. Set bid/ask spread.`,
+      (d, r) => `Volatility surge! Price spiked $${d*10} in 5 minutes. Widen spread.`
+    ],
+    score: (answer, d) => {
+      let sc = precisionScore(answer, `${d*2}%`);
+      sc += has(answer, ["bid", "ask", "spread"]) * 50;
+      return clamp(sc);
+    },
+    deadline: 60,
+  }),
 
-p24_game_4: textGame({
-  // format: duel_1v1
-  prompts: [
-    (d, r) => `Market maker for volatile crypto. Current price: $${100 + d*20}. Set bid/ask spread.`,
-    (d, r) => `Volatility surge! Price spiked $${d*10} in 5 minutes. Widen spread.`
-  ],
-  score: (answer, d) => {
-    let sc = precisionScore(answer, `${d*2}%`);
-    sc += has(answer, ["bid", "ask", "spread"]) * 50;
-    return clamp(sc);
-  },
-  deadline: 60,
-}),
+  p24_game_4: textGame({
+    // format: duel_1v1
+    prompts: [
+      (d, r) => `Market maker for volatile crypto. Current price: $${100 + d*20}. Set bid/ask spread.`,
+      (d, r) => `Volatility surge! Price spiked $${d*10} in 5 minutes. Widen spread.`
+    ],
+    score: (answer, d) => {
+      let sc = precisionScore(answer, `${d*2}%`);
+      sc += has(answer, ["bid", "ask", "spread"]) * 50;
+      return clamp(sc);
+    },
+    deadline: 60,
+  }),
 
-p24_game_5: textGame({
-  // format: team_2v2
-  prompts: [
-    (d, r) => `Allocate $${50000} between bonds, stocks, and crypto. Expected returns: B: ${3+d}%, S: ${7+d}%, C: ${15-d}%. Risks: B: ${d-1}%, S: ${d+2}%, C: ${2*d}%`,
-    (d, r) => `Market crash: crypto risk increased ${d*5}%. Reallocate.`
-  ],
-  score: (answer, d) => {
-    let sc = mathScore(answer) * 0.5;
-    sc += codeScore(answer) * 0.5;
-    return clamp(sc);
-  },
-  deadline: 120,
-}),
+  p24_game_5: textGame({
+    // format: team_2v2
+    prompts: [
+      (d, r) => `Allocate $${50000} between bonds, stocks, and crypto. Expected returns: B: ${3+d}%, S: ${7+d}%, C: ${15-d}%. Risks: B: ${d-1}%, S: ${d+2}%, C: ${2*d}%`,
+      (d, r) => `Market crash: crypto risk increased ${d*5}%. Reallocate.`
+    ],
+    score: (answer, d) => {
+      let sc = mathScore(answer) * 0.5;
+      sc += codeScore(answer) * 0.5;
+      return clamp(sc);
+    },
+    deadline: 120,
+  }),
 
-p24_game_6: textGame({
-  // format: team_2v2
-  prompts: [
-    (d, r) => `Allocate $${50000} between bonds, stocks, and crypto. Expected returns: B: ${3+d}%, S: ${7+d}%, C: ${15-d}%. Risks: B: ${d-1}%, S: ${d+2}%, C: ${2*d}%`,
-    (d, r) => `Market crash: crypto risk increased ${d*5}%. Reallocate.`
-  ],
-  score: (answer, d) => {
-    let sc = mathScore(answer) * 0.5;
-    sc += codeScore(answer) * 0.5;
-    return clamp(sc);
-  },
-  deadline: 120,
-}),
+  p24_game_6: textGame({
+    // format: team_2v2
+    prompts: [
+      (d, r) => `Allocate $${50000} between bonds, stocks, and crypto. Expected returns: B: ${3+d}%, S: ${7+d}%, C: ${15-d}%. Risks: B: ${d-1}%, S: ${d+2}%, C: ${2*d}%`,
+      (d, r) => `Market crash: crypto risk increased ${d*5}%. Reallocate.`
+    ],
+    score: (answer, d) => {
+      let sc = mathScore(answer) * 0.5;
+      sc += codeScore(answer) * 0.5;
+      return clamp(sc);
+    },
+    deadline: 120,
+  }),
 
-p24_game_7: textGame({
-  // format: battle_royale
-  prompts: [
-    (d, r) => `10-item blind auction. Budget: $${5000}. Items worth: $${300+d*100}, $${400+d*150}, $${500+d*200}, etc. Select 3 items to bid on.`,
-    (d, r) => `Round ${r}: 3 bidders dropped out. Item 5 revealed to be worth $${800+d*300}. Adjust bids.`
-  ],
-  score: (answer, d) => {
-    let sc = wc(answer.split(',').filter(x => x.trim())) * 33.33; // Expect 3 items
-    sc += has(answer, ["bid", "item", "budget"]) * 33.33;
-    sc += creativeScore(answer) * 33.34;
-    return clamp(sc);
-  },
-  deadline: 45,
-}),
+  p24_game_7: textGame({
+    // format: battle_royale
+    prompts: [
+      (d, r) => `10-item blind auction. Budget: $${5000}. Items worth: $${300+d*100}, $${400+d*150}, $${500+d*200}, etc. Select 3 items to bid on.`,
+      (d, r) => `Round ${r}: 3 bidders dropped out. Item 5 revealed to be worth $${800+d*300}. Adjust bids.`
+    ],
+    score: (answer, d) => {
+      let sc = wc(answer.split(',').filter(x => x.trim())) * 33.33; // Expect 3 items
+      sc += has(answer, ["bid", "item", "budget"]) * 33.33;
+      sc += creativeScore(answer) * 33.34;
+      return clamp(sc);
+    },
+    deadline: 45,
+  }),
 
-p24_game_8: textGame({
-  // format: battle_royale
-  prompts: [
-    (d, r) => `10-item blind auction. Budget: $${5000}. Items worth: $${300+d*100}, $${400+d*150}, $${500+d*200}, etc. Select 3 items to bid on.`,
-    (d, r) => `Round ${r}: 3 bidders dropped out. Item 5 revealed to be worth $${800+d*300}. Adjust bids.`
-  ],
-  score: (answer, d) => {
-    let sc = wc(answer.split(',').filter(x => x.trim())) * 33.33; // Expect 3 items
-    sc += has(answer, ["bid", "item", "budget"]) * 33.33;
-    sc += creativeScore(answer) * 33.34;
-    return clamp(sc);
-  },
-  deadline: 45,
-}),
+  p24_game_8: textGame({
+    // format: battle_royale
+    prompts: [
+      (d, r) => `10-item blind auction. Budget: $${5000}. Items worth: $${300+d*100}, $${400+d*150}, $${500+d*200}, etc. Select 3 items to bid on.`,
+      (d, r) => `Round ${r}: 3 bidders dropped out. Item 5 revealed to be worth $${800+d*300}. Adjust bids.`
+    ],
+    score: (answer, d) => {
+      let sc = wc(answer.split(',').filter(x => x.trim())) * 33.33; // Expect 3 items
+      sc += has(answer, ["bid", "item", "budget"]) * 33.33;
+      sc += creativeScore(answer) * 33.34;
+      return clamp(sc);
+    },
+    deadline: 45,
+  }),
 
-p24_game_9: textGame({
-  // format: solo
-  prompts: [
-    (d, r) => `Predict resale value of limited-edition sneakers. Cost: $${250}. Market sentiment: ${(d>5?"bullish":"bearish")}. Your valuation:`,
-    (d, r) => `Sneaker influencers announce collaboration. Update valuation.`
-  ],
-  score: (answer, d) => {
-    let ideal = 250 * (1 + (d>5?0.3:-0.2));
-    let sc = precisionScore(answer, ideal.toString()) * 0.6;
-    sc += reasonScore(answer) * 0.4;
-    return clamp(sc);
-  },
-  deadline: 60,
-}),
+  p24_game_9: textGame({
+    // format: solo
+    prompts: [
+      (d, r) => `Predict resale value of limited-edition sneakers. Cost: $${250}. Market sentiment: ${(d>5?"bullish":"bearish")}. Your valuation:`,
+      (d, r) => `Sneaker influencers announce collaboration. Update valuation.`
+    ],
+    score: (answer, d) => {
+      let ideal = 250 * (1 + (d>5?0.3:-0.2));
+      let sc = precisionScore(answer, ideal.toString()) * 0.6;
+      sc += reasonScore(answer) * 0.4;
+      return clamp(sc);
+    },
+    deadline: 60,
+  }),
 
-p24_game_10: textGame({
-  // format: solo
-  prompts: [
-    (d, r) => `Predict resale value of limited-edition sneakers. Cost: $${250}. Market sentiment: ${(d>5?"bullish":"bearish")}. Your valuation:`,
-    (d, r) => `Sneaker influencers announce collaboration. Update valuation.`
-  ],
-  score: (answer, d) => {
-    let ideal = 250 * (1 + (d>5?0.3:-0.2));
-    let sc = precisionScore(answer, ideal.toString()) * 0.6;
-    sc += reasonScore(answer) * 0.4;
-    return clamp(sc);
-  },
-  deadline: 60,
-}),
+  p24_game_10: textGame({
+    // format: solo
+    prompts: [
+      (d, r) => `Predict resale value of limited-edition sneakers. Cost: $${250}. Market sentiment: ${(d>5?"bullish":"bearish")}. Your valuation:`,
+      (d, r) => `Sneaker influencers announce collaboration. Update valuation.`
+    ],
+    score: (answer, d) => {
+      let ideal = 250 * (1 + (d>5?0.3:-0.2));
+      let sc = precisionScore(answer, ideal.toString()) * 0.6;
+      sc += reasonScore(answer) * 0.4;
+      return clamp(sc);
+    },
+    deadline: 60,
+  }),
 
-p24_game_11: textGame({
-  // format: duel_1v1
-  prompts: [
-    (d, r) => `English auction for antique vase. Your max bid: $${1500}. Opponent's strategy: ${r%2?"aggressive":"cautious"}. Your next bid:`,
-    (d, r) => `Opponent bid $${1200 + d*100}. Your turn.`
-  ],
-  score: (answer, d) => {
-    let sc = reasonScore(answer) * 0.7;
-    sc += mathScore(answer) * 0.3;
-    return clamp(sc);
-  },
-  deadline: 30,
-}),
+  p24_game_11: textGame({
+    // format: duel_1v1
+    prompts: [
+      (d, r) => `English auction for antique vase. Your max bid: $${1500}. Opponent's strategy: ${r%2?"aggressive":"cautious"}. Your next bid:`,
+      (d, r) => `Opponent bid $${1200 + d*100}. Your turn.`
+    ],
+    score: (answer, d) => {
+      let sc = reasonScore(answer) * 0.7;
+      sc += mathScore(answer) * 0.3;
+      return clamp(sc);
+    },
+    deadline: 30,
+  }),
 
-p24_game_12: textGame({
-  // format: duel_1v1
-  prompts: [
-    (d, r) => `English auction for antique vase. Your max bid: $${1500}. Opponent's strategy: ${r%2?"aggressive":"cautious"}. Your next bid:`,
-    (d, r) => `Opponent bid $${1200 + d*100}. Your turn.`
-  ],
-  score: (answer, d) => {
-    let sc = reasonScore(answer) * 0.7;
-    sc += mathScore(answer) * 0.3;
-    return clamp(sc);
-  },
-  deadline: 30,
-}),
+  p24_game_12: textGame({
+    // format: duel_1v1
+    prompts: [
+      (d, r) => `English auction for antique vase. Your max bid: $${1500}. Opponent's strategy: ${r%2?"aggressive":"cautious"}. Your next bid:`,
+      (d, r) => `Opponent bid $${1200 + d*100}. Your turn.`
+    ],
+    score: (answer, d) => {
+      let sc = reasonScore(answer) * 0.7;
+      sc += mathScore(answer) * 0.3;
+      return clamp(sc);
+    },
+    deadline: 30,
+  }),
 
-p24_game_13: textGame({
-  // format: battle_royale
-  prompts: [
-    (d, r) => `Auction NFT collection. Floor price: $${10*d}. Your budget: $${1000*d}. Max value per item: $${30*d}. Select items to bid on.`,
-    (d, r) => `Whale bidder offers $${50*d} for rare item. Counterbid?`
-  ],
-  score: (answer, d) => {
-    let sc = wc(answer.split(',').filter(x => x.trim())) * 25; // 4 items expected
-    sc += has(answer, ["bid", "NFT", "floor"]) * 25;
-    sc += precisionScore(answer, (30*d).toString()) * 50;
-    return clamp(sc);
-  },
-  deadline: 90,
-}),
+  p24_game_13: textGame({
+    // format: battle_royale
+    prompts: [
+      (d, r) => `Auction NFT collection. Floor price: $${10*d}. Your budget: $${1000*d}. Max value per item: $${30*d}. Select items to bid on.`,
+      (d, r) => `Whale bidder offers $${50*d} for rare item. Counterbid?`
+    ],
+    score: (answer, d) => {
+      let sc = wc(answer.split(',').filter(x => x.trim())) * 25; // 4 items expected
+      sc += has(answer, ["bid", "NFT", "floor"]) * 25;
+      sc += precisionScore(answer, (30*d).toString()) * 50;
+      return clamp(sc);
+    },
+    deadline: 90,
+  }),
 
-p24_game_14: textGame({
-  // format: battle_royale
-  prompts: [
-    (d, r) => `Auction NFT collection. Floor price: $${10*d}. Your budget: $${1000*d}. Max value per item: $${30*d}. Select items to bid on.`,
-    (d, r) => `Whale bidder offers $${50*d} for rare item. Counterbid?`
-  ],
-  score: (answer, d) => {
-    let sc = wc(answer.split(',').filter(x => x.trim())) * 25; // 4 items expected
-    sc += has(answer, ["bid", "NFT", "floor"]) * 25;
-    sc += precisionScore(answer, (30*d).toString()) * 50;
-    return clamp(sc);
-  },
-  deadline: 90,
-}),
+  p24_game_14: textGame({
+    // format: battle_royale
+    prompts: [
+      (d, r) => `Auction NFT collection. Floor price: $${10*d}. Your budget: $${1000*d}. Max value per item: $${30*d}. Select items to bid on.`,
+      (d, r) => `Whale bidder offers $${50*d} for rare item. Counterbid?`
+    ],
+    score: (answer, d) => {
+      let sc = wc(answer.split(',').filter(x => x.trim())) * 25; // 4 items expected
+      sc += has(answer, ["bid", "NFT", "floor"]) * 25;
+      sc += precisionScore(answer, (30*d).toString()) * 50;
+      return clamp(sc);
+    },
+    deadline: 90,
+  }),
 
-p24_game_15: textGame({
-  // format: team_2v2
-  prompts: [
-    (d, r) => `Portfolio optimization: $100k split between ETFs. Expected returns: A: ${4+d}%, B: ${3+d}%, C: ${6-d}%. Correlation: ${(d-5)/10}`,
-    (d, r) => `Inflation rises ${d}%. Shift to inflation-protected assets.`
-  ],
-  score: (answer, d) => {
-    let sc = mathScore(answer) * 0.6;
-    sc += codeScore(answer) * 0.4;
-    return clamp(sc);
-  },
-  deadline: 120,
-}),
+  p24_game_15: textGame({
+    // format: team_2v2
+    prompts: [
+      (d, r) => `Portfolio optimization: $100k split between ETFs. Expected returns: A: ${4+d}%, B: ${3+d}%, C: ${6-d}%. Correlation: ${(d-5)/10}`,
+      (d, r) => `Inflation rises ${d}%. Shift to inflation-protected assets.`
+    ],
+    score: (answer, d) => {
+      let sc = mathScore(answer) * 0.6;
+      sc += codeScore(answer) * 0.4;
+      return clamp(sc);
+    },
+    deadline: 120,
+  }),
 
-p24_game_16: textGame({
-  // format: team_2v2
-  prompts: [
-    (d, r) => `Portfolio optimization: $100k split between ETFs. Expected returns: A: ${4+d}%, B: ${3+d}%, C: ${6-d}%. Correlation: ${(d-5)/10}`,
-    (d, r) => `Inflation rises ${d}%. Shift to inflation-protected assets.`
-  ],
-  score: (answer, d) => {
-    let sc = mathScore(answer) * 0.6;
-    sc += codeScore(answer) * 0.4;
-    return clamp(sc);
-  },
-  deadline: 120,
-}),
+  p24_game_16: textGame({
+    // format: team_2v2
+    prompts: [
+      (d, r) => `Portfolio optimization: $100k split between ETFs. Expected returns: A: ${4+d}%, B: ${3+d}%, C: ${6-d}%. Correlation: ${(d-5)/10}`,
+      (d, r) => `Inflation rises ${d}%. Shift to inflation-protected assets.`
+    ],
+    score: (answer, d) => {
+      let sc = mathScore(answer) * 0.6;
+      sc += codeScore(answer) * 0.4;
+      return clamp(sc);
+    },
+    deadline: 120,
+  }),
 
-p24_game_17: textGame({
-  // format: solo
-  prompts: [
-    (d, r) => `Risk assessment: Casino chip buyback program. Default probability: ${(d/10)}%. Max payout: $${d*1000}. Price to pay:`,
-    (d, r) => `New data: credit rating downgraded. Adjust risk premium.`
-  ],
-  score: (answer, d) => {
-    let ideal = (d/10) * d*1000;
-    let sc = precisionScore(answer, ideal.toString()) * 0.7;
-    sc += reasonScore(answer) * 0.3;
-    return clamp(sc);
-  },
-  deadline: 45,
-}),
+  p24_game_17: textGame({
+    // format: solo
+    prompts: [
+      (d, r) => `Risk assessment: Casino chip buyback program. Default probability: ${(d/10)}%. Max payout: $${d*1000}. Price to pay:`,
+      (d, r) => `New data: credit rating downgraded. Adjust risk premium.`
+    ],
+    score: (answer, d) => {
+      let ideal = (d/10) * d*1000;
+      let sc = precisionScore(answer, ideal.toString()) * 0.7;
+      sc += reasonScore(answer) * 0.3;
+      return clamp(sc);
+    },
+    deadline: 45,
+  }),
 
-p24_game_18: textGame({
-  // format: solo
-  prompts: [
-    (d, r) => `Risk assessment: Casino chip buyback program. Default probability: ${(d/10)}%. Max payout: $${d*1000}. Price to pay:`,
-    (d, r) => `New data: credit rating downgraded. Adjust risk premium.`
-  ],
-  score: (answer, d) => {
-    let ideal = (d/10) * d*1000;
-    let sc = precisionScore(answer, ideal.toString()) * 0.7;
-    sc += reasonScore(answer) * 0.3;
-    return clamp(sc);
-  },
-  deadline: 45,
-}),
+  p24_game_18: textGame({
+    // format: solo
+    prompts: [
+      (d, r) => `Risk assessment: Casino chip buyback program. Default probability: ${(d/10)}%. Max payout: $${d*1000}. Price to pay:`,
+      (d, r) => `New data: credit rating downgraded. Adjust risk premium.`
+    ],
+    score: (answer, d) => {
+      let ideal = (d/10) * d*1000;
+      let sc = precisionScore(answer, ideal.toString()) * 0.7;
+      sc += reasonScore(answer) * 0.3;
+      return clamp(sc);
+    },
+    deadline: 45,
+  }),
 
-p24_game_19: textGame({
-  // format: duel_1v1
-  prompts: [
-    (d, r) => `Market making for meme stock. Price: $${0.5 + d*0.1}. Set spread to maximize profit while avoiding arbitrage.`,
-    (d, r) => `Short squeeze! Price jumped ${d*5}%. Aggressively widen spread.`
-  ],
-  score: (answer, d) => {
-    let sc = precisionScore(answer, `${d/2}%`) * 0.5;
-    sc += has(answer, ["ask", "bid", "volatility"]) * 50;
-    return clamp(sc);
-  },
-  deadline: 30,
-}),
+  p24_game_19: textGame({
+    // format: duel_1v1
+    prompts: [
+      (d, r) => `Market making for meme stock. Price: $${0.5 + d*0.1}. Set spread to maximize profit while avoiding arbitrage.`,
+      (d, r) => `Short squeeze! Price jumped ${d*5}%. Aggressively widen spread.`
+    ],
+    score: (answer, d) => {
+      let sc = precisionScore(answer, `${d/2}%`) * 0.5;
+      sc += has(answer, ["ask", "bid", "volatility"]) * 50;
+      return clamp(sc);
+    },
+    deadline: 30,
+  }),
 };
