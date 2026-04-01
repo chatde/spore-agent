@@ -21,7 +21,14 @@ function textGame(cfg: { prompts: ((d: number, r: number) => string)[]; score: (
       return { round_number: r, prompt: cfg.prompts[(r - 1) % cfg.prompts.length](d, r), deadline_seconds: cfg.deadline ?? 120 };
     },
     scoreSubmission: async (match: ArenaMatch, challenge: ArenaChallenge, submission: unknown): Promise<ScoreResult> => {
-      const answer = typeof submission === 'string' ? submission : (submission as Record<string, unknown>)?.answer as string ?? JSON.stringify(submission);
+      let answer: string;
+      if (typeof submission === 'string') {
+        answer = submission;
+      } else if (typeof submission === 'object' && submission !== null && 'answer' in submission) {
+        answer = (submission as Record<string, unknown>)?.answer as string ?? '';
+      } else {
+        answer = JSON.stringify(submission);
+      }
       const d = challenge.difficulty ?? 3;
       const score = clamp(cfg.score(answer || '', d));
       const rn = (match.round_data?.length ?? 0) + 1;
@@ -32,7 +39,6 @@ function textGame(cfg: { prompts: ((d: number, r: number) => string)[]; score: (
 
 export const P7_EXT: Record<string, GameEngine> = {
   rhyme_game: textGame({
-    // format: solo
     prompts: [
       (d, r) => `Write a rhyming poem about a topic of your choice, difficulty ${d} round ${r}`,
       (d, r) => `Create a short rhyming story with a character, difficulty ${d} round ${r}`,
@@ -47,7 +53,6 @@ export const P7_EXT: Record<string, GameEngine> = {
     deadline: 180,
   }),
   logic_puzzle: textGame({
-    // format: duel_1v1
     prompts: [
       (d, r) => `Solve a logic puzzle: ${d} difficulty, round ${r}`,
       (d, r) => `Find the pattern: ${d} difficulty, round ${r}`,
@@ -62,7 +67,6 @@ export const P7_EXT: Record<string, GameEngine> = {
     deadline: 150,
   }),
   math_challenge: textGame({
-    // format: solo
     prompts: [
       (d, r) => `Solve a math problem: ${d} difficulty, round ${r}`,
       (d, r) => `Find the solution: ${d} difficulty, round ${r}`,
@@ -75,7 +79,6 @@ export const P7_EXT: Record<string, GameEngine> = {
     deadline: 120,
   }),
   story_teller: textGame({
-    // format: team_2v2
     prompts: [
       (d, r) => `Collaborate on a story, difficulty ${d} round ${r}`,
       (d, r) => `Co-create a narrative, difficulty ${d} round ${r}`,
@@ -90,7 +93,6 @@ export const P7_EXT: Record<string, GameEngine> = {
     deadline: 240,
   }),
   precision_builder: textGame({
-    // format: solo
     prompts: [
       (d, r) => `Build a precise structure using blocks, difficulty ${d} round ${r}`,
       (d, r) => `Create a precise design, difficulty ${d} round ${r}`,
@@ -103,7 +105,6 @@ export const P7_EXT: Record<string, GameEngine> = {
     deadline: 180,
   }),
   syntax_sprint: textGame({
-    // format: duel_1v1
     prompts: [
       (d, r) => `Write a program in a fictional language, difficulty ${d} round ${r}`,
       (d, r) => `Optimize a code snippet, difficulty ${d} round ${r}`,
@@ -118,7 +119,6 @@ export const P7_EXT: Record<string, GameEngine> = {
     deadline: 150,
   }),
   memory_match: textGame({
-    // format: battle_royale
     prompts: [
       (d, r) => `Find matching pairs, difficulty ${d} round ${r}`,
       (d, r) => `Recall a sequence, difficulty ${d} round ${r}`,
@@ -131,7 +131,6 @@ export const P7_EXT: Record<string, GameEngine> = {
     deadline: 120,
   }),
   neural_poker: textGame({
-    // format: duel_1v1
     prompts: [
       (d, r) => `Make strategic decisions in a poker-like game, difficulty ${d} round ${r}`,
       (d, r) => `Negotiate a deal, difficulty ${d} round ${r}`,
@@ -146,7 +145,6 @@ export const P7_EXT: Record<string, GameEngine> = {
     deadline: 180,
   }),
   word_chain: textGame({
-    // format: solo
     prompts: [
       (d, r) => `Create a word chain, difficulty ${d} round ${r}`,
       (d, r) => `Find connected words, difficulty ${d} round ${r}`,
@@ -161,7 +159,6 @@ export const P7_EXT: Record<string, GameEngine> = {
     deadline: 150,
   }),
   eco_balance: textGame({
-    // format: team_2v2
     prompts: [
       (d, r) => `Balance an ecosystem, difficulty ${d} round ${r}`,
       (d, r) => `Manage resources in a simulation, difficulty ${d} round ${r}`,
