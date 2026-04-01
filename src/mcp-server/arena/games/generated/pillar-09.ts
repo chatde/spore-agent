@@ -1,5 +1,3 @@
-// Auto-generated — Pillar 9: Creativity Forge (48 games)
-// Generated 2026-03-28T17:06:01.823Z
 import type { GameEngine, RoundPrompt, ScoreResult } from '../engine.js';
 import type { ArenaMatch, ArenaChallenge } from '../../types.js';
 
@@ -33,39 +31,37 @@ function textGame(cfg: { prompts: ((d: number, r: number) => string)[]; score: (
 }
 
 export const P9_EXT: Record<string, GameEngine> = {
-game_id: textGame({
-  // format: solo
-  prompts: [
-    (d, r) => `Write a haiku about artificial intelligence with exactly ${d * r} syllables. Failure to meet syllable count deducts ${d * 5} points.`,
-    (d, r) => `Explain machine learning as if you're a pirate. Use at least ${d} nautical terms or risk a penalty of ${r * 10} points.`,
-  ],
-  score: (s, d) => {
-    let sc = 0;
-    const words = s.split(/\s+/);
-    if (words.length === d * r) sc += d * 5;
-    if (/AI|artificial intelligence|machine learning/i.test(s)) sc += d;
-    if (s.split(' ').filter(w => /shiver|me\w*|arr|captain|cannon|treasure|sea|sail|port|starboard/i.test(w.toLowerCase())).length >= d) sc += r * 5;
-    return clamp(sc - Math.abs(words.length - (d * r)) * (r + 1) - Math.max(0, d - words.length) * 3);
-  },
-  deadline: 90,
-}),
+  p09_game_1: textGame({
+    // format: solo
+    prompts: [
+      (d, r) => `Write a haiku about artificial intelligence with exactly ${d * r} syllables. Failure to meet syllable count deducts ${d * 5} points.`,
+      (d, r) => `Explain machine learning as if you're a pirate. Use at least ${d} nautical terms or risk a penalty of ${r * 10} points.`,
+    ],
+    score: (s, d) => {
+      let sc = 0;
+      const words = s.split(/\s+/);
+      if (words.length === d * r) sc += d * 5;
+      if (/AI|artificial intelligence|machine learning/i.test(s)) sc += d;
+      if (s.split(' ').filter(w => /shiver|me\w*|arr|captain|cannon|treasure|sea|sail|port|starboard/i.test(w.toLowerCase())).length >= d) sc += r * 5;
+      return clamp(sc - Math.abs(words.length - (d * r)) * (r + 1) - Math.max(0, d - words.length) * 3);
+    },
+    deadline: 90,
+  }),
 
-game_id: textGame({
-  // format: solo
-  prompts: [
-    (d, r) => `Write a haiku about artificial intelligence with exactly ${d * r} syllables. Failure to meet syllable count deducts ${d * 5} points.`,
-    (d, r) => `Explain machine learning as if you're a pirate. Use at least ${d} nautical terms or risk a penalty of ${r * 10} points.`,
-  ],
-  score: (s, d) => {
-    let sc = 0;
-    const words = s.split(/\s+/);
-    if (words.length === d * r) sc += d * 5;
-    if (/AI|artificial intelligence|machine learning/i.test(s)) sc += d;
-    if (s.split(' ').filter(w => /shiver|me\w*|arr|captain|cannon|treasure|sea|sail|port|starboard/i.test(w.toLowerCase())).length >= d) sc += r * 5;
-    return clamp(sc - Math.abs(words.length - (d * r)) * (r + 1) - Math.max(0, d - words.length) * 3);
-  },
-  deadline: 90,
-}),
+  p09_game_2: textGame({
+    // format: solo
+    prompts: [
+      (d, r) => `Write a haiku about artificial intelligence with exactly ${d * r} syllables. Failure to meet syllable count deducts ${d * 5} points.`,
+      (d, r) => `Explain machine learning as if you're a pirate. Use at least ${d} nautical terms or risk a penalty of ${r * 10} points.`,
+    ],
+    score: (s, d) => {
+      let sc = 0;
+      const words = s.split(/\s+/);
+      if (words.length === d * r) sc += d * 5;
+      if (/AI|artificial intelligence|machine learning/i.test(s)) sc += d;
+      if (s.split(' ').filter(w => /shiver|me\w*|arr|captain|cannon|treasure|sea|sail|port|starboard/i.test(w.toLowerCase())).length >= d) sc += r * 5;
+      return clamp(sc - Math.abs(words.length - (d * r)) * (r + 1) - Math.max(0, d - words.length) * 3);
+    },
+    deadline: 90,
+  }),
 };
-
-
