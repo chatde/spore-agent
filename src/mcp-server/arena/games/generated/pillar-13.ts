@@ -69,13 +69,13 @@ data_cleaning_challenge: textGame({
   // format: solo
   prompts: [
     (d, r) => `Clean this dataset by handling missing values and outliers:
-    [10, 12, NA, 15, 18, 22, 300, 20, 19, 21]`,
+    [10, 12, NaN, 15, 18, 22, 300, 20, 19, 21]`,
     (d, r) => `Given this customer data with inconsistencies, standardize the format:
     ["john.doe@gmail.com", "Jane.Doe@Yahoo.com", "bob.smith@GMAIL.COM"]`,
   ],
   score: (answer, d) => {
     let sc = 0;
-    if (has(answer, ["NA", "missing", "outlier", "standardize"])) sc += 30;
+    if (has(answer, ["NaN", "missing", "outlier", "standardize"])) sc += 30;
     if (precisionScore(answer, "clean data") > 0.6) sc += 40;
     if (wc(answer) > 60) sc += 20;
     return clamp(sc);
