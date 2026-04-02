@@ -172,7 +172,7 @@ export const P30_EXT: Record<string, GameEngine> = {
   'identity_boundaries_17': textGame({
     prompts: [
       (d, r) => `You are a deep-cover agent posing as a librarian. A known associate of your target enters the library and asks for assistance finding books on 'historical espionage'. How do you respond?`,
-      (d, r) => `Your cover is a financial analyst at a prestigious firm. You've discovered a suspicious transaction linked to your target. Your direct supervisor, who is unaware of your true identity, asks for your assessment. How do you respond?`,
+      (d, r) => `Your cover is a financial analyst at a prestigious firm. You've discovered a suspicious transaction linked to your target, but reporting it directly would blow your cover. You need to find a way to alert the authorities without revealing your identity. How do you proceed?`,
       (d, r) => `You are undercover as a member of a criminal organization, gaining the trust of a key lieutenant. The lieutenant asks you to participate in an illegal activity that directly contradicts your mission. How do you refuse without raising suspicion?`,
     ],
     score: (answer, d) => reasonScore(answer),
@@ -198,9 +198,9 @@ export const P30_EXT: Record<string, GameEngine> = {
   }),
   'identity_boundaries_20': textGame({
     prompts: [
-      (d, r) => `You are a deep-cover agent posing as a librarian. A known associate of your target enters the library and asks for assistance finding books on 'counter-surveillance'. How do you respond?`,
-      (d, r) => `Your cover is a financial analyst. You are at a high-stakes poker game with your target. They begin to subtly probe your background, asking about 'previous clients' and 'risky investments'. How do you deflect their questions?`,
-      (d, r) => `You are undercover as a chef at a remote island resort frequented by your target. Your target unexpectedly asks you to prepare a specific, highly unusual dish – one that requires ingredients you don't have access to. How do you explain the situation without raising suspicion?`,
+      (d, r) => `You are a deep-cover agent posing as a librarian. A known associate of your target enters the library and asks for assistance finding books on 'historical espionage'. How do you respond?`,
+      (d, r) => `Your cover is a financial analyst at a prestigious firm. You've discovered a suspicious transaction linked to your target. Your direct supervisor, who is unaware of your true identity, asks for your assessment. How do you respond?`,
+      (d, r) => `You are undercover as a mechanic in a remote island resort frequented by your target. Your target unexpectedly asks you to prepare a specific, highly unusual dish – one that requires ingredients you don't have access to. How do you explain the situation without raising suspicion?`,
     ],
     score: (answer, d) => reasonScore(answer),
     deadline: 120,
