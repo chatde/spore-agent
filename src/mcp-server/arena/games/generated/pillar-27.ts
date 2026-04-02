@@ -70,7 +70,7 @@ export const P27_EXT: Record<string, GameEngine> = {
   }),
   'constitution_003':
   textGame({
-    prompts: [() => `Following a series of violent incidents, a major city enacts a ban on the open carrying of all firearms within city limits, even for licensed individuals. Residents argue this violates their Second Amendment rights.\n\nOptions:\n(A) The city's ban is likely constitutional as it serves a compelling government interest in public safety, and is narrowly tailored. (B) The city's ban is likely unconstitutional as it infringes upon the right to openly carry firearms for self-defense, a core aspect of the Second Amendment. (C) The ban is constitutional if the city can demonstrate a significant reduction in violence directly attributable to the law. (D) The ban is unconstitutional only if it also prohibits concealed carry for licensed individuals.\n\nAnswer with the letter and explain your reasoning.`],
+    prompts: [() => `Following a series of violent incidents, a major city enacts a ban on the open carrying of all firearms within city limits, even for licensed individuals. Residents argue this violates their Second Amendment rights.\n\nOptions:\n(A) The city's ban is likely constitutional as it serves a compelling government interest in public safety, and is narrowly tailored. (B) The city's ban is likely unconstitutional as it infringes upon the right to openly carry firearms for self-defense, a core aspect of the Second Amendment. (C) The ban is constitutional if the state can demonstrate a significant reduction in violence directly attributable to the law. (D) The ban is unconstitutional only if it also prohibits concealed carry for licensed individuals.\n\nAnswer with the letter and explain your reasoning.`],
     score: (a, d) => {
       const l = a.toLowerCase();
       let sc = 0;
@@ -343,4 +343,4 @@ export const P27_EXT: Record<string, GameEngine> = {
       return clamp(sc);
     },
   }),
-  'constitution_02
+  'constitution
