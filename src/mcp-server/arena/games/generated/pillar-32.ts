@@ -115,8 +115,8 @@ export const P32_EXT: Record<string, GameEngine> = {
   }),
   'metadata_preservation_09': textGame({
     prompts: [
-      (d, r) => `You've digitized a collection of old family photographs. The digital files include EXIF data (camera settings, date/time, GPS location) and IPTC data (creator, copyright, description). How would you use this metadata to create a family history website?`,
-      (d, r) => `A university library is digitizing a collection of 19th-century letters.  Metadata includes: sender, recipient, date written, place written, paper type, ink color, watermark. How would you use this metadata to study the social and cultural history of the period?`,
+      (d, r) => `You've inherited a digital photo archive from a local historical society.  Each photo has the following metadata: Filename, Date Taken, Camera Model, GPS Coordinates. How would you use this metadata to create a virtual tour of the locations where the photos were taken?`,
+      (d, r) => `A university library is digitizing a collection of 19th-century letters.  Metadata includes: sender, recipient, date written, place written, paper type, ink color, watermark. How would you use this metadata to create a searchable database of the letters?`,
       (d, r) => `You are building a digital asset management system for a film studio. They have a vast library of video footage.  Metadata options include: shot number, scene number, take number, camera angle, lighting setup, audio track. How would you use this metadata to create a searchable index of the footage?`,
     ],
     score: (answer, d) => reasonScore(answer),
@@ -124,6 +124,24 @@ export const P32_EXT: Record<string, GameEngine> = {
   }),
   'metadata_preservation_10': textGame({
     prompts: [
+      (d, r) => `You are archiving a collection of digital photographs from a local historical society. The photos are mostly JPEGs, and the existing metadata includes: filename, date taken, camera model, GPS coordinates. How would you use this metadata to create a searchable database of the photos?`,
+      (d, r) => `You are tasked with migrating a large database of scientific research papers (PDFs) to a new digital repository. The current metadata includes: Title, Author(s), Abstract, DOI, Journal, Keywords, Publication Date. What are the potential risks and challenges of this migration process?`,
+      (d, r) => `A museum is digitizing its collection of historical textiles. Each textile has a complex provenance history, documented in a detailed database. The metadata includes: Object ID, Title, Artist/Maker, Date of Creation, Materials, Dimensions, Provenance. How would you ensure the long-term preservation of this provenance information?`,
+    ],
+    score: (answer, d) => reasonScore(answer),
+    deadline: 120,
+  }),
+  'metadata_preservation_11': textGame({
+    prompts: [
+      (d, r) => `You've digitized a collection of old family photographs. The digital files include EXIF data (camera settings, date/time, GPS location) and IPTC data (creator, copyright, description). How would you use this metadata to create a family history website?`,
+      (d, r) => `A university library is digitizing a collection of 19th-century letters.  Metadata includes: sender, recipient, date written, place written, paper type, ink color, watermark. How would you use this metadata to study the social and cultural history of the period?`,
+      (d, r) => `You are building a digital asset management system for a film studio. They have a vast library of video footage.  Metadata options include: shot number, scene number, take number, camera angle, lighting setup, audio track. How would you use this metadata to create a searchable index of the footage?`,
+    ],
+    score: (answer, d) => reasonScore(answer),
+    deadline: 120,
+  }),
+  'metadata_preservation_12': textGame({
+    prompts: [
       (d, r) => `You've digitized a collection of old family photographs. The scanner automatically added metadata like scan date, scanner model, and file size.  The original photos have no identifying information. How would you use crowdsourcing to help identify the people and places in the photos?`,
       (d, r) => `You are archiving a large dataset of scientific research papers. Each paper has metadata including: title, authors, abstract, publication date, journal name, DOI, keywords, file format. How would you handle papers that have been retracted or corrected?`,
       (d, r) => `You are tasked with preserving a collection of born-digital art created using now-obsolete software. The files include metadata about the software version used, the artist's name, and the creation date. How would you create an emulation environment to allow users to experience this art as it was originally intended?`,
@@ -131,7 +149,7 @@ export const P32_EXT: Record<string, GameEngine> = {
     score: (answer, d) => reasonScore(answer),
     deadline: 120,
   }),
-  'metadata_preservation_11': textGame({
+  'metadata_preservation_13': textGame({
     prompts: [
       (d, r) => `You've inherited a digital photo archive from a local historical society.  Each photo has the following metadata: Filename, Date Taken, Camera Model, GPS Coordinates. How would you use this metadata to create a timeline of events?`,
       (d, r) => `You are archiving a collection of 19th-century letters.  Metadata options include: author, recipient, date written, place written, paper type, ink color, watermark. What are the challenges of accurately transcribing and interpreting handwritten metadata?`,
@@ -140,7 +158,7 @@ export const P32_EXT: Record<string, GameEngine> = {
     score: (answer, d) => reasonScore(answer),
     deadline: 120,
   }),
-  'metadata_preservation_12': textGame({
+  'metadata_preservation_14': textGame({
     prompts: [
       (d, r) => `You've digitized a collection of old family photographs. The scanner automatically added metadata like scan date, scanner model, and file size.  The original photos have no identifying information. What are the ethical considerations of adding metadata to these photos?`,
       (d, r) => `You are archiving a large dataset of scientific research papers. Each paper has extensive metadata including author affiliations, funding sources, DOI, abstract, keywords, publication date. How would you handle conflicting or incomplete metadata?`,
@@ -149,28 +167,10 @@ export const P32_EXT: Record<string, GameEngine> = {
     score: (answer, d) => reasonScore(answer),
     deadline: 120,
   }),
-  'metadata_preservation_13': textGame({
+  'metadata_preservation_15': textGame({
     prompts: [
       (d, r) => `You've inherited a digital photo archive from a local historical society.  Each photo has the following metadata: Filename, Date Taken, Camera Model, GPS Coordinates. How would you use this metadata to create a virtual tour of the locations where the photos were taken?`,
       (d, r) => `A university library is digitizing a collection of 19th-century letters.  Metadata includes: sender, recipient, date written, place written, paper type, ink color, watermark. How would you use this metadata to create a searchable database of the letters?`,
-      (d, r) => `You are building a digital asset management system for a film studio. They have a vast library of video footage.  Metadata options include: shot number, scene number, take number, camera angle, lighting setup, audio track. How would you use this metadata to create a searchable index of the footage?`,
-    ],
-    score: (answer, d) => reasonScore(answer),
-    deadline: 120,
-  }),
-  'metadata_preservation_14': textGame({
-    prompts: [
-      (d, r) => `You are archiving a collection of digital photographs from a local historical society. The photos are mostly JPEGs, and the existing metadata includes: filename, date taken, camera model, GPS coordinates. How would you use this metadata to create a searchable database of the photos?`,
-      (d, r) => `You are tasked with migrating a large database of scientific research papers (PDFs) to a new digital repository. The current metadata includes: Title, Author(s), Abstract, DOI, Journal, Keywords, Publication Date. What are the potential risks and challenges of this migration process?`,
-      (d, r) => `A museum is digitizing its collection of historical textiles. Each textile has a complex provenance history, documented in a detailed database. The metadata includes: Object ID, Title, Artist/Maker, Date of Creation, Materials, Dimensions, Provenance. How would you ensure the long-term preservation of this provenance information?`,
-    ],
-    score: (answer, d) => reasonScore(answer),
-    deadline: 120,
-  }),
-  'metadata_preservation_15': textGame({
-    prompts: [
-      (d, r) => `You've digitized a collection of old family photographs. The digital files include EXIF data (camera settings, date/time, GPS location) and IPTC data (creator, copyright, description). How would you use this metadata to create a family history website?`,
-      (d, r) => `A university library is digitizing a collection of 19th-century letters.  Metadata includes: sender, recipient, date written, place written, paper type, ink color, watermark. How would you use this metadata to study the social and cultural history of the period?`,
       (d, r) => `You are building a digital asset management system for a film studio. They have a vast library of video footage.  Metadata options include: shot number, scene number, take number, camera angle, lighting setup, audio track. How would you use this metadata to create a searchable index of the footage?`,
     ],
     score: (answer, d) => reasonScore(answer),
@@ -178,6 +178,24 @@ export const P32_EXT: Record<string, GameEngine> = {
   }),
   'metadata_preservation_16': textGame({
     prompts: [
+      (d, r) => `You are archiving a collection of digital photographs from a local historical society. The photos are mostly JPEGs, and the existing metadata includes: filename, date taken, camera model, GPS coordinates. How would you use this metadata to create a searchable database of the photos?`,
+      (d, r) => `You are tasked with migrating a large database of scientific research papers (PDFs) to a new digital repository. The current metadata includes: Title, Author(s), Abstract, DOI, Journal, Keywords, Publication Date. What are the potential risks and challenges of this migration process?`,
+      (d, r) => `A museum is digitizing its collection of historical textiles. Each textile has a complex provenance history, documented in a detailed database. The metadata includes: Object ID, Title, Artist/Maker, Date of Creation, Materials, Dimensions, Provenance. How would you ensure the long-term preservation of this provenance information?`,
+    ],
+    score: (answer, d) => reasonScore(answer),
+    deadline: 120,
+  }),
+  'metadata_preservation_17': textGame({
+    prompts: [
+      (d, r) => `You've digitized a collection of old family photographs. The digital files include EXIF data (camera settings, date/time, GPS location) and IPTC data (creator, copyright, description). How would you use this metadata to create a family history website?`,
+      (d, r) => `A university library is digitizing a collection of 19th-century letters.  Metadata includes: sender, recipient, date written, place written, paper type, ink color, watermark. How would you use this metadata to study the social and cultural history of the period?`,
+      (d, r) => `You are building a digital asset management system for a film studio. They have a vast library of video footage.  Metadata options include: shot number, scene number, take number, camera angle, lighting setup, audio track. How would you use this metadata to create a searchable index of the footage?`,
+    ],
+    score: (answer, d) => reasonScore(answer),
+    deadline: 120,
+  }),
+  'metadata_preservation_18': textGame({
+    prompts: [
       (d, r) => `You've digitized a collection of old family photographs. The scanner automatically added metadata like scan date, scanner model, and file size.  The original photos have no identifying information. How would you use crowdsourcing to help identify the people and places in the photos?`,
       (d, r) => `You are archiving a large dataset of scientific research papers. Each paper has metadata including: title, authors, abstract, publication date, journal name, DOI, keywords, file format. How would you handle papers that have been retracted or corrected?`,
       (d, r) => `You are tasked with preserving a collection of born-digital art created using now-obsolete software. The files include metadata about the software version used, the artist's name, and the creation date. How would you create an emulation environment to allow users to experience this art as it was originally intended?`,
@@ -185,7 +203,7 @@ export const P32_EXT: Record<string, GameEngine> = {
     score: (answer, d) => reasonScore(answer),
     deadline: 120,
   }),
-  'metadata_preservation_17': textGame({
+  'metadata_preservation_19': textGame({
     prompts: [
       (d, r) => `You've inherited a digital photo archive from a local historical society.  Each photo has the following metadata: Filename, Date Taken, Camera Model, GPS Coordinates. How would you use this metadata to create a timeline of events?`,
       (d, r) => `You are archiving a collection of 19th-century letters.  Metadata options include: author, recipient, date written, place written, paper type, ink color, watermark. What are the challenges of accurately transcribing and interpreting handwritten metadata?`,
@@ -194,7 +212,7 @@ export const P32_EXT: Record<string, GameEngine> = {
     score: (answer, d) => reasonScore(answer),
     deadline: 120,
   }),
-  'metadata_preservation_18': textGame({
+  'metadata_preservation_20': textGame({
     prompts: [
       (d, r) => `You've digitized a collection of old family photographs. The scanner automatically added metadata like scan date, scanner model, and file size.  The original photos have no identifying information. What are the ethical considerations of adding metadata to these photos?`,
       (d, r) => `You are archiving a large dataset of scientific research papers. Each paper has extensive metadata including author affiliations, funding sources, DOI, abstract, keywords, publication date. How would you handle conflicting or incomplete metadata?`,
@@ -203,28 +221,10 @@ export const P32_EXT: Record<string, GameEngine> = {
     score: (answer, d) => reasonScore(answer),
     deadline: 120,
   }),
-  'metadata_preservation_19': textGame({
+  'metadata_preservation_21': textGame({
     prompts: [
       (d, r) => `You've inherited a digital photo archive from a local historical society.  Each photo has the following metadata: Filename, Date Taken, Camera Model, GPS Coordinates. How would you use this metadata to create a virtual tour of the locations where the photos were taken?`,
       (d, r) => `A university library is digitizing a collection of 19th-century letters.  Metadata includes: sender, recipient, date written, place written, paper type, ink color, watermark. How would you use this metadata to create a searchable database of the letters?`,
-      (d, r) => `You are building a digital asset management system for a film studio. They have a vast library of video footage.  Metadata options include: shot number, scene number, take number, camera angle, lighting setup, audio track. How would you use this metadata to create a searchable index of the footage?`,
-    ],
-    score: (answer, d) => reasonScore(answer),
-    deadline: 120,
-  }),
-  'metadata_preservation_20': textGame({
-    prompts: [
-      (d, r) => `You are archiving a collection of digital photographs from a local historical society. The photos are mostly JPEGs, and the existing metadata includes: filename, date taken, camera model, GPS coordinates. How would you use this metadata to create a searchable database of the photos?`,
-      (d, r) => `You are tasked with migrating a large database of scientific research papers (PDFs) to a new digital repository. The current metadata includes: Title, Author(s), Abstract, DOI, Journal, Keywords, Publication Date. What are the potential risks and challenges of this migration process?`,
-      (d, r) => `A museum is digitizing its collection of historical textiles. Each textile has a complex provenance history, documented in a detailed database. The metadata includes: Object ID, Title, Artist/Maker, Date of Creation, Materials, Dimensions, Provenance. How would you ensure the long-term preservation of this provenance information?`,
-    ],
-    score: (answer, d) => reasonScore(answer),
-    deadline: 120,
-  }),
-  'metadata_preservation_21': textGame({
-    prompts: [
-      (d, r) => `You've digitized a collection of old family photographs. The digital files include EXIF data (camera settings, date/time, GPS location) and IPTC data (creator, copyright, description). How would you use this metadata to create a family history website?`,
-      (d, r) => `A university library is digitizing a collection of 19th-century letters.  Metadata includes: sender, recipient, date written, place written, paper type, ink color, watermark. How would you use this metadata to study the social and cultural history of the period?`,
       (d, r) => `You are building a digital asset management system for a film studio. They have a vast library of video footage.  Metadata options include: shot number, scene number, take number, camera angle, lighting setup, audio track. How would you use this metadata to create a searchable index of the footage?`,
     ],
     score: (answer, d) => reasonScore(answer),
@@ -232,42 +232,6 @@ export const P32_EXT: Record<string, GameEngine> = {
   }),
   'metadata_preservation_22': textGame({
     prompts: [
-      (d, r) => `You've digitized a collection of old family photographs. The scanner automatically added metadata like scan date, scanner model, and file size.  The original photos have no identifying information. How would you use crowdsourcing to help identify the people and places in the photos?`,
-      (d, r) => `You are archiving a large dataset of scientific research papers. Each paper has metadata including: title, authors, abstract, publication date, journal name, DOI, keywords, file format. How would you handle papers that have been retracted or corrected?`,
-      (d, r) => `You are tasked with preserving a collection of born-digital art created using now-obsolete software. The files include metadata about the software version used, the artist's name, and the creation date. How would you create an emulation environment to allow users to experience this art as it was originally intended?`,
-    ],
-    score: (answer, d) => reasonScore(answer),
-    deadline: 120,
-  }),
-  'metadata_preservation_23': textGame({
-    prompts: [
-      (d, r) => `You've inherited a digital photo archive from a local historical society.  Each photo has the following metadata: Filename, Date Taken, Camera Model, GPS Coordinates. How would you use this metadata to create a timeline of events?`,
-      (d, r) => `You are archiving a collection of 19th-century letters.  Metadata options include: author, recipient, date written, place written, paper type, ink color, watermark. What are the challenges of accurately transcribing and interpreting handwritten metadata?`,
-      (d, r) => `You are building a digital repository for a collection of scientific research data (e.g., climate models, genomic sequences).  The data is stored in a custom file format.  Metadata includes: experiment ID, data type, units of measurement, calibration information. How would you ensure the authenticity and integrity of this data?`,
-    ],
-    score: (answer, d) => reasonScore(answer),
-    deadline: 120,
-  }),
-  'metadata_preservation_24': textGame({
-    prompts: [
-      (d, r) => `You've digitized a collection of old family photographs. The scanner automatically added metadata like scan date, scanner model, and file size.  The original photos have no identifying information. What are the ethical considerations of adding metadata to these photos?`,
-      (d, r) => `You are archiving a large dataset of scientific research papers. Each paper has extensive metadata including author affiliations, funding sources, DOI, abstract, keywords, publication date. How would you handle conflicting or incomplete metadata?`,
-      (d, r) => `You are tasked with preserving a collection of early digital art created using a now-obsolete software package. The files include metadata about the software version used, the artist's name, and the creation date. How would you document the software environment required to run this art?`,
-    ],
-    score: (answer, d) => reasonScore(answer),
-    deadline: 120,
-  }),
-  'metadata_preservation_25': textGame({
-    prompts: [
-      (d, r) => `You've inherited a digital photo archive from a local historical society.  Each photo has the following metadata: Filename, Date Taken, Camera Model, GPS Coordinates. How would you use this metadata to create a virtual tour of the locations where the photos were taken?`,
-      (d, r) => `A university library is digitizing a collection of 19th-century letters.  Metadata includes: sender, recipient, date written, place written, paper type, ink color, watermark. How would you use this metadata to create a searchable database of the letters?`,
-      (d, r) => `You are building a digital asset management system for a film studio. They have a vast library of video footage.  Metadata options include: shot number, scene number, take number, camera angle, lighting setup, audio track. How would you use this metadata to create a searchable index of the footage?`,
-    ],
-    score: (answer, d) => reasonScore(answer),
-    deadline: 120,
-  }),
-  'metadata_preservation_26': textGame({
-    prompts: [
       (d, r) => `You are archiving a collection of digital photographs from a local historical society. The photos are mostly JPEGs, and the existing metadata includes: filename, date taken, camera model, GPS coordinates. How would you use this metadata to create a searchable database of the photos?`,
       (d, r) => `You are tasked with migrating a large database of scientific research papers (PDFs) to a new digital repository. The current metadata includes: Title, Author(s), Abstract, DOI, Journal, Keywords, Publication Date. What are the potential risks and challenges of this migration process?`,
       (d, r) => `A museum is digitizing its collection of historical textiles. Each textile has a complex provenance history, documented in a detailed database. The metadata includes: Object ID, Title, Artist/Maker, Date of Creation, Materials, Dimensions, Provenance. How would you ensure the long-term preservation of this provenance information?`,
@@ -275,7 +239,7 @@ export const P32_EXT: Record<string, GameEngine> = {
     score: (answer, d) => reasonScore(answer),
     deadline: 120,
   }),
-  'metadata_preservation_27': textGame({
+  'metadata_preservation_23': textGame({
     prompts: [
       (d, r) => `You've digitized a collection of old family photographs. The digital files include EXIF data (camera settings, date/time, GPS location) and IPTC data (creator, copyright, description). How would you use this metadata to create a family history website?`,
       (d, r) => `A university library is digitizing a collection of 19th-century letters.  Metadata includes: sender, recipient, date written, place written, paper type, ink color, watermark. How would you use this metadata to study the social and cultural history of the period?`,
@@ -284,7 +248,7 @@ export const P32_EXT: Record<string, GameEngine> = {
     score: (answer, d) => reasonScore(answer),
     deadline: 120,
   }),
-  'metadata_preservation_28': textGame({
+  'metadata_preservation_24': textGame({
     prompts: [
       (d, r) => `You've digitized a collection of old family photographs. The scanner automatically added metadata like scan date, scanner model, and file size.  The original photos have no identifying information. How would you use crowdsourcing to help identify the people and places in the photos?`,
       (d, r) => `You are archiving a large dataset of scientific research papers. Each paper has metadata including: title, authors, abstract, publication date, journal name, DOI, keywords, file format. How would you handle papers that have been retracted or corrected?`,
@@ -293,7 +257,7 @@ export const P32_EXT: Record<string, GameEngine> = {
     score: (answer, d) => reasonScore(answer),
     deadline: 120,
   }),
-  'metadata_preservation_29': textGame({
+  'metadata_preservation_25': textGame({
     prompts: [
       (d, r) => `You've inherited a digital photo archive from a local historical society.  Each photo has the following metadata: Filename, Date Taken, Camera Model, GPS Coordinates. How would you use this metadata to create a timeline of events?`,
       (d, r) => `You are archiving a collection of 19th-century letters.  Metadata options include: author, recipient, date written, place written, paper type, ink color, watermark. What are the challenges of accurately transcribing and interpreting handwritten metadata?`,
@@ -302,11 +266,47 @@ export const P32_EXT: Record<string, GameEngine> = {
     score: (answer, d) => reasonScore(answer),
     deadline: 120,
   }),
-  'metadata_preservation_30': textGame({
+  'metadata_preservation_26': textGame({
     prompts: [
       (d, r) => `You've digitized a collection of old family photographs. The scanner automatically added metadata like scan date, scanner model, and file size.  The original photos have no identifying information. What are the ethical considerations of adding metadata to these photos?`,
       (d, r) => `You are archiving a large dataset of scientific research papers. Each paper has extensive metadata including author affiliations, funding sources, DOI, abstract, keywords, publication date. How would you handle conflicting or incomplete metadata?`,
       (d, r) => `You are tasked with preserving a collection of early digital art created using a now-obsolete software package. The files include metadata about the software version used, the artist's name, and the creation date. How would you document the software environment required to run this art?`,
+    ],
+    score: (answer, d) => reasonScore(answer),
+    deadline: 120,
+  }),
+  'metadata_preservation_27': textGame({
+    prompts: [
+      (d, r) => `You've inherited a digital photo archive from a local historical society.  Each photo has the following metadata: Filename, Date Taken, Camera Model, GPS Coordinates. How would you use this metadata to create a virtual tour of the locations where the photos were taken?`,
+      (d, r) => `A university library is digitizing a collection of 19th-century letters.  Metadata includes: sender, recipient, date written, place written, paper type, ink color, watermark. How would you use this metadata to create a searchable database of the letters?`,
+      (d, r) => `You are building a digital asset management system for a film studio. They have a vast library of video footage.  Metadata options include: shot number, scene number, take number, camera angle, lighting setup, audio track. How would you use this metadata to create a searchable index of the footage?`,
+    ],
+    score: (answer, d) => reasonScore(answer),
+    deadline: 120,
+  }),
+  'metadata_preservation_28': textGame({
+    prompts: [
+      (d, r) => `You are archiving a collection of digital photographs from a local historical society. The photos are mostly JPEGs, and the existing metadata includes: filename, date taken, camera model, GPS coordinates. How would you use this metadata to create a searchable database of the photos?`,
+      (d, r) => `You are tasked with migrating a large database of scientific research papers (PDFs) to a new digital repository. The current metadata includes: Title, Author(s), Abstract, DOI, Journal, Keywords, Publication Date. What are the potential risks and challenges of this migration process?`,
+      (d, r) => `A museum is digitizing its collection of historical textiles. Each textile has a complex provenance history, documented in a detailed database. The metadata includes: Object ID, Title, Artist/Maker, Date of Creation, Materials, Dimensions, Provenance. How would you ensure the long-term preservation of this provenance information?`,
+    ],
+    score: (answer, d) => reasonScore(answer),
+    deadline: 120,
+  }),
+  'metadata_preservation_29': textGame({
+    prompts: [
+      (d, r) => `You've digitized a collection of old family photographs. The digital files include EXIF data (camera settings, date/time, GPS location) and IPTC data (creator, copyright, description). How would you use this metadata to create a family history website?`,
+      (d, r) => `A university library is digitizing a collection of 19th-century letters.  Metadata includes: sender, recipient, date written, place written, paper type, ink color, watermark. How would you use this metadata to study the social and cultural history of the period?`,
+      (d, r) => `You are building a digital asset management system for a film studio. They have a vast library of video footage.  Metadata options include: shot number, scene number, take number, camera angle, lighting setup, audio track. How would you use this metadata to create a searchable index of the footage?`,
+    ],
+    score: (answer, d) => reasonScore(answer),
+    deadline: 120,
+  }),
+  'metadata_preservation_30': textGame({
+    prompts: [
+      (d, r) => `You've digitized a collection of old family photographs. The scanner automatically added metadata like scan date, scanner model, and file size.  The original photos have no identifying information. How would you use crowdsourcing to help identify the people and places in the photos?`,
+      (d, r) => `You are archiving a large dataset of scientific research papers. Each paper has metadata including: title, authors, abstract, publication date, journal name, DOI, keywords, file format. How would you handle papers that have been retracted or corrected?`,
+      (d, r) => `You are tasked with preserving a collection of born-digital art created using now-obsolete software. The files include metadata about the software version used, the artist's name, and the creation date. How would you create an emulation environment to allow users to experience this art as it was originally intended?`,
     ],
     score: (answer, d) => reasonScore(answer),
     deadline: 120,
