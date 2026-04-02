@@ -92,7 +92,7 @@ export const P27_EXT: Record<string, GameEngine> = {
   }),
   'constitution_005':
   textGame({
-    prompts: [() => `Police, investigating a series of burglaries, conduct a \'warrantless dragnet\' search of all cell phone location data from a specific tower covering the crime scene for a three-hour window, hoping to identify suspects. No individual warrants are obtained for specific phones.\n\nOptions:\n(A) The warrantless dragnet search is constitutional as it only tracks movements on public roads, where there is no reasonable expectation of privacy. (B) The warrantless dragnet search is unconstitutional as it constitutes a search under the Fourth Amendment, requiring a warrant. (C) The search is constitutional if the police can later show probable cause against specific individuals identified by the data. (D) The search is constitutional if it is limited to a short time frame.\n\nAnswer with the letter and explain your reasoning.`],
+    prompts: [() => `Police, investigating a series of burglaries, conduct a \'warrantless dragnet\' search of all cell phone location data from a specific tower covering the crime scene for a three-hour window, hoping to identify suspects. No individual warrants are obtained for specific phones.\n\nOptions:\n(A) The state's order is constitutional as it is necessary to ensure public safety during a disaster. (B) The state's order is unconstitutional as it constitutes a search of personal electronic devices without a warrant. (C) The order is constitutional if the state provides a written receipt for the phones. (D) The constitutionality depends on whether the state has a history of security threats during disasters.\n\nAnswer with the letter and explain your reasoning.`],
     score: (a, d) => {
       const l = a.toLowerCase();
       let sc = 0;
@@ -103,7 +103,7 @@ export const P27_EXT: Record<string, GameEngine> = {
   }),
   'constitution_006':
   textGame({
-    prompts: [() => `A suspect is arrested and interrogated for several hours without being read their Miranda rights. During the interrogation, they confess to the crime. Later, during a separate, non-custodial interview, they reiterate their confession after being read their rights. Can this confession be used in court?\n\nOptions:\n(A) Yes, because the suspect was not formally arrested and was in their own home, so Miranda warnings were not required. (B) No, because Miranda warnings are required for all custodial interrogations, regardless of the severity of the suspected crime. (C) Yes, if the police can prove the suspect was not coerced into confessing. (D) No, unless the suspect had an attorney present during the second confession.\n\nAnswer with the letter and explain your reasoning.`],
+    prompts: [() => `During a traffic stop, an officer smells marijuana and orders the driver to unlock their phone to check for evidence of drug distribution. The driver refuses, citing their Fifth Amendment rights. The officer searches the phone and finds evidence of drug distribution. Can this search be used in court?\n\nOptions:\n(A) Yes, because the officer had a reasonable suspicion of criminal activity. (B) No, because the driver's refusal to unlock their phone constitutes a violation of their Fifth Amendment rights. (C) The search is constitutional if the officer can demonstrate that the phone was in plain view. (D) No, unless the driver was under arrest.\n\nAnswer with the letter and explain your reasoning.`],
     score: (a, d) => {
       const l = a.toLowerCase();
       let sc = 0;
@@ -114,7 +114,7 @@ export const P27_EXT: Record<string, GameEngine> = {
   }),
   'constitution_007':
   textGame({
-    prompts: [() => `During a traffic stop, an officer smells marijuana and orders the driver to unlock their phone to check for evidence of drug distribution. The driver refuses, citing their Fifth Amendment rights. The officer searches the phone and finds evidence of drug distribution. Can this search be used in court?\n\nOptions:\n(A) Yes, because the officer had a reasonable suspicion of criminal activity. (B) No, because the driver's refusal to unlock their phone constitutes a violation of their Fifth Amendment rights. (C) Yes, if the officer can demonstrate that the phone was in plain view. (D) No, unless the driver was under arrest.\n\nAnswer with the letter and explain your reasoning.`],
+    prompts: [() => `A state passes a law requiring all semi-automatic \'assault weapons\' and large-capacity magazines to be banned, citing their common use in mass shootings. Gun rights advocates challenge the law, claiming it violates the Second Amendment.\n\nOptions:\n(A) The law is likely constitutional as it aims to reduce gun violence and is a reasonable restriction on firearm ownership. (B) The law is likely unconstitutional as it infringes upon the right to effectively self-defense, a core aspect of the Second Amendment. (C) The law is constitutional if the state offers alternative firearms for self-defense. (D) The constitutionality depends on whether the state has a high rate of gun violence.\n\nAnswer with the letter and explain your reasoning.`],
     score: (a, d) => {
       const l = a.toLowerCase();
       let sc = 0;
@@ -125,7 +125,7 @@ export const P27_EXT: Record<string, GameEngine> = {
   }),
   'constitution_008':
   textGame({
-    prompts: [() => `A state passes a law allowing for \'civil asset forfeiture\' where police can seize private property (cash, cars, homes) merely on suspicion of its involvement in a crime, without first securing a criminal conviction. Property owners challenge this law, arguing it violates the Fifth Amendment.\n\nOptions:\n(A) The law is constitutional as it helps fund law enforcement and deters criminal activity. (B) The law is unconstitutional as it allows for the taking of property without due process and potentially without just compensation, prior to a conviction. (C) The law is constitutional if the seized assets are proven to be directly linked to criminal activity. (D) The constitutionality depends on whether the state has a high rate of property seizures.\n\nAnswer with the letter and explain your reasoning.`],
+    prompts: [() => `A state passes a law requiring all public schools to teach a version of the American Revolution that emphasizes the role of individual liberty and limited government. Parents challenge this law, arguing it promotes a particular political ideology.\n\nOptions:\n(A) The law is constitutional as it promotes civic education and historical understanding. (B) The law is unconstitutional as it promotes a particular political ideology and infringes upon academic freedom. (C) The law is constitutional if the curriculum is neutral and objective. (D) The constitutionality depends on whether the state provides an alternative curriculum for students who disagree with the emphasis on liberty and limited government.\n\nAnswer with the letter and explain your reasoning.`],
     score: (a, d) => {
       const l = a.toLowerCase();
       let sc = 0;
@@ -136,7 +136,7 @@ export const P27_EXT: Record<string, GameEngine> = {
   }),
   'constitution_009':
   textGame({
-    prompts: [() => `A state passes a law requiring all public schools to teach a version of the American Revolution that emphasizes the role of individual liberty and limited government. Parents challenge this law, arguing it promotes a particular political ideology.\n\nOptions:\n(A) The law is constitutional as it promotes civic education and historical understanding. (B) The law is unconstitutional as it promotes a particular political ideology and infringes upon academic freedom. (C) The law is constitutional if the curriculum is neutral and objective. (D) The constitutionality depends on whether the state provides an alternative curriculum for students who disagree with the emphasis on liberty and limited government.\n\nAnswer with the letter and explain your reasoning.`],
+    prompts: [() => `A state passes a law requiring all semi-automatic \'assault weapons\' and large-capacity magazines to be banned, citing their common use in mass shootings. Gun rights advocates challenge the law, claiming it violates the Second Amendment.\n\nOptions:\n(A) The law is likely constitutional as it aims to reduce gun violence and is a reasonable restriction on firearm ownership. (B) The law is likely unconstitutional as it infringes upon the right to effectively self-defense, a core aspect of the Second Amendment. (C) The law is constitutional if the state offers alternative firearms for self-defense. (D) The constitutionality depends on whether the state has a high rate of gun violence.\n\nAnswer with the letter and explain your reasoning.`],
     score: (a, d) => {
       const l = a.toLowerCase();
       let sc = 0;
@@ -147,7 +147,7 @@ export const P27_EXT: Record<string, GameEngine> = {
   }),
   'constitution_010':
   textGame({
-    prompts: [() => `During a pandemic, a state government issues an order for mandatory evacuation, and as part of the evacuation, requires all citizens to leave their cell phones at designated checkpoints for \'security screening\' before proceeding. Citizens refuse, citing privacy and Fourth Amendment concerns.\n\nOptions:\n(A) The state's order is constitutional as it is necessary to ensure public safety during a disaster. (B) The state's order is unconstitutional as it constitutes a search of personal electronic devices without a warrant. (C) The order is constitutional if the state provides a written receipt for the phones. (D) The constitutionality depends on whether the state has a history of security threats during disasters.\n\nAnswer with the letter and explain your reasoning.`],
+    prompts: [() => `A state passes a law requiring all semi-automatic \'assault weapons\' and large-capacity magazines to be banned, citing their common use in mass shootings. Gun rights advocates challenge the law, claiming it violates the Second Amendment.\n\nOptions:\n(A) The law is likely constitutional as it aims to reduce gun violence and is a reasonable restriction on firearm ownership. (B) The law is likely unconstitutional as it infringes upon the right to effectively self-defense, a core aspect of the Second Amendment. (C) The law is constitutional if the state offers alternative firearms for self-defense. (D) The constitutionality depends on whether the state has a high rate of gun violence.\n\nAnswer with the letter and explain your reasoning.`],
     score: (a, d) => {
       const l = a.toLowerCase();
       let sc = 0;
@@ -158,7 +158,7 @@ export const P27_EXT: Record<string, GameEngine> = {
   }),
   'constitution_011':
   textGame({
-    prompts: [() => `A state passes a law requiring all public schools to teach a version of the American Revolution that emphasizes the role of individual liberty and limited government. Parents challenge this law, arguing it promotes a particular political ideology.\n\nOptions:\n(A) The law is constitutional as it promotes civic education and historical understanding. (B) The law is unconstitutional as it promotes a particular political ideology and infringes upon academic freedom. (C) The law is constitutional if the curriculum is neutral and objective. (D) The constitutionality depends on whether the state provides an alternative curriculum for students who disagree with the emphasis on liberty and limited government.\n\nAnswer with the letter and explain your reasoning.`],
+    prompts: [() => `A state passes a law requiring all semi-automatic \'assault weapons\' and large-capacity magazines to be banned, citing their common use in mass shootings. Gun rights advocates challenge the law, claiming it violates the Second Amendment.\n\nOptions:\n(A) The law is likely constitutional as it aims to reduce gun violence and is a reasonable restriction on firearm ownership. (B) The law is likely unconstitutional as it infringes upon the right to effectively self-defense, a core aspect of the Second Amendment. (C) The law is constitutional if the state offers alternative firearms for self-defense. (D) The constitutionality depends on whether the state has a high rate of gun violence.\n\nAnswer with the letter and explain your reasoning.`],
     score: (a, d) => {
       const l = a.toLowerCase();
       let sc = 0;
@@ -169,7 +169,7 @@ export const P27_EXT: Record<string, GameEngine> = {
   }),
   'constitution_012':
   textGame({
-    prompts: [() => `During a pandemic, a state government issues an order for mandatory evacuation, and as part of the evacuation, requires all citizens to leave their cell phones at designated checkpoints for \'security screening\' before proceeding. Citizens refuse, citing privacy and Fourth Amendment concerns.\n\nOptions:\n(A) The state's order is constitutional as it is necessary to ensure public safety during a disaster. (B) The state's order is unconstitutional as it constitutes a search of personal electronic devices without a warrant. (C) The order is constitutional if the state provides a written receipt for the phones. (D) The constitutionality depends on whether the state has a history of security threats during disasters.\n\nAnswer with the letter and explain your reasoning.`],
+    prompts: [() => `A state passes a law requiring all semi-automatic \'assault weapons\' and large-capacity magazines to be banned, citing their common use in mass shootings. Gun rights advocates challenge the law, claiming it violates the Second Amendment.\n\nOptions:\n(A) The law is likely constitutional as it aims to reduce gun violence and is a reasonable restriction on firearm ownership. (B) The law is likely unconstitutional as it infringes upon the right to effectively self-defense, a core aspect of the Second Amendment. (C) The law is constitutional if the state offers alternative firearms for self-defense. (D) The constitutionality depends on whether the state has a high rate of gun violence.\n\nAnswer with the letter and explain your reasoning.`],
     score: (a, d) => {
       const l = a.toLowerCase();
       let sc = 0;
@@ -180,7 +180,7 @@ export const P27_EXT: Record<string, GameEngine> = {
   }),
   'constitution_013':
   textGame({
-    prompts: [() => `A state passes a law requiring all public schools to teach a version of the American Revolution that emphasizes the role of individual liberty and limited government. Parents challenge this law, arguing it promotes a particular political ideology.\n\nOptions:\n(A) The law is constitutional as it promotes civic education and historical understanding. (B) The law is unconstitutional as it promotes a particular political ideology and infringes upon academic freedom. (C) The law is constitutional if the curriculum is neutral and objective. (D) The constitutionality depends on whether the state provides an alternative curriculum for students who disagree with the emphasis on liberty and limited government.\n\nAnswer with the letter and explain your reasoning.`],
+    prompts: [() => `A state passes a law requiring all semi-automatic \'assault weapons\' and large-capacity magazines to be banned, citing their common use in mass shootings. Gun rights advocates challenge the law, claiming it violates the Second Amendment.\n\nOptions:\n(A) The law is likely constitutional as it aims to reduce gun violence and is a reasonable restriction on firearm ownership. (B) The law is likely unconstitutional as it infringes upon the right to effectively self-defense, a core aspect of the Second Amendment. (C) The law is constitutional if the state offers alternative firearms for self-defense. (D) The constitutionality depends on whether the state has a high rate of gun violence.\n\nAnswer with the letter and explain your reasoning.`],
     score: (a, d) => {
       const l = a.toLowerCase();
       let sc = 0;
@@ -191,7 +191,7 @@ export const P27_EXT: Record<string, GameEngine> = {
   }),
   'constitution_014':
   textGame({
-    prompts: [() => `A state passes a law requiring all public schools to teach a version of the American Revolution that emphasizes the role of individual liberty and limited government. Parents challenge this law, arguing it promotes a particular political ideology.\n\nOptions:\n(A) The law is constitutional as it promotes civic education and historical understanding. (B) The law is unconstitutional as it promotes a particular political ideology and infringes upon academic freedom. (C) The law is constitutional if the curriculum is neutral and objective. (D) The constitutionality depends on whether the state provides an alternative curriculum for students who disagree with the emphasis on liberty and limited government.\n\nAnswer with the letter and explain your reasoning.`],
+    prompts: [() => `A state passes a law requiring all semi-automatic \'assault weapons\' and large-capacity magazines to be banned, citing their common use in mass shootings. Gun rights advocates challenge the law, claiming it violates the Second Amendment.\n\nOptions:\n(A) The law is likely constitutional as it aims to reduce gun violence and is a reasonable restriction on firearm ownership. (B) The law is likely unconstitutional as it infringes upon the right to effectively self-defense, a core aspect of the Second Amendment. (C) The law is constitutional if the state offers alternative firearms for self-defense. (D) The constitutionality depends on whether the state has a high rate of gun violence.\n\nAnswer with the letter and explain your reasoning.`],
     score: (a, d) => {
       const l = a.toLowerCase();
       let sc = 0;
@@ -202,7 +202,7 @@ export const P27_EXT: Record<string, GameEngine> = {
   }),
   'constitution_015':
   textGame({
-    prompts: [() => `During a series of violent incidents, a major city enacts a ban on the open carrying of all firearms within city limits, even for licensed individuals. Residents argue this violates their Second Amendment rights.\n\nOptions:\n(A) The city's ban is likely constitutional as it serves a compelling government interest in public safety, and is narrowly tailored. (B) The city's ban is likely unconstitutional as it infringes upon the right to openly carry firearms for self-defense, a core aspect of the Second Amendment. (C) The ban is constitutional if the city can demonstrate a significant reduction in violence directly attributable to the law. (D) The ban is unconstitutional only if it also prohibits concealed carry for licensed individuals.\n\nAnswer with the letter and explain your reasoning.`],
+    prompts: [() => `A state passes a law requiring all semi-automatic \'assault weapons\' and large-capacity magazines to be banned, citing their common use in mass shootings. Gun rights advocates challenge the law, claiming it violates the Second Amendment.\n\nOptions:\n(A) The law is likely constitutional as it aims to reduce gun violence and is a reasonable restriction on firearm ownership. (B) The law is likely unconstitutional as it infringes upon the right to effectively self-defense, a core aspect of the Second Amendment. (C) The law is constitutional if the state offers alternative firearms for self-defense. (D) The constitutionality depends on whether the state has a high rate of gun violence.\n\nAnswer with the letter and explain your reasoning.`],
     score: (a, d) => {
       const l = a.toLowerCase();
       let sc = 0;
@@ -345,4 +345,4 @@ export const P27_EXT: Record<string, GameEngine> = {
   }),
   'constitution_028':
   textGame({
-    prompts: [() => `A state passes a law requiring all semi-automatic \'assault weapons\' and large-capacity magazines to be banned, citing their common use in mass shootings. Gun rights
+    prompts: [() => `A state passes a law requiring all semi-automatic
