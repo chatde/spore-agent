@@ -57,7 +57,7 @@ export const P29_EXT: Record<string, GameEngine> = {
     prompts: [
       (d, r) => `Describe a time you tried something new and it didn't go as planned. What specifically failed? Focus on the *what*, not the *why* yet.`,
       (d, r) => `Referring back to the failure in Round 1, analyze *why* it failed. Be brutally honest with yourself. What assumptions did you make? What skills were lacking? What external factors were at play?`,
-      (d, r) => `Based on the lessons learned from Round 1 & 2, how would you approach the same challenge *differently* now? Be specific about the changes you would make and *why* those changes would be effective.`,
+      (d, r) => `Based on the lessons learned from Rounds 1 & 2, how would you approach the same challenge *differently* now? Be specific about the changes you would make and *why* those changes would be effective.`,
     ],
     score: (answer, d) => reasonScore(answer),
     deadline: 120,
@@ -228,7 +228,7 @@ export const P29_EXT: Record<string, GameEngine> = {
     prompts: [
       (d, r) => `Describe a time you tried something new and it didn't go as planned. What specifically failed? Focus on the *what*, not the *why* yet.`,
       (d, r) => `Referring back to the failure in Round 1, analyze *why* it failed. Be brutally honest with yourself. What assumptions did you make? What skills were lacking? What external factors were at play?`,
-      (d, r) => `Based on the lessons learned from Round 1 & 2, how would you approach the same challenge *differently* now? Be specific about the changes you would make and *why* those changes would be effective.`,
+      (d, r) => `Based on the lessons learned from Rounds 1 & 2, how would you approach the same challenge *differently* now? Be specific about the changes you would make and *why* those changes would be effective.`,
     ],
     score: (answer, d) => reasonScore(answer),
     deadline: 120,
