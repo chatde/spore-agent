@@ -59,7 +59,7 @@ export const P27_EXT: Record<string, GameEngine> = {
   }),
   'constitution_002':
   textGame({
-    prompts: [() => `A state university adopts a \'civility code\' that bans any speech deemed \'disrespectful or offensive\' to any individual or group on campus. A student posts comments online criticizing the university\'s administration, which are then flagged as \'disrespectful\' under the code.\n\nOptions:\n(A) The university's civility code is likely constitutional as it promotes a positive learning environment and prevents harassment. (B) The university's civility code is likely unconstitutional because it is overly broad and vague, chilling protected speech. (C) The university can enforce the code against the student as their speech was directed at the administration, not a protected group. (D) The code is constitutional if it only applies to speech that directly incites violence or harassment.\n\nAnswer with the letter and explain your reasoning.`],
+    prompts: [() => `A state university adopts a \'civility code\' that bans any speech deemed \'disrespectful or offensive\' to any individual or group on campus. A student posts comments online criticizing the university's administration, which are then flagged as \'disrespectful\' under the code.\n\nOptions:\n(A) The university's civility code is likely constitutional as it promotes a positive learning environment and prevents harassment. (B) The university's civility code is likely unconstitutional because it is overly broad and vague, chilling protected speech. (C) The university can enforce the code against the student as their speech was directed at the administration, not a protected group. (D) The code is constitutional if it only applies to speech that directly incites violence or harassment.\n\nAnswer with the letter and explain your reasoning.`],
     score: (a, d) => {
       const l = a.toLowerCase();
       let sc = 0;
@@ -92,7 +92,7 @@ export const P27_EXT: Record<string, GameEngine> = {
   }),
   'constitution_005':
   textGame({
-    prompts: [() => `Police, investigating a series of burglaries, conduct a \'warrantless dragnet\' search of all cell phone location data from a specific tower covering the crime scene for a three-hour window, hoping to identify suspects. No individual warrants are obtained for specific phones.\n\nOptions:\n(A) The state's order is constitutional as it is necessary to ensure public safety during a disaster. (B) The state's order is unconstitutional as it constitutes a search of personal electronic devices without a warrant. (C) The order is constitutional if the state provides a written receipt for the phones. (D) The constitutionality depends on whether the state has a history of security threats during disasters.\n\nAnswer with the letter and explain your reasoning.`],
+    prompts: [() => `Police, investigating a series of burglaries, conduct a \'warrantless dragnet\' search of all cell phone location data from a specific tower covering the crime scene for a three-hour window, hoping to identify suspects. No individual warrants are obtained for specific phones.\n\nOptions:\n(A) The state's order is constitutional as it is necessary to ensure public safety during a disaster. (B) The state's order is unconstitutional as it constitutes a search of personal electronic devices without a warrant. (C) The order is constitutional if the state provides a written receipt for the phones. (D) The constitutionality depends on whether the state has a high rate of security threats during disasters.\n\nAnswer with the letter and explain your reasoning.`],
     score: (a, d) => {
       const l = a.toLowerCase();
       let sc = 0;
@@ -103,7 +103,7 @@ export const P27_EXT: Record<string, GameEngine> = {
   }),
   'constitution_006':
   textGame({
-    prompts: [() => `During a traffic stop, an officer smells marijuana and orders the driver to unlock their phone to check for evidence of drug distribution. The driver refuses, citing their Fifth Amendment rights. The officer searches the phone and finds evidence of drug distribution. Can this search be used in court?\n\nOptions:\n(A) Yes, because the officer had a reasonable suspicion of criminal activity. (B) No, because the driver's refusal to unlock their phone constitutes a violation of their Fifth Amendment rights. (C) The search is constitutional if the officer can demonstrate that the phone was in plain view. (D) No, unless the driver was under arrest.\n\nAnswer with the letter and explain your reasoning.`],
+    prompts: [() => `A state passes a law requiring all semi-automatic \'assault weapons\' and large-capacity magazines to be banned, citing their common use in mass shootings. Gun rights advocates challenge the law, claiming it violates the Second Amendment.\n\nOptions:\n(A) The law is likely constitutional as it aims to reduce gun violence and is a reasonable restriction on firearm ownership. (B) The law is likely unconstitutional as it infringes upon the right to effectively self-defense, a core aspect of the Second Amendment. (C) The law is constitutional if the state offers alternative firearms for self-defense. (D) The constitutionality depends on whether the state has a high rate of gun violence.\n\nAnswer with the letter and explain your reasoning.`],
     score: (a, d) => {
       const l = a.toLowerCase();
       let sc = 0;
@@ -125,7 +125,7 @@ export const P27_EXT: Record<string, GameEngine> = {
   }),
   'constitution_008':
   textGame({
-    prompts: [() => `A state passes a law requiring all public schools to teach a version of the American Revolution that emphasizes the role of individual liberty and limited government. Parents challenge this law, arguing it promotes a particular political ideology.\n\nOptions:\n(A) The law is constitutional as it promotes civic education and historical understanding. (B) The law is unconstitutional as it promotes a particular political ideology and infringes upon academic freedom. (C) The law is constitutional if the curriculum is neutral and objective. (D) The constitutionality depends on whether the state provides an alternative curriculum for students who disagree with the emphasis on liberty and limited government.\n\nAnswer with the letter and explain your reasoning.`],
+    prompts: [() => `A state passes a law requiring all semi-automatic \'assault weapons\' and large-capacity magazines to be banned, citing their common use in mass shootings. Gun rights advocates challenge the law, claiming it violates the Second Amendment.\n\nOptions:\n(A) The law is likely constitutional as it aims to reduce gun violence and is a reasonable restriction on firearm ownership. (B) The law is likely unconstitutional as it infringes upon the right to effectively self-defense, a core aspect of the Second Amendment. (C) The law is constitutional if the state offers alternative firearms for self-defense. (D) The constitutionality depends on whether the state has a high rate of gun violence.\n\nAnswer with the letter and explain your reasoning.`],
     score: (a, d) => {
       const l = a.toLowerCase();
       let sc = 0;
@@ -343,6 +343,4 @@ export const P27_EXT: Record<string, GameEngine> = {
       return clamp(sc);
     },
   }),
-  'constitution_028':
-  textGame({
-    prompts: [() => `A state passes a law requiring all semi-automatic
+  'constitution_02
