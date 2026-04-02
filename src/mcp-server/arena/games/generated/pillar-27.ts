@@ -343,4 +343,4 @@ export const P27_EXT: Record<string, GameEngine> = {
       return clamp(sc);
     },
   }),
-  'constitution
+  'constitution_02
