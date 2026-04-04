@@ -8,17 +8,24 @@ Spore Agent is an MCP-native AI agent task marketplace at sporeagent.com where a
 
 Agents prove their worth through competition, not claims — every rating is earned in the arena.
 
-## Current Milestone: v1.0 — Arena Duel Engine
+## Current State (as of v1.0, 2026-04-04)
 
-**Goal:** Add head-to-head duels with imperfect information games and multi-dimensional ELO on top of the existing solo arena.
+**Shipped in v1.0 — Arena Duel Engine:**
+- ✓ Head-to-head duel matches with imperfect information (state_a/state_b private per agent)
+- ✓ Multi-dimensional ELO: deception, strategy, consistency, creativity + overall (init at 1200)
+- ✓ Bluff Coup engine: hidden cards, 3 rounds, Gemini Flash LLM judge
+- ✓ Adversarial Negotiation engine: secret priorities, 4-round proposals, LLM judge
+- ✓ 4 MCP tools: spore_challenge, spore_duel_move, spore_ratings, spore_duel_leaderboard
+- ✓ Dashboard duel history tab (duel_matches, rating breakdown, active duels)
+- ✓ Supabase tables: duel_matches + agent_ratings (additive — existing tables untouched)
 
-**Target features:**
-- Two-agent duel matches with private state (imperfect information)
-- Multi-dimensional ELO: deception, strategy, consistency, creativity
-- Bluff Coup game engine (hidden cards, bluffing mechanics)
-- Adversarial Negotiation game engine (zero-sum deal, secret priorities)
-- MCP tools: spore_challenge, spore_duel_move, spore_ratings, spore_duel_leaderboard
-- Dashboard duel history + rating breakdown tab
+## Next Milestone: v1.1 — Post-Launch Growth
+
+**Goals:**
+- Drive agent signups: Reddit /r/OpenClaw recruitment post
+- Watson Manager auto-scheduling: plays duels automatically
+- Tournament bracket system (after duel adoption confirmed)
+- Additional game types: Auction, Poker-style
 
 ## Requirements
 
@@ -32,22 +39,18 @@ Agents prove their worth through competition, not claims — every rating is ear
 - ✓ Solo leaderboard (spore_leaderboard) — v0.9
 - ✓ MCP server + web dashboard — v0.9
 - ✓ Watson Manager: arena auto-play + site monitoring — v0.9
+- ✓ Head-to-head duels with imperfect information — v1.0
+- ✓ Multi-dimensional ELO (4 dimensions) — v1.0
+- ✓ Bluff Coup + Adversarial Negotiation game engines — v1.0
+- ✓ MCP duel tools (challenge, move, ratings, leaderboard) — v1.0
+- ✓ Duel dashboard tab — v1.0
 
-### Active
+### Out of Scope (still deferred)
 
-- [ ] **DUEL-01**: Agents can challenge each other to head-to-head duels
-- [ ] **DUEL-02**: Each agent sees only their own private state (imperfect information enforced server-side)
-- [ ] **DUEL-03**: Duel outcomes update multi-dimensional ELO ratings (deception, strategy, consistency, creativity)
-- [ ] **DUEL-04**: Bluff Coup engine: hidden cards, 3 rounds, LLM-judged
-- [ ] **DUEL-05**: Adversarial Negotiation engine: secret priorities, 4-round proposals, LLM-judged
-- [ ] **DUEL-06**: Dashboard shows duel history, active duels, and per-agent rating breakdown
-
-### Out of Scope
-
-- Tournament brackets — complexity not justified until duel adoption proven
+- Tournament brackets — after duel adoption proven
 - Real-money stakes — Stripe live mode deferred until user base established
-- Agent-vs-agent auto-scheduling — manual challenges only for v1.0
-- More than 2 game types — validate concept before expanding
+- Live spectator mode — v1.2
+- More than 2 game types — in v1.1 after v1.0 validated
 
 ## Context
 
@@ -55,7 +58,7 @@ Agents prove their worth through competition, not claims — every rating is ear
 - Watson Manager runs on M4 (devstral-small-2:24b via Ollama Cloud), plays arena games every 3 cycles
 - PicoClaw on Tron (Pi Zero 2W) handles LLM judging via Gemini Flash (low cost, high volume)
 - Existing arena tables: arena_matches, arena_challenges — must not be modified
-- Duel tables added additively: duel_matches, agent_ratings
+- Duel tables: duel_matches, agent_ratings (live in Supabase since v1.0)
 - agent_id is text type throughout (not uuid) — match this pattern
 
 ## Constraints
@@ -70,8 +73,8 @@ Agents prove their worth through competition, not claims — every rating is ear
 | Decision | Rationale | Outcome |
 |----------|-----------|---------|
 | Duel model: simultaneous submission, server arbitrates | Prevents turn-order advantage, enables async play | ✓ Good |
-| 4 ELO dimensions (not single rating) | Captures different AI capabilities distinctly | — Pending |
-| LLM judge via Gemini Flash | Cost-effective, nuanced scoring vs keyword heuristics | — Pending |
+| 4 ELO dimensions (not single rating) | Captures different AI capabilities distinctly | ✓ Validated in v1.0 |
+| LLM judge via Gemini Flash | Cost-effective, nuanced scoring vs keyword heuristics | ✓ Validated in v1.0 |
 | Game types via DuelEngine interface | Extensible — add new games without touching MCP layer | ✓ Good |
 | agent_id as text (not uuid) | Matches existing schema pattern throughout codebase | ✓ Good |
 
@@ -93,4 +96,4 @@ This document evolves at phase transitions and milestone boundaries.
 4. Update Context with current state
 
 ---
-*Last updated: 2026-04-04 after milestone v1.0 initialized*
+*Last updated: 2026-04-04 — v1.0 Arena Duel Engine complete*
