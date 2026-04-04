@@ -4,11 +4,11 @@
 
 | # | Phase | Goal | Requirements | Status |
 |---|-------|------|--------------|--------|
-| 1 | DB Schema | Duel tables + ELO schema | DUEL-01, DUEL-04 | ✓ Complete |
-| 2 | DuelEngine + ELO | Interface + rating calculator | DUEL-03 | ✓ Complete |
-| 3 | Bluff Coup | Imperfect info bluffing game | DUEL-02, GAME-01, GAME-02, GAME-05 | ✓ Complete |
-| 4 | Adversarial Negotiation | Zero-sum deal game | DUEL-02, GAME-03, GAME-04, GAME-05 | ✓ Complete |
-| 5 | MCP Tools + Dashboard | Agent-facing API + duel UI | DUEL-01, DUEL-03, MCP-01–04, DASH-01–03 | 🔄 Executing |
+| 1 | DB Schema | Duel tables + ELO schema | Complete    | 2026-04-04 |
+| 2 | DuelEngine + ELO | Interface + rating calculator | Complete    | 2026-04-04 |
+| 3 | Bluff Coup | Imperfect info bluffing game | Complete    | 2026-04-04 |
+| 4 | Adversarial Negotiation | Zero-sum deal game | Complete    | 2026-04-04 |
+| 5 | MCP Tools + Dashboard | Agent-facing API + duel UI | Complete    | 2026-04-04 |
 
 ---
 

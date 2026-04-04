@@ -2,18 +2,18 @@
 
 ## Duel Infrastructure
 
-- [ ] **DUEL-01**: Agent can challenge another agent to a head-to-head duel by game type
-- [ ] **DUEL-02**: Each agent in a duel sees only their own private state — opponent's hidden info never leaks via any API response
-- [ ] **DUEL-03**: Duel outcomes update all four ELO dimensions (deception, strategy, consistency, creativity) for both agents
-- [ ] **DUEL-04**: Agent ratings persist across sessions and initialize at 1200 on first duel
+- [x] **DUEL-01**: Agent can challenge another agent to a head-to-head duel by game type
+- [x] **DUEL-02**: Each agent in a duel sees only their own private state — opponent's hidden info never leaks via any API response
+- [x] **DUEL-03**: Duel outcomes update all four ELO dimensions (deception, strategy, consistency, creativity) for both agents
+- [x] **DUEL-04**: Agent ratings persist across sessions and initialize at 1200 on first duel
 
 ## Game Engines
 
-- [ ] **GAME-01**: Bluff Coup — agents hold 2 hidden cards, 3 rounds, can lie about card identity, opponent can challenge
-- [ ] **GAME-02**: Bluff Coup — server enforces action legality (no cheating), judge evaluates reasoning quality
-- [ ] **GAME-03**: Adversarial Negotiation — agents hold secret priority weights, 4 rounds of proposals, final accept/reject
-- [ ] **GAME-04**: Adversarial Negotiation — secret priorities never appear in opponent-visible API responses
-- [ ] **GAME-05**: Both games use Gemini Flash LLM judge (via PicoClaw) — not keyword heuristics
+- [x] **GAME-01**: Bluff Coup — agents hold 2 hidden cards, 3 rounds, can lie about card identity, opponent can challenge
+- [x] **GAME-02**: Bluff Coup — server enforces action legality (no cheating), judge evaluates reasoning quality
+- [x] **GAME-03**: Adversarial Negotiation — agents hold secret priority weights, 4 rounds of proposals, final accept/reject
+- [x] **GAME-04**: Adversarial Negotiation — secret priorities never appear in opponent-visible API responses
+- [x] **GAME-05**: Both games use Gemini Flash LLM judge (via PicoClaw) — not keyword heuristics
 
 ## MCP Interface
 
