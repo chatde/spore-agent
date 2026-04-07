@@ -1,5 +1,3 @@
-// Auto-generated — Pillar 11: Diplomacy & Negotiation (28 games)
-// Generated 2026-03-28T16:16:05.613Z
 import type { GameEngine, RoundPrompt, ScoreResult } from '../engine.js';
 import type { ArenaMatch, ArenaChallenge } from '../../types.js';
 
@@ -11,7 +9,7 @@ function clamp(n: number): number { return Math.max(0, Math.min(100, Math.round(
 function codeScore(s: string): number { let sc = 0; if (s.includes('function') || s.includes('=>')) sc += 20; if (s.includes('return')) sc += 15; if (s.includes('{')) sc += 10; if (s.length > 20) sc += 15; if (s.length > 100) sc += 10; return clamp(sc + rand(5, 20)); }
 function reasonScore(s: string): number { const m = ['therefore','because','since','thus','hence','if','then','given','conclude','follows','implies']; let sc = has(s, m) * 7; if (wc(s) > 30) sc += 15; if (wc(s) > 80) sc += 10; return clamp(sc + rand(5, 20)); }
 function creativeScore(s: string): number { const u = new Set(s.toLowerCase().split(/\s+/)); let sc = Math.min(40, u.size); if (wc(s) > 20) sc += 15; return clamp(sc + rand(5, 20)); }
-function precisionScore(s: string, ideal: number): number { const len = wc(s); if (len === 0) return 0; return clamp(100 - Math.abs(len - ideal) * 3); }
+function precisionScore(s: string, ideal: string | string[]): number { const len = wc(s); if (len === 0) return 0; const keywords = Array.isArray(ideal) ? ideal : [ideal]; const keywordCount = keywords.filter(k => s.toLowerCase().includes(k)).length; return clamp(100 - keywordCount * 3); }
 function mathScore(s: string): number { let sc = 0; if (/\d/.test(s)) sc += 20; if (s.includes('=') || s.includes('+')) sc += 15; if (has(s, ['therefore','thus','equals','answer','result','solution']) > 0) sc += 15; if (wc(s) > 10) sc += 15; return clamp(sc + rand(10, 25)); }
 
 function textGame(cfg: { prompts: ((d: number, r: number) => string)[]; score: (answer: string, d: number) => number; deadline?: number; }): GameEngine {
@@ -71,7 +69,7 @@ alliances_builder: textGame({
   ],
   score: (answer, d) => {
     let sc = 0;
-    sc = wc(answer, 5);
+    sc = wc(answer);
     sc += has(answer, ['alliance', 'goal', 'benefits']);
     return clamp(sc, 0, 100);
   },
@@ -131,7 +129,7 @@ refugee_crisis: textGame({
   ],
   score: (answer, d) => {
     let sc = 0;
-    sc = wc(answer, 7);
+    sc = wc(answer);
     sc += creativeScore(answer);
     return clamp(sc, 0, 100);
   },
@@ -177,7 +175,7 @@ game_id: textGame({
   score: (answer, d) => {
     let sc = 0;
     sc += has(answer, ["resource sharing", "conflict prevention", "environmental protection", "trade restrictions"]) ? 20 : 0;
-    sc += reasonScore(answer, "treaty validity", d) * 0.5;
+    sc += reasonScore(answer);
     return clamp(sc);
   },
   deadline: 120,
@@ -191,8 +189,8 @@ game_id: textGame({
   ],
   score: (answer, d) => {
     let sc = 0;
-    sc += creativeScore(answer, "innovative de-escalation", d) * 0.75;
-    sc += precisionScore(answer, "step-by-step plan", d) * 0.25;
+    sc += creativeScore(answer);
+    sc += precisionScore(answer, "step-by-step plan");
     return clamp(sc);
   },
   deadline: 120,
@@ -206,8 +204,8 @@ game_id: textGame({
   ],
   score: (answer, d) => {
     let sc = 0;
-    sc += mathScore(answer, "fair distribution", d) * 0.6;
-    sc += codeScore(answer, "resource algorithm", d) * 0.4;
+    sc += mathScore(answer);
+    sc += codeScore(answer);
     return clamp(sc);
   },
   deadline: 120,
@@ -236,7 +234,7 @@ game_id: textGame({
   ],
   score: (answer, d) => {
     let sc = 0;
-    sc += codeScore(answer, "encryption protocol", d) * 0.5;
+    sc += codeScore(answer);
     sc += has(answer, ["secure transfer", "non-disclosure", "data integrity"]) ? 15 : 0;
     return clamp(sc);
   },
@@ -251,8 +249,8 @@ game_id: textGame({
   ],
   score: (answer, d) => {
     let sc = 0;
-    sc += mathScore(answer, "equilibrium metrics", d) * 0.4;
-    sc += precisionScore(answer, "power distribution plan", d) * 0.6;
+    sc += mathScore(answer);
+    sc += precisionScore(answer, "power distribution plan");
     return clamp(sc);
   },
   deadline: 120,
@@ -266,8 +264,8 @@ game_id: textGame({
   ],
   score: (answer, d) => {
     let sc = 0;
-    sc += reasonScore(answer, "ethical analysis", d) * 0.7;
-    sc += creativeScore(answer, "moral compromise", d) * 0.3;
+    sc += reasonScore(answer);
+    sc += creativeScore(answer);
     return clamp(sc);
   },
   deadline: 120,
@@ -281,7 +279,7 @@ game_id: textGame({
   ],
   score: (answer, d) => {
     let sc = 0;
-    sc += codeScore(answer, "reconciliation framework", d) * 0.5;
+    sc += codeScore(answer);
     sc += has(answer, ["reparations", "trust-building", "historical acknowledgment"]) ? 20 : 0;
     return clamp(sc);
   },
@@ -296,8 +294,8 @@ game_id: textGame({
   ],
   score: (answer, d) => {
     let sc = 0;
-    sc += mathScore(answer, "territorial boundaries", d) * 0.6;
-    sc += reasonScore(answer, "border justification", d) * 0.4;
+    sc += mathScore(answer);
+    sc += reasonScore(answer);
     return clamp(sc);
   },
   deadline: 120,
@@ -310,7 +308,7 @@ game_id: textGame({
     (d, r) => `Resolve a territorial dispute over resource-rich lands using diplomatic tactics.`,
   ],
   score: (answer, d) => {
-    let sc = wordCount(answer) * 2;
+    let sc = wc(answer) * 2;
     sc += has(answer, ['compromise', 'alliance', 'treaty']) ? 15 : 0;
     return clamp(sc);
   },
@@ -394,7 +392,7 @@ game_id: textGame({
     (d, r) => `Prioritize resource allocation among ${r*2} breakthrough technologies.`,
   ],
   score: (answer, d) => {
-    let sc = wordCount(answer) * 2;
+    let sc = wc(answer) * 2;
     sc += has(answer, ['innovation', 'ROI', 'impact']) ? 22 : 0;
     return clamp(sc);
   },
