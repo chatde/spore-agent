@@ -16,6 +16,7 @@ import { embedText, embedQuery, cosineSimilarity } from "./embeddings.js";
 import type { Task, Bid, Delivery, Rating, Agent } from "./types.js";
 import { verifyDelivery } from "./verification.js";
 import { averageRating, successRate } from "./utils.js";
+import { supabase, isSupabaseEnabled } from "./supabase.js";
 import { z } from "zod";
 
 // --- Zod Schemas ---
@@ -53,6 +54,12 @@ const RateSchema = z.object({
 });
 
 const app = new Hono();
+
+function parseIsoTimestamp(value: unknown): number | null {
+  if (typeof value !== "string") return null;
+  const timestamp = Date.parse(value);
+  return Number.isNaN(timestamp) ? null : timestamp;
+}
 
 // CORS for web dashboard
 app.use("/*", cors());
@@ -753,11 +760,14 @@ app.get("/api/arena/stats", async (c) => {
   let playingMatches = 0;
   let scoredMatches = 0;
   let totalCogAwarded = 0;
+  const playingAgentIds = new Set<string>();
 
   for (const agent of allAgents) {
     const matches = await store.getAgentMatches(agent.id, 100);
     totalMatches += matches.length;
-    playingMatches += matches.filter(m => m.status === "playing").length;
+    const activeMatches = matches.filter((m) => m.status === "playing");
+    playingMatches += activeMatches.length;
+    if (activeMatches.length > 0) playingAgentIds.add(agent.id);
     scoredMatches += matches.filter(m => m.status === "scored").length;
     totalCogAwarded += matches.reduce((s, m) => s + m.cog_earned, 0);
   }
@@ -765,6 +775,22 @@ app.get("/api/arena/stats", async (c) => {
   // Count all challenges by status
   const allChallenges = challenges; // getOpenChallenges returns all non-completed
   const liveChallenges = allChallenges.filter(c => c.status === "active" || c.status === "open").length;
+  const activeAgents = allAgents.filter((agent) => ((agent as Agent & { cog_lifetime?: number }).cog_lifetime ?? 0) > 0).length;
+  const cutoffIso = new Date(Date.now() - 5 * 60 * 1000).toISOString();
+  let onlineAgents = allAgents.filter((agent) => {
+    const lastActive = parseIsoTimestamp((agent as Agent & { last_active?: string }).last_active);
+    return lastActive !== null && lastActive >= Date.parse(cutoffIso);
+  }).length;
+
+  if (isSupabaseEnabled()) {
+    const { count } = await supabase!
+      .from("agents")
+      .select("id", { count: "exact", head: true })
+      .gte("last_active", cutoffIso);
+    if (typeof count === "number") onlineAgents = count;
+  }
+
+  onlineAgents = Math.max(onlineAgents, playingAgentIds.size);
 
   return c.json({
     totalChallenges: allChallenges.length,
@@ -775,8 +801,18 @@ app.get("/api/arena/stats", async (c) => {
     playingNow: playingMatches,
     completedMatches: scoredMatches,
     totalCogAwarded,
-    activeAgents: allAgents.filter(a => a.cog_lifetime > 0).length,
+    activeAgents,
+    onlineNow: onlineAgents,
     totalAgents: allAgents.length,
+    total_challenges: allChallenges.length,
+    live_challenges: liveChallenges,
+    open_challenges: allChallenges.filter(c => c.status === "open").length,
+    active_matches: playingMatches,
+    completed_matches: scoredMatches,
+    total_cog_awarded: totalCogAwarded,
+    active_agents: activeAgents,
+    online_agents: onlineAgents,
+    total_agents: allAgents.length,
   });
 });
 
@@ -894,6 +930,10 @@ app.post("/api/arena/challenges/:id/join", async (c) => {
     cog_earned: 0,
   };
   await store.createMatch(match);
+
+  if (isSupabaseEnabled()) {
+    await supabase!.from("agents").update({ last_active: match.started_at }).eq("id", agent_id);
+  }
 
   // Check if challenge is full
   const matches = await store.getChallengeMatches(challengeId);

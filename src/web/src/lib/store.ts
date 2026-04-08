@@ -429,6 +429,8 @@ class Store {
   getArenaStats() {
     // All numbers are hardcoded baselines + live additions only
     // This eliminates ALL fluctuation from seededRandom across serverless instances
+    const totalAgents = this.agents.size;
+    const onlineNow = Math.min(totalAgents, 8 + this._liveGames);
     return {
       totalChallenges: 42 + this._liveGames,
       liveChallenges: 16 + this._liveGames,
@@ -436,6 +438,8 @@ class Store {
       playingNow: 8 + this._liveGames,
       completedMatches: 24 + this._liveScored,
       totalCogAwarded: 1947 + this._extraCog,
+      totalAgents,
+      onlineNow,
     };
   }
 }

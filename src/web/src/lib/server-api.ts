@@ -140,33 +140,30 @@ export function getArenaLeaderboard(limit = 25) {
 import { supabase } from "./supabase";
 
 export function getArenaStats() {
-  return store.getArenaStats();
+  return normalizeArenaStats(store.getArenaStats());
+}
+
+function normalizeArenaStats(data: any) {
+  return {
+    totalChallenges: data?.totalChallenges ?? data?.total_challenges ?? 0,
+    liveChallenges: data?.liveChallenges ?? data?.live_challenges ?? data?.active_matches ?? 0,
+    openChallenges: data?.openChallenges ?? data?.open_challenges ?? 0,
+    playingNow: data?.playingNow ?? data?.playing_now ?? data?.active_matches ?? 0,
+    completedMatches: data?.completedMatches ?? data?.completed_matches ?? 0,
+    totalCogAwarded: data?.totalCogAwarded ?? data?.total_cog_awarded ?? 0,
+    totalAgents: data?.totalAgents ?? data?.total_agents ?? 0,
+    onlineNow: data?.onlineNow ?? data?.online_agents ?? 0,
+  };
 }
 
 export async function getArenaStatsLive() {
   try {
-    const [challenges, matches, agents] = await Promise.all([
-      supabase.from("arena_challenges").select("status", { count: "exact" }),
-      supabase.from("arena_matches").select("status, cog_earned", { count: "exact" }),
-      supabase.from("agents").select("id", { count: "exact" }),
-    ]);
-    const ch = challenges.data || [];
-    const ma = matches.data || [];
-    const fiveMinAgo = new Date(Date.now() - 5 * 60 * 1000).toISOString();
-    const { count: onlineCount } = await supabase.from("agents").select("id", { count: "exact", head: true }).gte("last_active", fiveMinAgo);
-    return {
-      totalChallenges: challenges.count || 0,
-      liveChallenges: ma.filter((m: any) => m.status === "playing").length,
-      openChallenges: ch.filter((c: any) => c.status === "open").length,
-      playingNow: ma.filter((m: any) => m.status === "playing").length,
-      completedMatches: ma.filter((m: any) => m.status === "scored").length,
-      totalCogAwarded: ma.reduce((s: number, m: any) => s + (parseFloat(m.cog_earned) || 0), 0),
-      totalAgents: agents.count || 0,
-      onlineNow: onlineCount || 0,
-    };
-  } catch {
-    return store.getArenaStats();
-  }
+    const res = await fetch("http://localhost:3456/api/arena/stats", { next: { revalidate: 5 } });
+    if (res.ok) {
+      return normalizeArenaStats(await res.json());
+    }
+  } catch {}
+  return normalizeArenaStats(store.getArenaStats());
 }
 
 export async function getArenaLiveMatchesAsync(limit = 50) {
@@ -192,24 +189,11 @@ export async function getArenaLiveMatchesAsync(limit = 50) {
 
 export async function getArenaLeaderboardAsync(limit = 25) {
   try {
-    // Get ALL agents with their balances (left join so agents with 0 COG still appear)
-    const { data: agents } = await supabase
-      .from("agents")
-      .select("id, name")
-      .order("registered_at", { ascending: false })
-      .limit(limit);
-    if (agents && agents.length > 0) {
-      const { data: balances } = await supabase.from("token_balances").select("agent_id, balance, lifetime_earned");
-      const balMap = new Map((balances || []).map((b: any) => [b.agent_id, b]));
-      return agents.map((a: any) => {
-        const bal = balMap.get(a.id);
-        return {
-          agent_id: a.id,
-          agent_name: a.name,
-          cog_balance: parseFloat(bal?.balance) || 0,
-          cog_lifetime: parseFloat(bal?.lifetime_earned) || 0,
-        };
-      }).sort((a: any, b: any) => b.cog_lifetime - a.cog_lifetime);
+    const res = await fetch("http://localhost:3456/api/arena/leaderboard?limit=" + limit, { next: { revalidate: 5 } });
+    if (res.ok) {
+      const d = await res.json();
+      const lb = d.leaderboard || d || [];
+      if (lb.length > 0) return lb;
     }
   } catch {}
   return store.getArenaLeaderboard(limit);
