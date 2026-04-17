@@ -1,0 +1,5 @@
+<svg width="160" height="40" viewBox="0 0 160 40" xmlns="http://www.w3.org/2000/svg">
+  <rect x="4" y="4" width="32" height="32" rx="8" fill="#10b981"></rect>
+  <text x="20" y="27" font-family="Geist, ui-sans-serif, system-ui, sans-serif" font-size="18" font-weight="700" fill="#000" text-anchor="middle">S</text>
+  <text x="46" y="27" font-family="Geist, ui-sans-serif, system-ui, sans-serif" font-size="18" font-weight="600" letter-spacing="-0.3" fill="#e4e4e7">SporeAgent</text>
+</svg>

@@ -13,8 +13,14 @@ export default function LoginPage() {
         <div className="w-12 h-12 rounded-xl bg-accent flex items-center justify-center text-black font-bold text-lg mx-auto mb-4">
           S
         </div>
+        <div className="flex items-center justify-center gap-1.5 mb-2">
+          <span className="w-1.5 h-1.5 rounded-full bg-emerald-500 shadow-[0_0_8px_theme(colors.emerald.500)]" />
+          <span className="text-[10px] tracking-[.12em] uppercase text-muted">
+            MCP-native marketplace
+          </span>
+        </div>
         <h1 className="text-2xl font-bold tracking-tight mb-1">
-          Welcome back
+          Welcome back.
         </h1>
         <p className="text-sm text-muted">
           Log in to your SporeAgent account
@@ -33,7 +39,7 @@ export default function LoginPage() {
             id="email"
             type="email"
             placeholder="you@example.com"
-            className="w-full px-3 py-2.5 rounded-lg border border-border bg-surface text-foreground text-sm placeholder:text-muted/50 focus:outline-none focus:ring-1 focus:ring-accent focus:border-accent transition-colors"
+            className="w-full px-3 py-2.5 rounded-[10px] border border-border bg-surface text-foreground text-sm placeholder:text-muted/50 focus:outline-none focus:border-accent/50 transition-colors"
           />
         </div>
 
@@ -48,43 +54,72 @@ export default function LoginPage() {
             id="password"
             type="password"
             placeholder="••••••••"
-            className="w-full px-3 py-2.5 rounded-lg border border-border bg-surface text-foreground text-sm placeholder:text-muted/50 focus:outline-none focus:ring-1 focus:ring-accent focus:border-accent transition-colors"
+            className="w-full px-3 py-2.5 rounded-[10px] border border-border bg-surface text-foreground text-sm placeholder:text-muted/50 focus:outline-none focus:border-accent/50 transition-colors"
           />
         </div>
 
         <button
           type="submit"
-          className="w-full px-4 py-2.5 rounded-lg bg-accent text-black text-sm font-semibold hover:bg-accent-dim transition-colors"
+          className="w-full px-4 py-2.5 rounded-[10px] bg-accent text-black text-sm font-semibold hover:bg-accent-dim transition-colors"
         >
           Log In
         </button>
+
+        <button
+          type="button"
+          className="w-full px-4 py-2.5 rounded-[10px] border border-border text-muted text-sm font-medium hover:text-foreground hover:border-border-strong transition-colors"
+        >
+          Send magic link
+        </button>
       </form>
 
-      <div className="relative my-6">
-        <div className="absolute inset-0 flex items-center">
-          <div className="w-full border-t border-border" />
-        </div>
-        <div className="relative flex justify-center">
-          <span className="bg-background px-3 text-xs text-muted">or</span>
-        </div>
+      <div className="flex items-center gap-2.5 my-6">
+        <div className="flex-1 h-px bg-border" />
+        <span className="text-[10px] tracking-[.12em] uppercase text-muted">
+          or
+        </span>
+        <div className="flex-1 h-px bg-border" />
       </div>
 
-      <button
-        type="button"
-        className="w-full flex items-center justify-center gap-2 px-4 py-2.5 rounded-lg border border-border text-foreground text-sm font-medium hover:bg-surface-light transition-colors"
-      >
-        <svg viewBox="0 0 24 24" width="16" height="16" fill="currentColor">
-          <path d="M12 .297c-6.63 0-12 5.373-12 12 0 5.303 3.438 9.8 8.205 11.385.6.113.82-.258.82-.577 0-.285-.01-1.04-.015-2.04-3.338.724-4.042-1.61-4.042-1.61C4.422 18.07 3.633 17.7 3.633 17.7c-1.087-.744.084-.729.084-.729 1.205.084 1.838 1.236 1.838 1.236 1.07 1.835 2.809 1.305 3.495.998.108-.776.417-1.305.76-1.605-2.665-.3-5.466-1.332-5.466-5.93 0-1.31.465-2.38 1.235-3.22-.135-.303-.54-1.523.105-3.176 0 0 1.005-.322 3.3 1.23.96-.267 1.98-.399 3-.405 1.02.006 2.04.138 3 .405 2.28-1.552 3.285-1.23 3.285-1.23.645 1.653.24 2.873.12 3.176.765.84 1.23 1.91 1.23 3.22 0 4.61-2.805 5.625-5.475 5.92.42.36.81 1.096.81 2.22 0 1.606-.015 2.896-.015 3.286 0 .315.21.69.825.57C20.565 22.092 24 17.592 24 12.297c0-6.627-5.373-12-12-12" />
-        </svg>
-        Continue with GitHub
-      </button>
+      <div className="space-y-3">
+        <button
+          type="button"
+          className="w-full flex items-center justify-center gap-2 px-4 py-2.5 rounded-[10px] border border-border text-foreground text-sm font-medium hover:bg-surface-light transition-colors"
+        >
+          <svg viewBox="0 0 24 24" width="16" height="16" fill="currentColor">
+            <path d="M12 .297c-6.63 0-12 5.373-12 12 0 5.303 3.438 9.8 8.205 11.385.6.113.82-.258.82-.577 0-.285-.01-1.04-.015-2.04-3.338.724-4.042-1.61-4.042-1.61C4.422 18.07 3.633 17.7 3.633 17.7c-1.087-.744.084-.729.084-.729 1.205.084 1.838 1.236 1.838 1.236 1.07 1.835 2.809 1.305 3.495.998.108-.776.417-1.305.76-1.605-2.665-.3-5.466-1.332-5.466-5.93 0-1.31.465-2.38 1.235-3.22-.135-.303-.54-1.523.105-3.176 0 0 1.005-.322 3.3 1.23.96-.267 1.98-.399 3-.405 1.02.006 2.04.138 3 .405 2.28-1.552 3.285-1.23 3.285-1.23.645 1.653.24 2.873.12 3.176.765.84 1.23 1.91 1.23 3.22 0 4.61-2.805 5.625-5.475 5.92.42.36.81 1.096.81 2.22 0 1.606-.015 2.896-.015 3.286 0 .315.21.69.825.57C20.565 22.092 24 17.592 24 12.297c0-6.627-5.373-12-12-12" />
+          </svg>
+          Continue with GitHub
+        </button>
 
-      <p className="text-center text-xs text-muted mt-6">
-        Don&apos;t have an account?{" "}
-        <Link href="/signup" className="text-accent hover:underline">
-          Sign up
+        <button
+          type="button"
+          className="w-full flex items-center justify-center gap-2 px-4 py-2.5 rounded-[10px] border border-border text-foreground text-sm font-medium hover:bg-surface-light transition-colors"
+        >
+          <svg width="16" height="16" viewBox="0 0 48 48">
+            <path fill="#FFC107" d="M43.6 20.1H42V20H24v8h11.3c-1.6 4.7-6 8-11.3 8-6.6 0-12-5.4-12-12s5.4-12 12-12c3.1 0 5.8 1.2 7.9 3.1l5.7-5.7C34 6.1 29.3 4 24 4 12.95 4 4 12.95 4 24s8.95 20 20 20 20-8.95 20-20c0-1.3-.1-2.6-.4-3.9z" />
+            <path fill="#FF3D00" d="m6.3 14.7 6.6 4.8c1.8-4.3 6-7.5 10.9-7.5 3.1 0 5.8 1.2 7.9 3.1l5.7-5.7C34 6.1 29.3 4 24 4 16.3 4 9.7 8.3 6.3 14.7z" />
+            <path fill="#4CAF50" d="M24 44c5.2 0 9.9-2 13.5-5.2l-6.2-5.2c-2 1.4-4.5 2.3-7.3 2.3-5.2 0-9.7-3.3-11.3-8l-6.5 5C9.5 39.6 16.2 44 24 44z" />
+            <path fill="#1976D2" d="M43.6 20.1H42V20H24v8h11.3c-.8 2.2-2.2 4.2-4 5.6l6.2 5.2c-.4.4 6.5-4.8 6.5-14.8 0-1.3-.1-2.6-.4-3.9z" />
+          </svg>
+          Continue with Google
+        </button>
+      </div>
+
+      <div className="flex flex-col items-center gap-2 mt-6">
+        <p className="text-xs text-muted">
+          Don&apos;t have an account?{" "}
+          <Link href="/signup" className="text-accent hover:underline">
+            Sign up
+          </Link>
+        </p>
+        <Link
+          href="/arena/check-in"
+          className="text-xs text-arena-cyan hover:underline"
+        >
+          Enter the Arena &rarr;
         </Link>
-      </p>
+      </div>
     </div>
   );
 }
