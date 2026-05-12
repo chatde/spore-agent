@@ -22,6 +22,79 @@ function successRate(agent: { ratings: { rating: number }[] }): number | null {
   return Math.round((agent.ratings.filter((r) => r.rating >= 4).length / agent.ratings.length) * 100);
 }
 
+type BidResponse = {
+  id: string;
+  agent_id: string;
+  agent_name: string;
+  approach: string;
+  estimated_minutes: number;
+  submitted_at: string;
+};
+
+type PersistedBidRow = {
+  id: string;
+  task_id: string;
+  agent_id: string;
+  approach: string;
+  estimated_minutes: number;
+  submitted_at: string;
+  agents?: { name?: string | null } | { name?: string | null }[] | null;
+};
+
+async function getPersistedBidsByTaskIds(taskIds: string[]) {
+  const bidsByTaskId = new Map<string, BidResponse[]>();
+  if (taskIds.length === 0) return bidsByTaskId;
+
+  const { data, error } = await supabase
+    .from("bids")
+    .select("id, task_id, agent_id, approach, estimated_minutes, submitted_at, agents(name)")
+    .in("task_id", taskIds)
+    .order("submitted_at", { ascending: true });
+
+  if (error) {
+    console.error("[BIDS] Failed to load persisted bids:", error.message);
+    return bidsByTaskId;
+  }
+
+  for (const bid of (data ?? []) as PersistedBidRow[]) {
+    const agentRelation = Array.isArray(bid.agents) ? bid.agents[0] : bid.agents;
+    const agentName = agentRelation?.name ?? store.agents.get(bid.agent_id)?.name ?? "Unknown";
+    const bids = bidsByTaskId.get(bid.task_id) ?? [];
+    bids.push({
+      id: bid.id,
+      agent_id: bid.agent_id,
+      agent_name: agentName,
+      approach: bid.approach,
+      estimated_minutes: bid.estimated_minutes,
+      submitted_at: bid.submitted_at,
+    });
+    bidsByTaskId.set(bid.task_id, bids);
+  }
+
+  return bidsByTaskId;
+}
+
+function getTaskBids(taskId: string, persistedBids: BidResponse[] = []) {
+  const bids = new Map<string, BidResponse>();
+  for (const bid of store.getTaskBids(taskId)) {
+    const agent = store.agents.get(bid.agent_id);
+    bids.set(bid.id, {
+      id: bid.id,
+      agent_id: bid.agent_id,
+      agent_name: agent?.name ?? "Unknown",
+      approach: bid.approach,
+      estimated_minutes: bid.estimated_minutes,
+      submitted_at: bid.submitted_at,
+    });
+  }
+  for (const bid of persistedBids) {
+    bids.set(bid.id, bid);
+  }
+  return Array.from(bids.values()).sort(
+    (a, b) => new Date(a.submitted_at).getTime() - new Date(b.submitted_at).getTime(),
+  );
+}
+
 export async function GET(req: NextRequest, { params }: { params: Promise<{ path: string[] }> }) {
   const { path } = await params;
   const route = path.join("/");
@@ -55,6 +128,7 @@ export async function GET(req: NextRequest, { params }: { params: Promise<{ path
     const all = url.searchParams.get("all") === "true";
     const limit = parseInt(url.searchParams.get("limit") ?? "50");
     const tasks = (all ? store.getAllTasks() : store.getOpenTasks()).slice(0, limit);
+    const persistedBids = await getPersistedBidsByTaskIds(tasks.map((t) => t.id));
     return json({
       total: tasks.length,
       tasks: tasks.map((t) => ({
@@ -62,7 +136,7 @@ export async function GET(req: NextRequest, { params }: { params: Promise<{ path
         requirements: t.requirements, budget_usd: t.budget_usd ?? null,
         status: t.status, posted_at: t.posted_at,
         assigned_agent_id: t.assigned_agent_id ?? null,
-        bid_count: store.getTaskBids(t.id).length,
+        bid_count: getTaskBids(t.id, persistedBids.get(t.id)).length,
       })),
     });
   }
@@ -79,6 +153,7 @@ export async function GET(req: NextRequest, { params }: { params: Promise<{ path
         t.requirements.some((r) => r.toLowerCase().includes(lower))
       )
       .slice(0, limit);
+    const persistedBids = await getPersistedBidsByTaskIds(tasks.map((t) => t.id));
 
     return json({
       query: q, total: tasks.length,
@@ -86,7 +161,7 @@ export async function GET(req: NextRequest, { params }: { params: Promise<{ path
         id: t.id, title: t.title, description: t.description,
         requirements: t.requirements, budget_usd: t.budget_usd ?? null,
         status: t.status, posted_at: t.posted_at,
-        bid_count: store.getTaskBids(t.id).length,
+        bid_count: getTaskBids(t.id, persistedBids.get(t.id)).length,
       })),
     });
   }
@@ -96,10 +171,8 @@ export async function GET(req: NextRequest, { params }: { params: Promise<{ path
     const task = store.tasks.get(path[1]);
     if (!task) return json({ error: "Task not found" }, 404);
 
-    const bids = store.getTaskBids(task.id).map((b) => {
-      const agent = store.agents.get(b.agent_id);
-      return { id: b.id, agent_id: b.agent_id, agent_name: agent?.name ?? "Unknown", approach: b.approach, estimated_minutes: b.estimated_minutes, submitted_at: b.submitted_at };
-    });
+    const persistedBids = await getPersistedBidsByTaskIds([task.id]);
+    const bids = getTaskBids(task.id, persistedBids.get(task.id));
 
     const deliveries = Array.from(store.deliveries.values())
       .filter((d) => d.task_id === task.id)
@@ -410,11 +483,14 @@ export async function POST(req: NextRequest, { params }: { params: Promise<{ pat
     const agent = store.agents.get(body.agent_id);
     if (!agent) return json({ error: "Agent not found" }, 404);
     const id = crypto.randomUUID();
-    store.bids.set(id, {
+    const submitted_at = new Date().toISOString();
+    const bid = {
       id, task_id: task.id, agent_id: body.agent_id,
       approach: body.approach, estimated_minutes: body.estimated_minutes,
-      submitted_at: new Date().toISOString(),
-    });
+      submitted_at,
+    };
+    store.bids.set(id, bid);
+    await persist("bids", bid);
     return json({ bid_id: id, task_id: task.id, agent_name: agent.name, status: "submitted" }, 201);
   }
 
