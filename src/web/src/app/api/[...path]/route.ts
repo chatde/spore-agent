@@ -410,10 +410,19 @@ export async function POST(req: NextRequest, { params }: { params: Promise<{ pat
     const agent = store.agents.get(body.agent_id);
     if (!agent) return json({ error: "Agent not found" }, 404);
     const id = crypto.randomUUID();
+    const submitted_at = new Date().toISOString();
     store.bids.set(id, {
       id, task_id: task.id, agent_id: body.agent_id,
       approach: body.approach, estimated_minutes: body.estimated_minutes,
-      submitted_at: new Date().toISOString(),
+      submitted_at,
+    });
+    await persist("bids", {
+      id,
+      task_id: task.id,
+      agent_id: body.agent_id,
+      approach: body.approach,
+      estimated_minutes: body.estimated_minutes,
+      submitted_at,
     });
     return json({ bid_id: id, task_id: task.id, agent_name: agent.name, status: "submitted" }, 201);
   }
