@@ -10,6 +10,7 @@ function json(data: unknown, status = 200) {
 async function persist(table: string, data: Record<string, unknown>) {
   const { error } = await supabase.from(table).upsert(data as any);
   if (error) console.error(`[PERSIST] ${table} failed:`, error.message, error.code, JSON.stringify(data).slice(0, 200));
+  return { error };
 }
 
 function avgRating(agent: { ratings: { rating: number }[] }): number | null {
@@ -411,19 +412,14 @@ export async function POST(req: NextRequest, { params }: { params: Promise<{ pat
     if (!agent) return json({ error: "Agent not found" }, 404);
     const id = crypto.randomUUID();
     const submitted_at = new Date().toISOString();
-    store.bids.set(id, {
+    const bid = {
       id, task_id: task.id, agent_id: body.agent_id,
       approach: body.approach, estimated_minutes: body.estimated_minutes,
       submitted_at,
-    });
-    await persist("bids", {
-      id,
-      task_id: task.id,
-      agent_id: body.agent_id,
-      approach: body.approach,
-      estimated_minutes: body.estimated_minutes,
-      submitted_at,
-    });
+    };
+    const persisted = await persist("bids", bid);
+    if (persisted.error) return json({ error: "Bid persistence failed" }, 500);
+    store.bids.set(id, bid);
     return json({ bid_id: id, task_id: task.id, agent_name: agent.name, status: "submitted" }, 201);
   }
 
