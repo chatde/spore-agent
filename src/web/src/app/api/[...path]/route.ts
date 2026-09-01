@@ -407,7 +407,21 @@ export async function POST(req: NextRequest, { params }: { params: Promise<{ pat
     const task = store.tasks.get(path[1]);
     if (!task) return json({ error: "Task not found" }, 404);
     if (task.status !== "open") return json({ error: "Task not open" }, 400);
-    const agent = store.agents.get(body.agent_id);
+    let agent = store.agents.get(body.agent_id);
+    if (!agent) {
+      const { data } = await supabase.from("agents").select("*").eq("id", body.agent_id).maybeSingle();
+      if (data) {
+        agent = {
+          id: data.id,
+          name: data.name,
+          capabilities: data.capabilities || [],
+          description: data.description || "",
+          registered_at: data.registered_at || new Date().toISOString(),
+          ratings: [],
+        };
+        store.agents.set(agent.id, agent);
+      }
+    }
     if (!agent) return json({ error: "Agent not found" }, 404);
     const id = crypto.randomUUID();
     store.bids.set(id, {
@@ -415,7 +429,124 @@ export async function POST(req: NextRequest, { params }: { params: Promise<{ pat
       approach: body.approach, estimated_minutes: body.estimated_minutes,
       submitted_at: new Date().toISOString(),
     });
+    await persist("bids", {
+      id, task_id: task.id, agent_id: body.agent_id,
+      approach: body.approach, estimated_minutes: body.estimated_minutes,
+      submitted_at: new Date().toISOString(),
+    });
     return json({ bid_id: id, task_id: task.id, agent_name: agent.name, status: "submitted" }, 201);
+  }
+
+  // POST /api/tasks/:id/accept-bid — was missing from Next.js catch-all (Hono has it)
+  if (path[0] === "tasks" && path.length === 3 && path[2] === "accept-bid") {
+    const task = store.tasks.get(path[1]);
+    if (!task) return json({ error: "Task not found" }, 404);
+    if (task.status !== "open") return json({ error: "Task is not open" }, 400);
+    const bidId = body.bid_id || body.bidId;
+    let bid = store.bids.get(bidId);
+    if (!bid) {
+      const { data } = await supabase.from("bids").select("*").eq("id", bidId).maybeSingle();
+      if (data && data.task_id === task.id) {
+        bid = {
+          id: data.id,
+          task_id: data.task_id,
+          agent_id: data.agent_id,
+          approach: data.approach || "",
+          estimated_minutes: data.estimated_minutes || 0,
+          submitted_at: data.submitted_at || new Date().toISOString(),
+        };
+        store.bids.set(bid.id, bid);
+      }
+    }
+    if (!bid || bid.task_id !== task.id) return json({ error: "Bid not found" }, 404);
+    task.status = "assigned";
+    task.assigned_agent_id = bid.agent_id;
+    task.accepted_bid_id = bid.id;
+    store.tasks.set(task.id, task);
+    await persist("tasks", {
+      id: task.id,
+      title: task.title,
+      description: task.description,
+      requirements: task.requirements,
+      budget_usd: task.budget_usd ?? null,
+      status: task.status,
+      posted_at: task.posted_at,
+      assigned_agent_id: task.assigned_agent_id,
+      accepted_bid_id: task.accepted_bid_id,
+    });
+    const agent = store.agents.get(bid.agent_id);
+    return json({
+      task_id: task.id,
+      bid_id: bid.id,
+      assigned_agent: agent?.name ?? bid.agent_id,
+      status: "assigned",
+    });
+  }
+
+  // POST /api/tasks/:id/deliver — was missing from Next.js catch-all (Hono has it)
+  if (path[0] === "tasks" && path.length === 3 && path[2] === "deliver") {
+    const task = store.tasks.get(path[1]);
+    if (!task) return json({ error: "Task not found" }, 404);
+    if (task.status !== "assigned") return json({ error: "Task not in assigned state" }, 400);
+    const agentId = body.agent_id;
+    const result = body.result || body.content || "";
+    if (task.assigned_agent_id !== agentId) return json({ error: "Agent not assigned to this task" }, 403);
+    if (!String(result).trim()) return json({ error: "result required" }, 400);
+    const id = crypto.randomUUID();
+    store.deliveries.set(id, {
+      id, task_id: task.id, agent_id: agentId, result: String(result),
+      delivered_at: new Date().toISOString(),
+    });
+    task.status = "delivered";
+    store.tasks.set(task.id, task);
+    await persist("deliveries", {
+      id, task_id: task.id, agent_id: agentId, result: String(result),
+      delivered_at: new Date().toISOString(),
+    });
+    await persist("tasks", {
+      id: task.id,
+      title: task.title,
+      description: task.description,
+      requirements: task.requirements,
+      budget_usd: task.budget_usd ?? null,
+      status: task.status,
+      posted_at: task.posted_at,
+      assigned_agent_id: task.assigned_agent_id,
+      accepted_bid_id: task.accepted_bid_id,
+    });
+    return json({ delivery_id: id, status: "delivered" });
+  }
+
+  // POST /api/tasks/:id/rate
+  if (path[0] === "tasks" && path.length === 3 && path[2] === "rate") {
+    const task = store.tasks.get(path[1]);
+    if (!task) return json({ error: "Task not found" }, 404);
+    if (task.status !== "delivered") return json({ error: "Task must be delivered to rate" }, 400);
+    if (!task.assigned_agent_id) return json({ error: "No assigned agent" }, 400);
+    const agent = store.agents.get(task.assigned_agent_id);
+    if (!agent) return json({ error: "Agent not found" }, 404);
+    const rating = Math.max(1, Math.min(5, Number(body.rating) || 5));
+    const feedback = String(body.feedback || body.comment || "");
+    agent.ratings.push({
+      task_id: task.id,
+      rating,
+      feedback,
+      rated_at: new Date().toISOString(),
+    });
+    task.status = "completed";
+    store.tasks.set(task.id, task);
+    await persist("tasks", {
+      id: task.id,
+      title: task.title,
+      description: task.description,
+      requirements: task.requirements,
+      budget_usd: task.budget_usd ?? null,
+      status: task.status,
+      posted_at: task.posted_at,
+      assigned_agent_id: task.assigned_agent_id,
+      accepted_bid_id: task.accepted_bid_id,
+    });
+    return json({ task_id: task.id, status: "completed", rating });
   }
 
   // POST /api/arena/register — register a new agent (simple API)
